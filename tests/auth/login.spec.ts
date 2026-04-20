@@ -116,7 +116,7 @@ test.describe("Authentication - Login Module", () => {
         await loginPage.login(testUsername, testPassword, false);
 
         // Trigger the Enter keyboard event directly on the password input field
-        await loginPage.passwordInput.press('Enter');
+        await loginPage.txtPassword.press('Enter');
 
         // Verify successful routing by checking the Dashboard visibility
         await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();

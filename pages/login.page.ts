@@ -27,14 +27,11 @@ export class LoginPage {
     /** Locator for the required validation message under the Username field. */
     readonly msgUsernameRequired: Locator;
 
-    /** Locator for the entire row block containing the Username field. */
+    /** Locator for the entire row block containing the Password field. */
     readonly passwordBlock: Locator;
 
     /** Locator for the required validation message under the Password field. */
     readonly msgPasswordRequired: Locator;
-
-    /** Locator for the password input */
-    readonly passwordInput: Locator;
 
     /**
      * Initializes the locators for the Login Page elements.
@@ -50,13 +47,11 @@ export class LoginPage {
         this.msgError = page.locator('.oxd-alert.oxd-alert--error');
 
         this.usernameBlock = page.locator('.oxd-form-row').filter({has: page.getByPlaceholder('Username')});
-        this.passwordBlock = page.locator('.oxd-form-row').filter({has: page.getByPlaceholder('Username')})
+        this.passwordBlock = page.locator('.oxd-form-row').filter({has: page.getByPlaceholder('Password')})
         
         this.msgUsernameRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
-        this.msgPasswordRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
-
-        this.passwordInput = this.passwordBlock.locator('.oxd-input.oxd-input--active');
-    };
+        this.msgPasswordRequired = this.passwordBlock.locator('.oxd-input-field-error-message');
+    }
 
     /**
      * Performs the login sequence by entering credentials.
@@ -73,5 +68,5 @@ export class LoginPage {
         if (clickSubmit) {
             await this.btnLogin.click();
         };
-    };
-};
+    }
+}
