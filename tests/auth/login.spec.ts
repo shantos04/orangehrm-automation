@@ -89,4 +89,18 @@ test.describe("Authentication - Login Module", () => {
         await expect(loginPage.msgPasswordRequired).toBeVisible();
         await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorText);
     });
+
+    /**
+     * Test Case: Verify the security masking of the password input field.
+     * Assertion: The entered characters are masked (hidden as dots/asterisks).
+     */
+    test("OrangeHRM_Login_TC05_VerifyPasswordMasking", async({page}) => {
+        const testPassword = usersData.validAdmin.password;
+
+        // Input text into the password field
+        await loginPage.txtPassword.fill(testPassword);
+
+        // Verify the 'type' attribute remains 'password' to ensure characters are masked
+        await expect(loginPage.txtPassword).toHaveAttribute('type', 'password');
+    });
 });
