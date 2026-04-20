@@ -6,6 +6,7 @@
 
 import { test, expect } from '@playwright/test';
 import {LoginPage} from '../../pages/login.page';
+import {DashboardPage} from '../../pages/dashboard.page';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
@@ -17,12 +18,14 @@ import expectedTexts from '../../data/expected-texts.json';
 test.describe("Authentication - Login Module", () => {
 
     let loginPage: LoginPage;
+    let dashboardPage: DashboardPage;
 
     /**
      * Setup: Initializes the page object and navigates to the login route.
      */
     test.beforeEach(async ({page}) => {
         loginPage = new LoginPage(page);
+        dashboardPage = new DashboardPage(page);
         await page.goto('/web/index.php/auth/login');
     });
 
@@ -52,7 +55,7 @@ test.describe("Authentication - Login Module", () => {
 
         // Perform login action
         await loginPage.login(testUsername, testPassword);
-        await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
+        await expect(dashboardPage.labelHeader).toBeVisible();
     });
 
     /**
@@ -62,12 +65,12 @@ test.describe("Authentication - Login Module", () => {
     test("OrangeHRM_Login_TC03_VerifyErrorInvalidPassword", async({page}) => {
         const testUsername = usersData.invalidPassword.username;
         const testPassword = usersData.invalidPassword.password;
-        const errorMessage = expectedTexts.loginPage.invalidCredentialsError;
+        const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
         await loginPage.login(testUsername, testPassword);
 
         await expect(loginPage.msgError).toBeVisible();
-        await expect(loginPage.msgError).toHaveText(errorMessage);
+        await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
     })
 
     /**
@@ -119,6 +122,21 @@ test.describe("Authentication - Login Module", () => {
         await loginPage.txtPassword.press('Enter');
 
         // Verify successful routing by checking the Dashboard visibility
-        await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
+        await expect(dashboardPage.labelHeader).toBeVisible();
+    });
+
+    /**
+     * Test Case: Verify error handling when using an invalid username but correct password.
+     * Assertion: Checks that the generic 'Invalid credentials' error is displayed to prevent user enumeration.
+     */
+    test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
+        const testUsername = usersData.invalidUsername.username;
+        const testPassword = usersData.invalidPassword.password;
+        const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+
+        await loginPage.login(testUsername, testPassword);
+        // Verify the error message
+        await expect(loginPage.msgError).toBeVisible();
+        await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
     });
 });
