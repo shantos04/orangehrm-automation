@@ -75,8 +75,18 @@ test.describe("Authentication - Login Module", () => {
      * Assertion: "Required" validation messages appear under both input fields.
      */
     test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
-        await loginPage.login('', '');
+        const emptyUser = usersData.emptyFields.username;
+        const emptyPassword = usersData.emptyFields.password;
+        const expectedErrorText = expectedTexts.loginPage.requiredFieldError;
 
-        await expect(page.getByText('Required')).toHaveCount(2);
+        await loginPage.login(emptyUser, emptyPassword);
+
+        // Verify the exact validation message under the Username field
+        await expect(loginPage.msgUsernameRequired).toBeVisible();
+        await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorText);
+
+        // Verify the exact validation message under the Password field
+        await expect(loginPage.msgPasswordRequired).toBeVisible();
+        await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorText);
     });
 });
