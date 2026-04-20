@@ -69,4 +69,14 @@ test.describe("Authentication - Login Module", () => {
         await expect(loginPage.msgError).toBeVisible();
         await expect(loginPage.msgError).toHaveText(errorMessage);
     })
-})
+
+    /**
+     * Test Case: Verify validation errors when attempting to log in with empty fields.
+     * Assertion: "Required" validation messages appear under both input fields.
+     */
+    test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
+        await loginPage.login('', '');
+
+        await expect(page.getByText('Required')).toHaveCount(2);
+    });
+});
