@@ -21,6 +21,18 @@ export class LoginPage {
     /** Locator for the invalid credentials error alert message. */
     readonly msgError: Locator;
 
+    /** Locator for the entire row block containing the Username field. */
+    readonly usernameBlock: Locator;
+
+    /** Locator for the required validation message under the Username field. */
+    readonly msgUsernameRequired: Locator;
+
+    /** Locator for the entire row block containing the Username field. */
+    readonly passwordBlock: Locator;
+
+    /** Locator for the required validation message under the Password field. */
+    readonly msgPasswordRequired: Locator;
+
     /**
      * Initializes the locators for the Login Page elements.
      * @param {Page} page - The Playwright Page instance used to interact with the DOM.
@@ -33,6 +45,12 @@ export class LoginPage {
         this.btnLogin = page.getByRole('button', {name: 'Login', exact: true});
 
         this.msgError = page.locator('.oxd-alert.oxd-alert--error');
+
+        this.usernameBlock = page.locator('.oxd-form-row').filter({has: page.getByPlaceholder('Username')});
+        this.passwordBlock = page.locator('.oxd-form-row').filter({has: page.getByPlaceholder('Username')})
+        
+        this.msgUsernameRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
+        this.msgPasswordRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
     };
 
     /**
