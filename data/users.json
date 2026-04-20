@@ -1,0 +1,22 @@
+{
+  "validAdmin": {
+    "username": "Admin",
+    "password": "admin123",
+    "Description": "Default valid admin account for OrangeHRM"
+  },
+  "invalidPassword": {
+    "username": "Admin",
+    "password": "WrongPassword123!",
+    "description": "Valid username with incorrect password"
+  },
+  "invalidUsername": {
+    "username": "WrongAdmin",
+    "password": "admin123",
+    "description": "Incorrect username with valid password"
+  },
+  "emptyFields": {
+    "username": "",
+    "password": "",
+    "description": "Both username and password fields left empty"
+  }
+}

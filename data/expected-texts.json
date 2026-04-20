@@ -1,0 +1,7 @@
+{
+  "loginPage": {
+    "invalidCredentialsError": "Invalid credentials",
+    "requiredFieldError": "Required",
+    "pageTitle": "OrangeHRM"
+  }
+}
