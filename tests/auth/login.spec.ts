@@ -105,16 +105,20 @@ test.describe("Authentication - Login Module", () => {
     });
     
     /**
-     * Test Case: 
+     * Test Case: Verify the form submission using the Enter key on the keyboard.
      * Assertion: The form submits and navigates to the Dashboard page
      */
     test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page}) => {
         const testUsername = usersData.validAdmin.username;
         const testPassword = usersData.validAdmin.password;
 
+        // Fill the form but strictly instruct the POM NOT to click the login button
         await loginPage.login(testUsername, testPassword, false);
+
+        // Trigger the Enter keyboard event directly on the password input field
         await loginPage.passwordInput.press('Enter');
 
+        // Verify successful routing by checking the Dashboard visibility
         await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
     });
 });
