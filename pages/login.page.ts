@@ -33,6 +33,9 @@ export class LoginPage {
     /** Locator for the required validation message under the Password field. */
     readonly msgPasswordRequired: Locator;
 
+    /** Locator for the password input */
+    readonly passwordInput: Locator;
+
     /**
      * Initializes the locators for the Login Page elements.
      * @param {Page} page - The Playwright Page instance used to interact with the DOM.
@@ -51,18 +54,24 @@ export class LoginPage {
         
         this.msgUsernameRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
         this.msgPasswordRequired = this.usernameBlock.locator('.oxd-input-field-error-message');
+
+        this.passwordInput = this.passwordBlock.locator('.oxd-input.oxd-input--active');
     };
 
     /**
-     * Performs the login sequence by entering credentials and submitting the form.
-     * This method interacts with the username and password fields before clicking the login button.
-     * * @param {string} username - The username string retrieved from test data or environment variables.
+     * Performs the login sequence by entering credentials.
+     * Optionally clicks the submit button based on the provided flag.
+     * @param {string} username - The username string retrieved from test data.
      * @param {string} password - The password string used for authentication.
-     * @returns {Promise<void>} A promise that resolves once the click action is performed.
+     * @param {boolean} [clickSubmit=true] - Determines whether to click the login button. Defaults to true.
+     * @returns {Promise<void>} A promise that resolves once the actions are performed.
      */
-    async login(username: string, password: string) {
+    async login(username: string, password: string, clickSubmit: boolean = true) {
         await this.txtUsername.fill(username);
         await this.txtPassword.fill(password);
-        await this.btnLogin.click();
+
+        if (clickSubmit) {
+            await this.btnLogin.click();
+        };
     };
 };

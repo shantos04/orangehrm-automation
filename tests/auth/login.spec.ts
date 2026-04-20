@@ -103,4 +103,18 @@ test.describe("Authentication - Login Module", () => {
         // Verify the 'type' attribute remains 'password' to ensure characters are masked
         await expect(loginPage.txtPassword).toHaveAttribute('type', 'password');
     });
+    
+    /**
+     * Test Case: 
+     * Assertion: The form submits and navigates to the Dashboard page
+     */
+    test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page}) => {
+        const testUsername = usersData.validAdmin.username;
+        const testPassword = usersData.validAdmin.password;
+
+        await loginPage.login(testUsername, testPassword, false);
+        await loginPage.passwordInput.press('Enter');
+
+        await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
+    });
 });
