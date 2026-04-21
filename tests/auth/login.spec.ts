@@ -5,8 +5,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import {LoginPage} from '../../pages/login.page';
-import {DashboardPage} from '../../pages/dashboard.page';
+import {LoginPage} from '../../pages/auth/login.page';
+import {DashboardPage} from '../../pages/dashboard/dashboard.page';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
