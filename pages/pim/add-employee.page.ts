@@ -65,18 +65,17 @@ export class AddEmployeePage {
      * @param lastName - The last name of the employee. Optional.
      * @param employeeId - The custom employee ID. If provided, it overrides the auto-generated ID. Optional.
      */
-    async add(firstName?: string, middleName?: string, lastName?: string, employeeId?: string) {
-        // Fill the basic name fields, defaulting to an empty string if undefined
-        await this.txtFirstName.fill(firstName || '');
-        await this.txtMiddleName.fill(middleName || '');
-        await this.txtLastName.fill(lastName || '');
+    async add(employeeData: { firstName?: string, middleName?: string, lastName?: string, employeeId?: string }) {
+        // Default to empty strings if properties are not provided
+        await this.txtFirstName.fill(employeeData.firstName || '');
+        await this.txtMiddleName.fill(employeeData.middleName || '');
+        await this.txtLastName.fill(employeeData.lastName || '');
 
-        // Conditionally fill the Employee ID field only if a value is provided
-        if (employeeId) {
-            await this.txtEmployeeId.fill(employeeId);
+        // If a custom employeeId is provided, fill it. Otherwise, leave it as is (auto-generated).
+        if (employeeData.employeeId) {
+            await this.txtEmployeeId.fill(employeeData.employeeId);
         }
 
-        // Click the Save button to submit the form
         await this.btnSave.click();
     }
 }
