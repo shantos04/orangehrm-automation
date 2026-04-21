@@ -15,7 +15,7 @@ import expectedTexts from '../../data/expected-texts.json';
  * Test Suite: Authentication - Login Module
  * Focuses on verifying the Login flow and Data-Driven Testing.
  */
-test.describe("Authentication - Login Module", () => {
+test.describe("Login Module - Authentication", () => {
 
     let loginPage: LoginPage;
     let dashboardPage: DashboardPage;
