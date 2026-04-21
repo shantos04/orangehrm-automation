@@ -56,6 +56,7 @@ test.describe("Authentication - Login Module", () => {
         // Perform login action
         await loginPage.login(testUsername, testPassword);
         await expect(dashboardPage.labelHeader).toBeVisible();
+        await expect(page).toHaveURL(/.*dashboard/);
     });
 
     /**
@@ -71,7 +72,7 @@ test.describe("Authentication - Login Module", () => {
 
         await expect(loginPage.msgError).toBeVisible();
         await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
-    })
+    });
 
     /**
      * Test Case: Verify validation errors when attempting to log in with empty fields.
@@ -123,6 +124,7 @@ test.describe("Authentication - Login Module", () => {
 
         // Verify successful routing by checking the Dashboard visibility
         await expect(dashboardPage.labelHeader).toBeVisible();
+        await expect(page).toHaveURL(/.*dashboard/);
     });
 
     /**
@@ -131,12 +133,68 @@ test.describe("Authentication - Login Module", () => {
      */
     test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
         const testUsername = usersData.invalidUsername.username;
-        const testPassword = usersData.invalidPassword.password;
+        const testPassword = usersData.invalidUsername.password;
         const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
         await loginPage.login(testUsername, testPassword);
         // Verify the error message
         await expect(loginPage.msgError).toBeVisible();
         await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
+    });
+
+    /**
+     * Test Case: Verify validation error when attempting to log in with an empty username field.
+     * Assertion: UI state, Element Count, and Negative UI validation.
+     */
+    test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async({page}) => {
+        const testUsername = usersData.emptyUsername.username;
+        const testPassword = usersData.emptyUsername.password;
+        const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+
+        // Perform the login action
+        await loginPage.login(testUsername, testPassword);
+
+        // Verify the 'Required' error message appears exactly once under the Username field
+        await expect(loginPage.msgUsernameRequired).toHaveCount(1);
+        await expect(loginPage.msgUsernameRequired).toBeVisible();
+        await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorMessage);
+
+        // Ensure that NO error message is displayed under the Password field
+        await expect(loginPage.msgPasswordRequired).toBeHidden();
+    });
+
+    /**
+     * Test Case: Verify validation error when attempting to log in with an empty password field.
+     * Assertion: UI state, Element Count, and Negative UI validation.
+     */
+    test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async({page}) => {
+        const testUsername = usersData.emptyPassword.username;
+        const testPassword = usersData.emptyPassword.password;
+        const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+
+        // Perform the login action
+        await loginPage.login(testUsername, testPassword);
+
+        // Verify the 'Required' error message appears exactly once under the Password field
+        await expect(loginPage.msgPasswordRequired).toHaveCount(1);
+        await expect(loginPage.msgPasswordRequired).toBeVisible();
+        await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorMessage);
+
+        // Ensure that NO error message is displayed under the Username field
+        await expect(loginPage.msgUsernameRequired).toBeHidden();
+    });
+
+    /**
+     * Test Case: Verify authentication behavior when valid credentials contain leading or trailing whitespaces.
+     * Assertion: Validating Business logic and data value handling (verifying if the system automatically trims whitespaces).
+     */
+    test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async({page}) => {
+        const testUsername = usersData.whitespaceUsername.username;
+        const testPassword = usersData.whitespaceUsername.password;
+        
+        await loginPage.login(testUsername, testPassword);
+        
+        await expect(dashboardPage.labelHeader).toBeVisible();
+        await expect(page).toHaveURL(/.*dashboard/);
     });
 });
