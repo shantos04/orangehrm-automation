@@ -2,7 +2,7 @@
   "validAdmin": {
     "username": "Admin",
     "password": "admin123",
-    "Description": "Default valid admin account for OrangeHRM"
+    "description": "Default valid admin account for OrangeHRM"
   },
   "invalidPassword": {
     "username": "Admin",
@@ -18,5 +18,20 @@
     "username": "",
     "password": "",
     "description": "Both username and password fields left empty"
+  },
+  "emptyUsername": {
+    "username": "",
+    "password": "admin123",
+    "description": "Username field left empty with a valid password"
+  },
+  "emptyPassword": {
+    "username": "Admin",
+    "password": "",
+    "description": "Password field left empty with a valid username"
+  },
+  "whitespaceUsername": {
+    "username": "Admin ",
+    "password": "admin123",
+    "description": "Valid username with leading and trailing whitespaces"
   }
 }
