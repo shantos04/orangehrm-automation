@@ -5,9 +5,9 @@
  */
 
 import {test, expect} from '@playwright/test';
-import {LoginPage} from '../../pages/auth/login.page';
-import {AddEmployeePage} from '../../pages/pim/add-employee.page';
-import {ToastComponent} from '../../pages/components/toast.component';
+import {LoginPage} from '../../pages/login.page';
+import {AddEmployeePage} from '../../components/pim/add-employee.page';
+import {ToastComponent} from '../../components/common/toast.component';
 
 import usersData from '../../data/users.json';
 import employeeData from '../../data/employee-data.json';
