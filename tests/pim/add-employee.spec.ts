@@ -69,11 +69,16 @@ test.describe("PIM Module - Add Employee", () => {
         await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
     });
 
+    /**
+     * Test Case: Verify that a new employee can be created successfully when full details, including optional fields and a profile picture, are provided.
+     * Assertion: Business Logic, File Upload functionality, and Transient UI validation (Toast message handling).
+     */
     test("OrangeHRM_PIM_TC02_AddEmployeeWithFullDetails", async({page}) => {
         const { firstName, middleName, lastName, employeeId, profilePicturePath } = employeeData.fullDetails;
         const absoluteImagePath = path.resolve(profilePicturePath);
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
+        // Fill the input fields and attach the profile picture
         await addEmployeePage.add({
             firstName,
             middleName,
@@ -82,6 +87,8 @@ test.describe("PIM Module - Add Employee", () => {
             profilePicture: absoluteImagePath 
         });
 
+        // Handle the race condition using Promise.all
+        // This ensures the framework captures the transient Toast message concurrently with the form submission
         await Promise.all([
             // Continuously checks the DOM for the visibility of the toast container
             expect(toastComponent.toastMessage).toBeVisible(),
@@ -92,5 +99,30 @@ test.describe("PIM Module - Add Employee", () => {
 
         // Validate the text content of the captured Toast message
         await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
+    });
+
+    /**
+     * Test Case: Verify that validation errors are displayed when mandatory fields (First Name, Last Name) are left empty.
+     * Assertion: Form Validation - Verifying the visibility and exact text content of 'Required' error messages upon submission.
+     */
+    test("OrangeHRM_PIM_TC03_VerifyRequiredFieldValidation", async({page}) => {
+        const expectedRequiredText = expectedTexts.validationMessages.required;
+
+        await addEmployeePage.btnSave.click();
+
+        await expect(addEmployeePage.msgFirstNameRequired).toBeVisible();
+        await expect(addEmployeePage.msgLastNameRequired).toBeVisible();
+
+        await expect(addEmployeePage.msgFirstNameRequired).toHaveText(expectedRequiredText);
+        await expect(addEmployeePage.msgLastNameRequired).toHaveText(expectedRequiredText);
+    });
+
+    test("OrangeHRM_PIM_TC04_VerifyDuplicateEmployeeIdError", async({page}) => {
+        const expectedDuplicateText = expectedTexts.validationMessages.duplicateEmployeeId;
+
+        await addEmployeePage.add(employeeData.duplicateIdScenario);
+
+        await expect(addEmployeePage.msgEmployeeIdError).toBeVisible();
+        await expect(addEmployeePage.msgEmployeeIdError).toHaveText(expectedDuplicateText);
     });
 })
