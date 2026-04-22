@@ -1,5 +1,5 @@
 {
-    "mandatoryField": {
+    "mandatoryFields": {
         "firstName": "John",
         "lastName": "Doe",
         "description": "Valid first and last name for TC01"

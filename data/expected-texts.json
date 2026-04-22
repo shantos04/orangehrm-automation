@@ -3,5 +3,8 @@
     "invalidCredentialsError": "Invalid credentials",
     "requiredFieldError": "Required",
     "pageTitle": "OrangeHRM"
+  },
+  "toastMessages": {
+    "successSaved": "Successfully Saved"
   }
 }
