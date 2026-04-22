@@ -75,7 +75,5 @@ export class AddEmployeePage {
         if (employeeData.employeeId) {
             await this.txtEmployeeId.fill(employeeData.employeeId);
         }
-
-        await this.btnSave.click();
     }
 }
