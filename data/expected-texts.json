@@ -6,5 +6,9 @@
   },
   "toastMessages": {
     "successSaved": "Successfully Saved"
+  },
+  "validationMessages": {
+    "required": "Required",
+    "duplicateEmployeeId": "Employee Id already exists"
   }
 }

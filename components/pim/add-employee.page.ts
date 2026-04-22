@@ -30,6 +30,8 @@ export class AddEmployeePage {
      */
     readonly txtEmployeeId: Locator;
 
+    readonly msgEmployeeIdError: Locator;
+
     /** * Locator for the hidden file input element used to upload the employee's profile picture. 
      * Targets the actual <input type="file"> rather than the UI button for stable uploads.
      */
@@ -72,12 +74,13 @@ export class AddEmployeePage {
         this.fileInputPicture = page.locator('input[type="file"]');
 
         // --- Initialize Wrapper Blocks ---
-        this.firstNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('First Name')});
-        this.lastNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('Last Name')});
+        this.firstNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('First Name')}).last();
+        this.lastNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('Last Name')}).last();
         
         // --- Initialize Validation Messages scoped within Blocks ---
         this.msgFirstNameRequired = this.firstNameBlock.locator('.oxd-input-field-error-message');
         this.msgLastNameRequired = this.lastNameBlock.locator('.oxd-input-field-error-message');
+        this.msgEmployeeIdError = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input-field-error-message');
    
         // --- Initialize Buttons ---
         this.btnSave = page.getByRole('button', {name: 'Save'});

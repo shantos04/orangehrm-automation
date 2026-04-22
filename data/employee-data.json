@@ -11,5 +11,11 @@
         "employeeId": "9999",
         "profilePicturePath": "data/images/test-avatar.png",
         "description": "Full details including custom ID and picture for TC02"
+    },
+    "duplicateIdScenario": {
+        "firstName": "Alice",
+        "lastName": "Johnson",
+        "employeeId": "0411",
+        "description": "Existing Employee ID to trigger duplicate validation error for TC04"
     }
 }
