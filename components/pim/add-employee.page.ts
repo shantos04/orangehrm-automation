@@ -30,6 +30,25 @@ export class AddEmployeePage {
      */
     readonly txtEmployeeId: Locator;
 
+    /** * Locator for the hidden file input element used to upload the employee's profile picture. 
+     * Targets the actual <input type="file"> rather than the UI button for stable uploads.
+     */
+    readonly fileInputPicture: Locator;
+
+    // --- Locators for Wrapper Blocks & Validation ---
+
+    /** Locator for the wrapper group containing the First Name input.  */
+    readonly firstNameBlock: Locator;
+
+    /** Locator for the wrapper group containing the Last Name input.  */
+    readonly lastNameBlock: Locator;
+
+    /** Locator for the 'Required' error message specifically under the First Name field. */
+    readonly msgFirstNameRequired: Locator;
+
+    /** Locator for the 'Required' error message specifically under the Last Name field. */
+    readonly msgLastNameRequired: Locator;
+
     // --- Locators for Action Buttons ---
 
     /** Locator for the Save button. */
@@ -38,8 +57,6 @@ export class AddEmployeePage {
     /** Locator for the Cancel button. */
     readonly btnCancel: Locator;
 
-    readonly fileInputPicture: Locator;
-
     /**
      * Initializes the locators for the Add Employee page.
      * @param page - The Playwright Page instance passed from the test runner.
@@ -47,26 +64,34 @@ export class AddEmployeePage {
     constructor(page: Page) {
         this.page = page;
 
-        // Prioritize getByPlaceholder for straightforward and user-centric element targeting
+        // --- Initialize Input Fields ---
         this.txtFirstName = page.getByPlaceholder('First Name');
         this.txtMiddleName = page.getByPlaceholder('Middle Name');
         this.txtLastName = page.getByPlaceholder('Last Name');
-
-        // Locate the Employee ID input by associating it with its parent group label
         this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input');   //page.locator('//label[text()="Employee Id"]/ancestor::div[contains(@class, "oxd-input-group")]//input');
+        this.fileInputPicture = page.locator('input[type="file"]');
+
+        // --- Initialize Wrapper Blocks ---
+        this.firstNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('First Name')});
+        this.lastNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('Last Name')});
         
-        // Prioritize getByRole for standard UI buttons
+        // --- Initialize Validation Messages scoped within Blocks ---
+        this.msgFirstNameRequired = this.firstNameBlock.locator('.oxd-input-field-error-message');
+        this.msgLastNameRequired = this.lastNameBlock.locator('.oxd-input-field-error-message');
+   
+        // --- Initialize Buttons ---
         this.btnSave = page.getByRole('button', {name: 'Save'});
         this.btnCancel = page.getByRole('button', {name: 'Cancel'});
-        this.fileInputPicture = page.locator('input[type="file"]');
     }
     
     /**
-     * Fills out the employee details form and submits it.
-     * * @param firstName - The first name of the employee. Optional.
-     * @param middleName - The middle name of the employee. Optional.
-     * @param lastName - The last name of the employee. Optional.
-     * @param employeeId - The custom employee ID. If provided, it overrides the auto-generated ID. Optional.
+     * Fills out the employee details form.
+     * @param employeeData - The object containing the employee's information.
+     * @param employeeData.firstName - The first name of the employee. Optional.
+     * @param employeeData.middleName - The middle name of the employee. Optional.
+     * @param employeeData.lastName - The last name of the employee. Optional.
+     * @param employeeData.employeeId - A custom employee ID to override the auto-generated one. Optional.
+     * @param employeeData.profilePicture - The absolute file path to the profile picture image. Optional.
      */
     async add(employeeData: { firstName?: string, middleName?: string, lastName?: string, employeeId?: string, profilePicture?: string}) {
         // Default to empty strings if properties are not provided
@@ -79,9 +104,9 @@ export class AddEmployeePage {
             await this.txtEmployeeId.fill(employeeData.employeeId);
         }
 
+        // Upload picture if a path is provided
         if (employeeData.profilePicture) {
-   
-        await this.fileInputPicture.setInputFiles(employeeData.profilePicture);
-    }
+            await this.fileInputPicture.setInputFiles(employeeData.profilePicture);
+        }
     }
 }
