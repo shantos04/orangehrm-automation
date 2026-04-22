@@ -38,6 +38,8 @@ export class AddEmployeePage {
     /** Locator for the Cancel button. */
     readonly btnCancel: Locator;
 
+    readonly fileInputPicture: Locator;
+
     /**
      * Initializes the locators for the Add Employee page.
      * @param page - The Playwright Page instance passed from the test runner.
@@ -56,6 +58,7 @@ export class AddEmployeePage {
         // Prioritize getByRole for standard UI buttons
         this.btnSave = page.getByRole('button', {name: 'Save'});
         this.btnCancel = page.getByRole('button', {name: 'Cancel'});
+        this.fileInputPicture = page.locator('input[type="file"]');
     }
     
     /**
@@ -65,7 +68,7 @@ export class AddEmployeePage {
      * @param lastName - The last name of the employee. Optional.
      * @param employeeId - The custom employee ID. If provided, it overrides the auto-generated ID. Optional.
      */
-    async add(employeeData: { firstName?: string, middleName?: string, lastName?: string, employeeId?: string }) {
+    async add(employeeData: { firstName?: string, middleName?: string, lastName?: string, employeeId?: string, profilePicture?: string}) {
         // Default to empty strings if properties are not provided
         await this.txtFirstName.fill(employeeData.firstName || '');
         await this.txtMiddleName.fill(employeeData.middleName || '');
@@ -75,5 +78,10 @@ export class AddEmployeePage {
         if (employeeData.employeeId) {
             await this.txtEmployeeId.fill(employeeData.employeeId);
         }
+
+        if (employeeData.profilePicture) {
+   
+        await this.fileInputPicture.setInputFiles(employeeData.profilePicture);
+    }
     }
 }

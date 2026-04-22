@@ -5,6 +5,7 @@
  */
 
 import {test, expect} from '@playwright/test';
+import path from 'path';
 import {LoginPage} from '../../pages/login.page';
 import {AddEmployeePage} from '../../components/pim/add-employee.page';
 import {ToastComponent} from '../../components/common/toast.component';
@@ -49,15 +50,10 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Business Logic and Transient UI validation (Toast message handling).
      */
     test("OrangeHRM_PIM_TC01_AddEmployeeWithMandatoryFields", async({page}) => {
-        const firstName = employeeData.mandatoryFields.firstName;
-        const lastName = employeeData.mandatoryFields.lastName;
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
         // Fill the input fields in the Add Employee form
-        await addEmployeePage.add({
-            firstName: firstName,
-            lastName: lastName
-        })
+        await addEmployeePage.add(employeeData.mandatoryFields);
 
         // Handle the race condition using Promise.all
         // This ensures the framework captures the transient Toast message concurrently with the form submission
@@ -71,5 +67,30 @@ test.describe("PIM Module - Add Employee", () => {
 
         // Validate the text content of the captured Toast message
         await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
-    })
+    });
+
+    test("OrangeHRM_PIM_TC02_AddEmployeeWithFullDetails", async({page}) => {
+        const { firstName, middleName, lastName, employeeId, profilePicturePath } = employeeData.fullDetails;
+        const absoluteImagePath = path.resolve(profilePicturePath);
+        const expectedSuccessText = expectedTexts.toastMessages.successSaved;
+
+        await addEmployeePage.add({
+            firstName,
+            middleName,
+            lastName,
+            employeeId,
+            profilePicture: absoluteImagePath 
+        });
+
+        await Promise.all([
+            // Continuously checks the DOM for the visibility of the toast container
+            expect(toastComponent.toastMessage).toBeVisible(),
+        
+            // Clicks the save button to submit the form and trigger the toast
+            addEmployeePage.btnSave.click()
+        ]);
+
+        // Validate the text content of the captured Toast message
+        await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
+    });
 })
