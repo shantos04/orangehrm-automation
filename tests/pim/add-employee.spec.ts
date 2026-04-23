@@ -125,4 +125,33 @@ test.describe("PIM Module - Add Employee", () => {
         await expect(addEmployeePage.msgEmployeeIdError).toBeVisible();
         await expect(addEmployeePage.msgEmployeeIdError).toHaveText(expectedDuplicateText);
     });
+
+    test("OrangeHRM_PIM_TC05_VerifyCancelAddEmployee", async({page}) => {
+        const expectedEmployeeListUrl = expectedTexts.urls.employeeList;
+        
+        await addEmployeePage.btnCancel.click();
+
+        await expect(page).toHaveURL(new RegExp(expectedEmployeeListUrl));
+    });
+
+    test("OrangeHRM_PIM_TC06_AddEmployeeWithLoginDetails", async({page}) => {
+        const expectedSuccessText = expectedTexts.toastMessages.successSaved;
+
+        await addEmployeePage.add(employeeData.loginDetailsSuccess);
+
+        await Promise.all([
+            expect(toastComponent.toastMessage).toBeVisible(),
+            addEmployeePage.btnSave.click()
+        ])
+
+        await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
+    });
+
+    test("OrangeHRM_PIM_TC07_VerifyPasswordMismatchError", async({page}) => {
+        const expectedErrorText = expectedTexts.validationMessages.passwordMismatch;
+
+        await addEmployeePage.add(employeeData.loginDetailsMismatch);
+
+        await expect(addEmployeePage.msgConfirmPasswordError).toBeVisible();
+    })
 })
