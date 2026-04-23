@@ -44,5 +44,23 @@
         "password": "123",
         "confirmPassword": "123",
         "description": "Data with short username and password to trigger length validation for TC08"
+    },
+    "loginDetailsMaxLength": {
+        "firstName": "Max",
+        "lastName": "Length",
+        "createLoginDetails": true,
+        "username": "this_is_a_very_long_username_forty_one_ch41", 
+        "password": "Password123_This_is_a_very_long_password_exceeding_sixty_four_ch65!",
+        "confirmPassword": "Password123_This_is_a_very_long_password_exceeding_sixty_four_ch65!",
+        "description": "Data with 41-char username and 65-char password for TC09"
+    },
+    "loginDetailsNoNumber": {
+        "firstName": "No",
+        "lastName": "Number",
+        "createLoginDetails": true,
+        "username": "tester2026",
+        "password": "PasswordNoNumber",
+        "confirmPassword": "PasswordNoNumber",
+        "description": "Password containing only letters to trigger 'minimum 1 number' validation"
     }
 }

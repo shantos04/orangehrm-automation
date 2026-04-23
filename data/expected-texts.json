@@ -1,4 +1,8 @@
 {
+  "urls": {
+    "pim": "/web/index.php/pim/viewEmployeeList",
+    "employeeList": "/web/index.php/pim/viewEmployeeList"
+  },
   "loginPage": {
     "invalidCredentialsError": "Invalid credentials",
     "requiredFieldError": "Required",
@@ -10,9 +14,18 @@
   "validationMessages": {
     "required": "Required",
     "duplicateEmployeeId": "Employee Id already exists",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "usernameMinLength": "Should be at least 5 characters",
+    "usernameMaxLength": "Should not exceed 40 characters",
+    "passwordMinLength": "Should have at least 7 characters",
+    "passwordMaxLength": "Should not exceed 64 characters",
+    "passwordNoNumber": "Your password must contain minimum 1 number"
   },
-  "urls": {
-    "employeeList": "/web/index.php/pim/viewEmployeeList"
+  "dropdownOptions": {
+    "include": {
+      "default": "Current Employees Only",
+      "past": "Past Employees Only",
+      "both": "Current and Past Employees"
+    }
   }
 }
