@@ -64,14 +64,14 @@ test.describe("PIM Module - Employee List Filters", () => {
         const defaultValue = expectedTexts.dropdownOptions.include.default;
         const otherValue = expectedTexts.dropdownOptions.include.both;
 
-        // 1. Change the dropdown value to something else
+        // Change the dropdown value to something else
         await pimPage.selectIncludeOption(otherValue);
         await expect(pimPage.dropdownInclude).toHaveText(otherValue);
         
-        // 2. Click the Reset button
+        // Click the Reset button
         await pimPage.btnReset.click();
 
-        // 3. Verify it returns to the default value
+        // Verify it returns to the default value
         await expect(pimPage.dropdownInclude).toHaveText(defaultValue);
     });
 });

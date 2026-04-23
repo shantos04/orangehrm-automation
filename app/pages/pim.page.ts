@@ -8,7 +8,6 @@ export class PimPage {
 
     // --- Locators cho Search Filters ---
     readonly dropdownInclude: Locator;
-    readonly dropdownOptions: Locator;
     
     // --- Locators cho Action Buttons ---
     readonly btnSearch: Locator;
@@ -21,8 +20,6 @@ export class PimPage {
         this.dropdownInclude = page.locator('.oxd-input-group')
             .filter({ hasText: 'Include' })
             .locator('.oxd-select-wrapper');
-
-        this.dropdownOptions = page.locator('role=listbox');
 
         this.btnSearch = page.getByRole('button', { name: 'Search' });
         this.btnReset = page.getByRole('button', { name: 'Reset' });
