@@ -9,7 +9,8 @@
   },
   "validationMessages": {
     "required": "Required",
-    "duplicateEmployeeId": "Employee Id already exists"
+    "duplicateEmployeeId": "Employee Id already exists",
+    "passwordMismatch": "Passwords do not match"
   },
   "urls": {
     "employeeList": "/web/index.php/pim/viewEmployeeList"

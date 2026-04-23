@@ -109,7 +109,7 @@ export class AddEmployeePage {
         this.msgEmployeeIdError = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input-field-error-message');
         this.msgUsernameError = page.locator('.oxd-input-group').filter({hasText: 'Username'}).locator('.oxd-input-field-error-message');
         this.msgPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Password'}).first().locator('.oxd-input-field-error-message');
-        this.msgConfirmPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Confirm Passwrod'}).locator('.oxd-input-field-error-message');
+        this.msgConfirmPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Confirm Password'}).locator('.oxd-input-field-error-message');
 
         // --- Initialize Buttons ---
         this.btnSave = page.getByRole('button', {name: 'Save'});
