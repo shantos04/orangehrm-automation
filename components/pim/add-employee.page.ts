@@ -117,13 +117,18 @@ export class AddEmployeePage {
     }
     
     /**
-     * Fills out the employee details form.
-     * @param employeeData - The object containing the employee's information.
+     * Fills out the employee details form, with an option to create login credentials.
+     * * @param employeeData - The object containing the employee's information.
      * @param employeeData.firstName - The first name of the employee. Optional.
      * @param employeeData.middleName - The middle name of the employee. Optional.
      * @param employeeData.lastName - The last name of the employee. Optional.
      * @param employeeData.employeeId - A custom employee ID to override the auto-generated one. Optional.
      * @param employeeData.profilePicture - The absolute file path to the profile picture image. Optional.
+     * @param employeeData.createLoginDetails - Flag to toggle the "Create Login Details" section. Defaults to false.
+     * @param employeeData.username - The username for the new account. 
+     * @param employeeData.password - The password for the new account. 
+     * @param employeeData.confirmPassword - The password confirmation to validate against the password.
+     * @param employeeData.status - The initial status of the account ('Enabled' or 'Disabled').
      */
     async add(employeeData: { 
         firstName?: string, 
@@ -135,7 +140,7 @@ export class AddEmployeePage {
         username?: string,
         password?: string,
         confirmPassword?: string,
-        status: 'Enable' | 'Disabled'
+        status?: 'Enable' | 'Disabled'
     }) {
         // Default to empty strings if properties are not provided
         await this.txtFirstName.fill(employeeData.firstName || '');
@@ -152,9 +157,12 @@ export class AddEmployeePage {
             await this.fileInputPicture.setInputFiles(employeeData.profilePicture);
         }
 
+        // Extract the flag with a default fallback to false
         const isCreateLogin = employeeData.createLoginDetails ?? false;
 
         if (isCreateLogin) {
+            await this.switchCreateLogin.click();
+
             await this.txtUsername.fill(employeeData.username || '');
             await this.txtPassword.fill(employeeData.password || '');
             await this.txtConfirmPassword.fill(employeeData.confirmPassword || '');

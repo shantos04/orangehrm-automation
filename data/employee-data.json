@@ -21,13 +21,16 @@
     "loginDetailsSuccess": {
         "firstName": "Mark",
         "lastName": "Zuckerberg",
+        "createLoginDetails": true,
         "username": "markzuck123",
         "password": "Password@123",
+        "confirmPassword": "Password@123",
         "description": "Valid data to create employee with login details for TC06"
     },
     "loginDetailsMismatch": {
         "firstName": "Elon",
         "lastName": "Musk",
+        "createLoginDetails": true,
         "username": "elonmusk99",
         "password": "Password@123",
         "confirmPassword": "Mismatch@123",
@@ -36,8 +39,10 @@
     "loginDetailsShort": {
         "firstName": "Tim",
         "lastName": "Cook",
+        "createLoginDetails": true,
         "username": "tim",
         "password": "123",
+        "confirmPassword": "123",
         "description": "Data with short username and password to trigger length validation for TC08"
     }
 }
