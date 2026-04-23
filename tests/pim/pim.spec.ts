@@ -35,7 +35,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify the default selected value of the 'Include' dropdown.
      * Assertion: Ensures the system defaults to 'Current Employees Only'.
      */
-    test("OrangeHRM_PIM_TC11_VerifyDefaultIncludeFilter", async () => {
+    test("OrangeHRM_PIM_TC01_VerifyDefaultIncludeFilter", async () => {
         const expectedDefault = expectedTexts.dropdownOptions.include.default;
         
         // Check if the dropdown displays the correct initial text
@@ -46,7 +46,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify that the 'Include' dropdown updates correctly when selecting 'Past Employees Only'.
      * Assertion: Functional check for custom dropdown selection logic.
      */
-    test("OrangeHRM_PIM_TC12_SelectPastEmployeesFilter", async () => {
+    test("OrangeHRM_PIM_TC02_SelectPastEmployeesFilter", async () => {
         const optionToSelect = expectedTexts.dropdownOptions.include.past;
 
         // Perform selection using the POM method
@@ -60,7 +60,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify that clicking 'Reset' reverts the 'Include' dropdown to its default state.
      * Assertion: Ensures the Reset button correctly clears filter state.
      */
-    test("OrangeHRM_PIM_TC13_VerifyResetIncludeFilter", async () => {
+    test("OrangeHRM_PIM_TC03_VerifyResetIncludeFilter", async () => {
         const defaultValue = expectedTexts.dropdownOptions.include.default;
         const otherValue = expectedTexts.dropdownOptions.include.both;
 
