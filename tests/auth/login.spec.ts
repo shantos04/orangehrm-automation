@@ -50,8 +50,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: Checks if the user is redirected and the 'Dashboard' header is visible.
      */
     test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async({page}) => {
-        const testUsername = usersData.validAdmin.username;
-        const testPassword = usersData.validAdmin.password;
+        const { username: testUsername, password: testPassword } = usersData.validAdmin;
 
         // Perform login action
         await loginPage.login(testUsername, testPassword);
@@ -64,8 +63,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: Checks for the visibility and content of the error message.
      */
     test("OrangeHRM_Login_TC03_VerifyErrorInvalidPassword", async({page}) => {
-        const testUsername = usersData.invalidPassword.username;
-        const testPassword = usersData.invalidPassword.password;
+        const { username: testUsername, password: testPassword } = usersData.invalidPassword;
         const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
         await loginPage.login(testUsername, testPassword);
@@ -79,11 +77,10 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: "Required" validation messages appear under both input fields.
      */
     test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
-        const emptyUser = usersData.emptyFields.username;
-        const emptyPassword = usersData.emptyFields.password;
+        const {username: emptyUsername, password: emptyPassword} = usersData.emptyFields;
         const expectedErrorText = expectedTexts.loginPage.requiredFieldError;
 
-        await loginPage.login(emptyUser, emptyPassword);
+        await loginPage.login(emptyUsername, emptyPassword);
 
         // Verify the exact validation message under the Username field
         await expect(loginPage.msgUsernameRequired).toBeVisible();
@@ -113,8 +110,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: The form submits and navigates to the Dashboard page
      */
     test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page}) => {
-        const testUsername = usersData.validAdmin.username;
-        const testPassword = usersData.validAdmin.password;
+        const {username: testUsername, password: testPassword} = usersData.validAdmin;
 
         // Fill the form but strictly instruct the POM NOT to click the login button
         await loginPage.login(testUsername, testPassword, false);
@@ -132,8 +128,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: Checks that the generic 'Invalid credentials' error is displayed to prevent user enumeration.
      */
     test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
-        const testUsername = usersData.invalidUsername.username;
-        const testPassword = usersData.invalidUsername.password;
+        const {username: testUsername, password: testPassword} = usersData.invalidUsername;
         const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
         await loginPage.login(testUsername, testPassword);
@@ -147,8 +142,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
     test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async({page}) => {
-        const testUsername = usersData.emptyUsername.username;
-        const testPassword = usersData.emptyUsername.password;
+        const {username: testUsername, password: testPassword} = usersData.emptyUsername;
         const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
 
         // Perform the login action
@@ -168,8 +162,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
     test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async({page}) => {
-        const testUsername = usersData.emptyPassword.username;
-        const testPassword = usersData.emptyPassword.password;
+        const {username: testUsername, password: testPassword} = usersData.emptyPassword;
         const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
 
         // Perform the login action
@@ -189,8 +182,7 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: Validating Business logic and data value handling (verifying if the system automatically trims whitespaces).
      */
     test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async({page}) => {
-        const testUsername = usersData.whitespaceUsername.username;
-        const testPassword = usersData.whitespaceUsername.password;
+        const {username: testUsername, password: testPassword} = usersData.whitespaceUsername;
         
         await loginPage.login(testUsername, testPassword);
         
