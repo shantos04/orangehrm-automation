@@ -17,5 +17,27 @@
         "lastName": "Johnson",
         "employeeId": "0411",
         "description": "Existing Employee ID to trigger duplicate validation error for TC04"
+    },
+    "loginDetailsSuccess": {
+        "firstName": "Mark",
+        "lastName": "Zuckerberg",
+        "username": "markzuck123",
+        "password": "Password@123",
+        "description": "Valid data to create employee with login details for TC06"
+    },
+    "loginDetailsMismatch": {
+        "firstName": "Elon",
+        "lastName": "Musk",
+        "username": "elonmusk99",
+        "password": "Password@123",
+        "confirmPassword": "Mismatch@123",
+        "description": "Data with mismatched passwords for TC07"
+    },
+    "loginDetailsShort": {
+        "firstName": "Tim",
+        "lastName": "Cook",
+        "username": "tim",
+        "password": "123",
+        "description": "Data with short username and password to trigger length validation for TC08"
     }
 }

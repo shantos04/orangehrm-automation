@@ -29,7 +29,6 @@ export class AddEmployeePage {
      * then scopes down to the input field inside it to avoid strict mode violations.
      */
     readonly txtEmployeeId: Locator;
-
     readonly msgEmployeeIdError: Locator;
 
     /** * Locator for the hidden file input element used to upload the employee's profile picture. 
@@ -50,6 +49,21 @@ export class AddEmployeePage {
 
     /** Locator for the 'Required' error message specifically under the Last Name field. */
     readonly msgLastNameRequired: Locator;
+
+    // --- Locators cho Create Login Details ---
+
+    readonly switchCreateLogin: Locator;
+    readonly txtUsername: Locator;
+    readonly txtPassword: Locator;
+    readonly txtConfirmPassword: Locator;
+    readonly statusEnabled: Locator;
+    readonly statusDisabled: Locator;
+
+    // --- Validation Messages cho Login Details ---
+
+    readonly msgUsernameError: Locator;
+    readonly msgPasswordError: Locator;
+    readonly msgConfirmPasswordError: Locator;
 
     // --- Locators for Action Buttons ---
 
@@ -73,6 +87,18 @@ export class AddEmployeePage {
         this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input');   //page.locator('//label[text()="Employee Id"]/ancestor::div[contains(@class, "oxd-input-group")]//input');
         this.fileInputPicture = page.locator('input[type="file"]');
 
+        // --- Toggle switch ---
+        this.switchCreateLogin = page.locator('.oxd-switch-input');
+
+        // --- Initialize Input fields for Create Login Details ---
+        this.txtUsername = page.locator('.oxd-input-group').filter({hasText: 'Username'}).locator('.oxd-input');
+        this.txtPassword = page.locator('.oxd-input-group').filter({hasText: 'Password'}).first().locator('.oxd-input');
+        this.txtConfirmPassword = page.locator('.oxd-input-group').filter({hasText: 'Confirm Password'}).locator('.oxd-input');
+
+        // --- Status Radio buttons ---
+        this.statusEnabled = page.getByRole('radio', {name: 'Enabled'});
+        this.statusDisabled = page.getByRole('radio', {name: 'Disabled'});
+
         // --- Initialize Wrapper Blocks ---
         this.firstNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('First Name')}).last();
         this.lastNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('Last Name')}).last();
@@ -81,7 +107,10 @@ export class AddEmployeePage {
         this.msgFirstNameRequired = this.firstNameBlock.locator('.oxd-input-field-error-message');
         this.msgLastNameRequired = this.lastNameBlock.locator('.oxd-input-field-error-message');
         this.msgEmployeeIdError = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input-field-error-message');
-   
+        this.msgUsernameError = page.locator('.oxd-input-group').filter({hasText: 'Username'}).locator('.oxd-input-field-error-message');
+        this.msgPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Password'}).first().locator('.oxd-input-field-error-message');
+        this.msgConfirmPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Confirm Passwrod'}).locator('.oxd-input-field-error-message');
+
         // --- Initialize Buttons ---
         this.btnSave = page.getByRole('button', {name: 'Save'});
         this.btnCancel = page.getByRole('button', {name: 'Cancel'});
@@ -96,7 +125,18 @@ export class AddEmployeePage {
      * @param employeeData.employeeId - A custom employee ID to override the auto-generated one. Optional.
      * @param employeeData.profilePicture - The absolute file path to the profile picture image. Optional.
      */
-    async add(employeeData: { firstName?: string, middleName?: string, lastName?: string, employeeId?: string, profilePicture?: string}) {
+    async add(employeeData: { 
+        firstName?: string, 
+        middleName?: string, 
+        lastName?: string, employeeId?: 
+        string, 
+        profilePicture?: string,
+        createLoginDetails?: boolean,
+        username?: string,
+        password?: string,
+        confirmPassword?: string,
+        status: 'Enable' | 'Disabled'
+    }) {
         // Default to empty strings if properties are not provided
         await this.txtFirstName.fill(employeeData.firstName || '');
         await this.txtMiddleName.fill(employeeData.middleName || '');
@@ -110,6 +150,18 @@ export class AddEmployeePage {
         // Upload picture if a path is provided
         if (employeeData.profilePicture) {
             await this.fileInputPicture.setInputFiles(employeeData.profilePicture);
+        }
+
+        const isCreateLogin = employeeData.createLoginDetails ?? false;
+
+        if (isCreateLogin) {
+            await this.txtUsername.fill(employeeData.username || '');
+            await this.txtPassword.fill(employeeData.password || '');
+            await this.txtConfirmPassword.fill(employeeData.confirmPassword || '');
+            
+            if (employeeData.status === 'Disabled') {
+                await this.statusDisabled.click({force: true});
+            }
         }
     }
 }
