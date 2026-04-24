@@ -8,12 +8,22 @@ export class PimPage {
 
     // --- Locators cho Search Filters ---
     readonly dropdownInclude: Locator;
+
+    // --- Web table Locators ---
+    readonly tableContainer: Locator;
+    readonly tableHeaderRow: Locator;
+    readonly tableBody: Locator;
+    readonly tableRow: Locator;
+    readonly columnHeaders: Locator;
+
     
     // --- Locators cho Action Buttons ---
     readonly btnSearch: Locator;
     readonly btnReset: Locator;
     readonly btnAdd: Locator;
+    readonly btnConfirmDelete: Locator;
 
+    
     constructor(page: Page) {
         this.page = page;
 
@@ -21,9 +31,16 @@ export class PimPage {
             .filter({ hasText: 'Include' })
             .locator('.oxd-select-wrapper');
 
+        this.tableContainer = page.locator('.orangehrm-container');
+        this.tableHeaderRow = page.locator('.oxd-table-header');
+        this.tableBody = page.locator('.oxd-table-body');
+        this.tableRow = page.locator('.oxd-table-card');
+        this.columnHeaders = this.tableHeaderRow.locator('.oxd-table-header-cell');
+
         this.btnSearch = page.getByRole('button', { name: 'Search' });
         this.btnReset = page.getByRole('button', { name: 'Reset' });
         this.btnAdd = page.getByRole('button', { name: 'Add' });
+        this.btnConfirmDelete = page.locator('.oxd-table-cell-actions').locator('//button[i[contains(@class, "bi-trash")]]');
     }
 
     /**
