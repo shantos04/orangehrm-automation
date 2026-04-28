@@ -8,6 +8,9 @@ import { LoginPage } from '../../app/pages/login.page';
 import { PimPage } from '../../app/pages/pim.page';
 import { ToastComponent } from '../../app/components/common/toast.component';
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
 
@@ -80,7 +83,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await expect(pimPage.dropdownInclude).toHaveText(otherValue);
 
         // Click the Reset button
-        await pimPage.btnReset.click();
+        await pimPage.clickResetButton();
 
         // Verify it returns to the default value
         await expect(pimPage.dropdownInclude).toHaveText(defaultValue);
@@ -93,8 +96,7 @@ test.describe("PIM Module - Employee List Filters", () => {
     test("OrangeHRM_PIM_TC04_VerifyRequiredTableHeaders", async ({ page }) => {
 
         // Verify master Checkbox in the Header (first column, no text)
-        const masterCheckbox = pimPage.tableHeaderRow.locator('.oxd-checkbox-wrapper');
-        await expect(masterCheckbox).toBeVisible();
+        await expect(pimPage.masterCheckbox).toBeVisible();
 
         // Define the expected text for all other columns
         const expectedTextHeaders = [
@@ -127,10 +129,37 @@ test.describe("PIM Module - Employee List Filters", () => {
     });
 
     /**
+     * Test Case: Verify Default Table Data Population (Schema Validation).
+     * Assertion: Ensures the data table successfully loads default records, contains at least one row, and the front-end correctly renders vital data fields (ID and First Name) without empty values.
+     */
+    test("OrangeHRM_PIM_TC05_VerifyDefaultTableDataPopulation", async () => {
+        // Wait for the table container to be visible and the loading spinner to disappear
+        await expect(pimPage.tableContainer).toBeVisible();
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Retrieve all currently visible rows in the data table
+        const allRows = await pimPage.tableRows.all();
+
+        // Assert that the table is not empty (contains at least one record)
+        expect(allRows.length).toBeGreaterThan(0);
+
+        // Extract text from all cells of the first row to verify the data structure (Schema validation)
+        const firstRowTexts = await allRows[0].locator('.oxd-table-cell').allInnerTexts();
+
+        // Map the extracted text to specific variables (Index 0 is the checkbox, Index 1 is ID, Index 2 is First Name)
+        const id = firstRowTexts[1].trim();
+        const firstName = firstRowTexts[2].trim();
+
+        // Assert that the front-end successfully renders valid data (ID and First Name are not empty strings)
+        expect(id).not.toBe('');
+        expect(firstName).not.toBe('');
+    });
+
+    /**
      * Test Case: Verify that searching for a non-existent employee displays a 'No Records Found' message.
      * Assertion: Ensures the system handles empty search results gracefully by showing the correct toast notification.
      */
-    test("OrangeHRM_PIM_TC05_VerifyNoRecordsFoundMessage", async ({ page }) => {
+    test("OrangeHRM_PIM_TC06_VerifyNoRecordsFoundMessage", async () => {
         const expectedTextResult = expectedTexts.toastMessages.noRecordsFound;
 
         // Input a deliberately invalid or non-existent employee name
@@ -144,5 +173,33 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         // Verify the toast message contains the expected 'No Records Found' text (case-insensitive)
         await expect(toastComponent.toastMessage).toContainText(expectedTextResult, { ignoreCase: true });
+    });
+
+    /**
+     * Test Case: Verify Ascending Sort on First Name.
+     * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
+     */
+    test("OrangeHRM_PIM_TC07_VerifyAscendingSortOnId", async () => {
+        await pimPage.sortColumnBy('Id', 'Ascending');
+
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        const actualIds = [];
+        const allRows = await pimPage.tableRows.all();
+
+        for (const row of allRows) {
+            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+            const idText = rowTexts[1].trim();
+
+            if (idText) {
+                actualIds.push(idText);
+            }
+        }
+
+        const expectedSortedIds = [...actualIds].sort((a, b) =>
+            a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+        );
+
+        expect(actualIds).toEqual(expectedSortedIds);
     });
 });
