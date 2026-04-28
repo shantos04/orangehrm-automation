@@ -6,12 +6,15 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../app/pages/login.page';
 import { PimPage } from '../../app/pages/pim.page';
+import { ToastComponent } from '../../app/components/common/toast.component';
+
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
 
 test.describe("PIM Module - Employee List Filters", () => {
     let loginPage: LoginPage;
     let pimPage: PimPage;
+    let toastComponent: ToastComponent;
 
     /**
      * Setup: Authentication and navigation to the PIM Employee List.
@@ -22,6 +25,7 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         loginPage = new LoginPage(page);
         pimPage = new PimPage(page);
+        toastComponent = new ToastComponent(page);
 
         // Pre-condition: Login and go to Employee List
         await page.goto('/web/index.php/auth/login');
@@ -80,5 +84,65 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         // Verify it returns to the default value
         await expect(pimPage.dropdownInclude).toHaveText(defaultValue);
+    });
+
+    /**
+     * Test Case: Verify that the Employee List data table displays all required column headers.
+     * Assertion: Ensures the table structure is correct, containing the master checkbox, specific text columns, and the exact total column count.
+     */
+    test("OrangeHRM_PIM_TC04_VerifyRequiredTableHeaders", async ({ page }) => {
+
+        // Verify master Checkbox in the Header (first column, no text)
+        const masterCheckbox = pimPage.tableHeaderRow.locator('.oxd-checkbox-wrapper');
+        await expect(masterCheckbox).toBeVisible();
+
+        // Define the expected text for all other columns
+        const expectedTextHeaders = [
+            "Id",
+            "First (& Middle) Name",
+            "Last Name",
+            "Job Title",
+            "Employment Status",
+            "Sub Unit",
+            "Supervisor",
+            "Actions"
+        ]
+
+        // Loop through the array and verify each header 
+        for (const headerName of expectedTextHeaders) {
+            // Escape special characters to prevent Regex errors
+            const escapedHeader = headerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            // Create a Regex to match the exact start of the header text
+            const exactWordRegex = new RegExp('^\\s*' + escapedHeader);
+
+            // Filter the column headers by the exact regex and verify visibility
+            const specificHeader = pimPage.columnHeaders.filter({ hasText: exactWordRegex });
+            await expect(specificHeader).toBeVisible();
+        }
+
+        // Verify the total number of columns matches the expected count (text columns + 1 checkbox)
+        const expectedTotalColumns = expectedTextHeaders.length + 1;
+        await expect(pimPage.columnHeaders).toHaveCount(expectedTotalColumns);
+    });
+
+    /**
+     * Test Case: Verify that searching for a non-existent employee displays a 'No Records Found' message.
+     * Assertion: Ensures the system handles empty search results gracefully by showing the correct toast notification.
+     */
+    test("OrangeHRM_PIM_TC05_VerifyNoRecordsFoundMessage", async ({ page }) => {
+        const expectedTextResult = expectedTexts.toastMessages.noRecordsFound;
+
+        // Input a deliberately invalid or non-existent employee name
+        await pimPage.txtEmployeeName.fill('Not an employee');
+
+        // Click search and simultaneously wait for the toast notification to be visible
+        await Promise.all([
+            expect(toastComponent.toastMessage).toBeVisible(),
+            pimPage.btnSearch.click()
+        ])
+
+        // Verify the toast message contains the expected 'No Records Found' text (case-insensitive)
+        await expect(toastComponent.toastMessage).toContainText(expectedTextResult, { ignoreCase: true });
     });
 });

@@ -9,7 +9,8 @@
     "pageTitle": "OrangeHRM"
   },
   "toastMessages": {
-    "successSaved": "Successfully Saved"
+    "successSaved": "Successfully Saved",
+    "noRecordsFound": "No Records Found"
   },
   "validationMessages": {
     "required": "Required",
