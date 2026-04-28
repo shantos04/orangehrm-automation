@@ -15,15 +15,16 @@ export class PimPage {
     readonly tableBody: Locator;
     readonly tableRow: Locator;
     readonly columnHeaders: Locator;
+    readonly tableLoadingSpinner: Locator;
 
-    
+
     // --- Locators cho Action Buttons ---
     readonly btnSearch: Locator;
     readonly btnReset: Locator;
     readonly btnAdd: Locator;
     readonly btnConfirmDelete: Locator;
 
-    
+
     constructor(page: Page) {
         this.page = page;
 
@@ -36,6 +37,7 @@ export class PimPage {
         this.tableBody = page.locator('.oxd-table-body');
         this.tableRow = page.locator('.oxd-table-card');
         this.columnHeaders = this.tableHeaderRow.locator('.oxd-table-header-cell');
+        this.tableLoadingSpinner = page.locator('.oxd-loading-spinner');
 
         this.btnSearch = page.getByRole('button', { name: 'Search' });
         this.btnReset = page.getByRole('button', { name: 'Reset' });

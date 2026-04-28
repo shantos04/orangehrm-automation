@@ -26,9 +26,16 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Pre-condition: Login and go to Employee List
         await page.goto('/web/index.php/auth/login');
         await loginPage.login(usersData.validAdmin.username, usersData.validAdmin.password);
-        
+
+        // Wait for the login redirect to complete successfully
+        await page.waitForURL('**/dashboard/index');
+
         // Direct navigation to Employee List page
         await page.goto('/web/index.php/pim/viewEmployeeList');
+
+        // Synchronize UI State before excuting test scope
+        await expect(pimPage.tableContainer).toBeVisible();
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
     });
 
     /**
@@ -37,7 +44,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      */
     test("OrangeHRM_PIM_TC01_VerifyDefaultIncludeFilter", async () => {
         const expectedDefault = expectedTexts.dropdownOptions.include.default;
-        
+
         // Check if the dropdown displays the correct initial text
         await expect(pimPage.dropdownInclude).toHaveText(expectedDefault);
     });
@@ -67,7 +74,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Change the dropdown value to something else
         await pimPage.selectIncludeOption(otherValue);
         await expect(pimPage.dropdownInclude).toHaveText(otherValue);
-        
+
         // Click the Reset button
         await pimPage.btnReset.click();
 
