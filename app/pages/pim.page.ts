@@ -142,4 +142,44 @@ export class PimPage {
 
         return columnData;
     }
+
+    /**
+     * Retrieves the hidden input element of the master checkbox for state verification.
+     * @returns {Locator} The locator for the master checkbox input.
+     */
+    get masterCheckboxInput(): Locator {
+        return this.masterCheckbox.locator('input[type="checkbox"]');
+    }
+
+    /**
+     * Extracts the Employee ID text from the first row of the currently visible table.
+     * @returns {Promise<string>} The ID text of the first employee
+     */
+    async getFirstRowIdText(): Promise<string> {
+        return await this.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+    }
+
+    /**
+     * Clicks the custom checkbox wrapper of the first row in the data table.
+     */
+    async checkFirstRowCheckbox(): Promise<void> {
+        const firstRow = this.tableRows.first();
+        await firstRow.locator('.oxd-checkbox-wrapper').click();
+    }
+
+    /**
+     * Retrieves the hidden input element of the first row's checkbox for state verification.
+     * @returns {Locator} The Locator for the first row's checkbox input.
+     */
+    getFirstRowCheckboxInput(): Locator {
+        return this.tableRows.first().locator('input[type="checkbox"]');
+    }
+
+    /**
+     * Retrieves all hidden input elements for the checkboxes of every visible row in the table.
+     * @returns {Promise<Locator[]>} An array of locators representing each row's checkbox input.
+     */
+    async getAllRowCheckboxInputs(): Promise<Locator[]> {
+        return this.tableRows.locator('input[type="checkbox]').all();
+    }
 }

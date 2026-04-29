@@ -308,12 +308,12 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         test.skip(!isNextBtnVisible, 'Not enough records to trigger pagination');
 
-        const firstIdPage1 = await pimPage.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+        const firstIdPage1 = await pimPage.getFirstRowIdText();
 
         await pimPage.btnNextPage.click();
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
-        const firstIdPage2 = await pimPage.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+        const firstIdPage2 = await pimPage.getFirstRowIdText();
 
         expect(firstIdPage1).not.toEqual(firstIdPage2);
     })
@@ -323,23 +323,14 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensure clicking a row's checkbox selects only that specific row.
      */
     test("OrangeHRM_PIM_TC14_VerifySingleRowSelection", async () => {
-        const firstRow = pimPage.tableRows.first();
-
-        // Declare locator for the UI wrapper element (used for triggering the click action)
-        const rowCheckboxWrapper = firstRow.locator('.oxd-checkbox-wrapper');
-
-        // Declare locator for the actual hidden input element (used for data state verification)
-        const rowCheckboxInput = firstRow.locator('input[type="checkbox"]');
-        const masterCheckboxInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
-
         // Click the custom checkbox wrapper on the first row
-        await rowCheckboxWrapper.click();
+        await pimPage.checkFirstRowCheckbox();
 
-        // Verify the hidden input of the selected row is updated to 'checked' state
-        await expect(rowCheckboxInput).toBeChecked();
+        // Verify the hidden input of the element row is updated to 'checked' state
+        await expect(pimPage.getFirstRowCheckboxInput()).toBeChecked();
 
-        // Ensure the Master Checkbox remains unchecked (Bug prevention check)
-        await expect(masterCheckboxInput).toBeChecked();
+        // Ensure the Master Checkbox remains checked
+        await expect(pimPage.masterCheckboxInput).toBeChecked();
     });
 
     /**
@@ -351,7 +342,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.masterCheckbox.click();
 
         // Retrieve all actual hidden input checkboxes for every visible row
-        const allRowCheckboxInputs = await pimPage.tableRows.locator('input[type="checkbox"]').all();
+        const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
 
         // Loop through and explicitly verify 100% of the visible rows are checked
         for (const checkboxInput of allRowCheckboxInputs) {
@@ -374,19 +365,17 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.masterCheckbox.click();
 
         // Verify Page 1 master checkbox is successfully checked
-        const page1MasterInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
-        await expect(page1MasterInput).toBeChecked();
+        await expect(pimPage.masterCheckboxInput).toBeChecked();
 
         // Navigate to Page 2 and synchronize UI state
         await pimPage.btnNextPage.click();
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
         // On Page 2, the Master Checkbox MUST explicitly be UNCHECKED
-        const page2MasterInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
-        await expect(page2MasterInput).not.toBeChecked();
+        await expect(pimPage.masterCheckboxInput).not.toBeChecked();
 
         // All employee rows on Page 2 MUST NOT carry over the checked state
-        const allRowCheckboxInputs = await pimPage.tableRows.locator('input[type="checkbox"]').all();
+        const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
 
         for (const checkboxInput of allRowCheckboxInputs) {
             await expect(checkboxInput).not.toBeChecked();
