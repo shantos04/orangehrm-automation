@@ -1,12 +1,13 @@
 /**
- * @fileoverview Page Object Model for the Employee List page.
+ * @fileoverview Page Object Model for the PIM Employee List page.
+ * Encapsulates locators and UI interaction methods for employee filtering, sorting, and data extraction.
  */
 import { Page, Locator } from '@playwright/test';
 
 export class PimPage {
     readonly page: Page;
 
-    // --- Locators cho Search Filters ---
+    // --- Search Filter Locators ---
     readonly dropdownInclude: Locator;
     readonly txtEmployeeName: Locator;
 
@@ -20,7 +21,7 @@ export class PimPage {
     readonly masterCheckbox: Locator;
 
 
-    // --- Locators cho Action Buttons ---
+    // --- Action Button Locators ---
     readonly btnSearch: Locator;
     readonly btnReset: Locator;
     readonly btnAdd: Locator;
@@ -60,23 +61,59 @@ export class PimPage {
         await this.page.getByRole('option', { name: optionText }).click();
     }
 
+    /**
+     * Clicks the sort icon on a specified column header and selects the sorting direction.
+     * @param {string} columnName - The exact name of the column header to sort (e.g., 'Id', 'Last Name').
+     * @param {'Ascending' | 'Descending'} sortDirection - The desired sorting direction.
+     */
     async sortColumnBy(columnName: string, sortDirection: 'Ascending' | 'Descending') {
-
+        // Escape special characters to prevent Regex errors and match the exact column header text
         const escapedColumnName = columnName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const exactWordRegex = new RegExp('^\\s*' + escapedColumnName);
         const columnHeader = this.columnHeaders.filter({ hasText: exactWordRegex });
 
+        // Locate and click the sort icon for the matched column
         const sortIcon = columnHeader.locator('.oxd-table-header-sort');
         await sortIcon.click();
 
-        // Tách ra thành 1 biến rõ ràng để dễ bảo trì sau này
+        // Isolate the sort dropdown locator into a clear variable for better maintainability
         const sortDropdown = columnHeader.locator('.oxd-table-header-sort-dropdown');
         const sortOption = sortDropdown.getByText(sortDirection);
 
         await sortOption.click();
     }
 
+    /**
+     * Clicks the 'Reset' button to clear all active search filters.
+     */
     async clickResetButton() {
         await this.btnReset.click();
+    }
+
+    /**
+     * Extracts all text values from a specific column in the data table.
+     * @param {number} columnIndex - The zero-based index of the target column (e.g., 1 for ID, 2 for First Name, 3 for Last Name).
+     * @returns {Promise<string[]>} An array containing the trimmed text of each cell in the specified column.
+     */
+    async getColumnTextsByIndex(columnIndex: number): Promise<string[]> {
+        const columnData: string[] = [];
+        const allRows = await this.tableRows.all();
+
+        for (const row of allRows) {
+            // Retrieve all cell texts for the current row
+            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+            // Extract the text at the specified column index and trim excess whitespace
+            if (rowTexts.length > columnIndex) {
+                const cellText = rowTexts[columnIndex].trim();
+
+                // Only append non-empty strings to the array
+                if (cellText) {
+                    columnData.push(cellText);
+                }
+            }
+        }
+
+        return columnData;
     }
 }
