@@ -92,27 +92,53 @@ export class PimPage {
 
     /**
      * Extracts all text values from a specific column in the data table.
-     * @param {number} columnIndex - The zero-based index of the target column (e.g., 1 for ID, 2 for First Name, 3 for Last Name).
+     * @param {number} columnIndex - The zero-based index of the target column (e.g., 1 for ID, 2 for First Name).
+     * @param {boolean} [scrapeAllPages=false] - If true, the function will navigate through all pagination pages to extract data. Default is false to optimize performance.
      * @returns {Promise<string[]>} An array containing the trimmed text of each cell in the specified column.
      */
-    async getColumnTextsByIndex(columnIndex: number): Promise<string[]> {
+    async getColumnTextsByIndex(columnIndex: number, scrapeAllPages: boolean = false): Promise<string[]> {
         const columnData: string[] = [];
-        const allRows = await this.tableRows.all();
+        let hasNextPage = true;
 
-        for (const row of allRows) {
-            // Retrieve all cell texts for the current row
-            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+        while (hasNextPage) {
+            // Wait for the table to fully load to avoid scraping stale data
+            await this.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
-            // Extract the text at the specified column index and trim excess whitespace
-            if (rowTexts.length > columnIndex) {
-                const cellText = rowTexts[columnIndex].trim();
+            const allRows = await this.tableRows.all();
 
-                // Only append non-empty strings to the array
-                if (cellText) {
-                    columnData.push(cellText);
+            for (const row of allRows) {
+                // Retrieve all cell texts for the current row
+                const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+                // Extract the text at the specified column index and trim excess whitespace
+                if (rowTexts.length > columnIndex) {
+                    const cellText = rowTexts[columnIndex].trim();
+
+                    // Only append non-empty strings to the array
+                    if (cellText) {
+                        columnData.push(cellText);
+                    }
                 }
             }
+
+            // Pagination Logic
+            if (scrapeAllPages) {
+                // Check if the 'Next' button is visible and active
+                const isNextBtnVisible = await this.btnNextPage.isVisible();
+
+                // OrangeHRM adds a generic 'disabled' or hides the button when on the last page
+                if (isNextBtnVisible) {
+                    await this.btnNextPage.click();
+                } else {
+                    // No more pages left, break the loop
+                    hasNextPage = false;
+                }
+            } else {
+                // If the flag is false, exit the loop after the first page
+                hasNextPage = false;
+            }
         }
+
 
         return columnData;
     }
