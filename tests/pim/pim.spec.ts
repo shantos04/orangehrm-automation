@@ -7,9 +7,7 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../app/pages/login.page';
 import { PimPage } from '../../app/pages/pim.page';
 import { ToastComponent } from '../../app/components/common/toast.component';
-
-import * as fs from 'fs';
-import * as path from 'path';
+import { getExpectedSortedArray } from '../../utils/sort-helper';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
@@ -176,30 +174,72 @@ test.describe("PIM Module - Employee List Filters", () => {
     });
 
     /**
-     * Test Case: Verify Ascending Sort on First Name.
+     * Test Case: Verify Ascending Sort on ID.
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
      */
     test("OrangeHRM_PIM_TC07_VerifyAscendingSortOnId", async () => {
+        // Click the sort icon on the 'Id' column header and select 'Ascending'
         await pimPage.sortColumnBy('Id', 'Ascending');
 
+        // Wait for the data table to finish loading the sorted results
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
-        const actualIds = [];
+        // Scrape the actual IDs displayed on the current page
+        const actualIds: string[] = [];
         const allRows = await pimPage.tableRows.all();
 
         for (const row of allRows) {
+            // Retrieve all cell texts for the current row
             const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+            // Extract and trim the text from the 'Id' column (Index 1, as Index 0 is the checkbox)
             const idText = rowTexts[1].trim();
 
+            // Append non-empty IDs to the array
             if (idText) {
                 actualIds.push(idText);
             }
         }
 
-        const expectedSortedIds = [...actualIds].sort((a, b) =>
-            a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-        );
+        // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
+        const expectedSortedIds = getExpectedSortedArray(actualIds, 'Ascending', false);
 
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+        expect(actualIds).toEqual(expectedSortedIds);
+    });
+
+    /**
+     * Test Case: Verify Descending Sort on ID.
+     * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
+     */
+    test("OrangeHRM_PIM_TC08_VerifyDescendingSortOnId", async () => {
+        // Click the sort icon on the 'Id' column header and select 'Ascending'
+        await pimPage.sortColumnBy('Id', 'Descending');
+
+        // Wait for the data table to finish loading the sorted results
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Scrape the actual IDs displayed on the current page
+        const actualIds: string[] = [];
+        const allRows = await pimPage.tableRows.all();
+
+        for (const row of allRows) {
+            // Retrieve all cell texts for the current row
+            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+            // Extract and trim the text from the 'Id' column (Index 1, as Index 0 is the checkbox)
+            const idText = rowTexts[1].trim();
+
+            // Append non-empty IDs to the array
+            if (idText) {
+                actualIds.push(idText);
+            }
+        }
+
+        // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
+        const expectedSortedIds = getExpectedSortedArray(actualIds, 'Descending', false);
+
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
         expect(actualIds).toEqual(expectedSortedIds);
     });
 });
