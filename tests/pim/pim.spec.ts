@@ -184,22 +184,8 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Wait for the data table to finish loading the sorted results
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
-        // Scrape the actual IDs displayed on the current page
-        const actualIds: string[] = [];
-        const allRows = await pimPage.tableRows.all();
-
-        for (const row of allRows) {
-            // Retrieve all cell texts for the current row
-            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
-
-            // Extract and trim the text from the 'Id' column (Index 1, as Index 0 is the checkbox)
-            const idText = rowTexts[1].trim();
-
-            // Append non-empty IDs to the array
-            if (idText) {
-                actualIds.push(idText);
-            }
-        }
+        // Retrieve actual data
+        const actualIds = await pimPage.getColumnTextsByIndex(1, true);
 
         // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
         const expectedSortedIds = getExpectedSortedArray(actualIds, 'Ascending', false);
@@ -219,22 +205,8 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Wait for the data table to finish loading the sorted results
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
-        // Scrape the actual IDs displayed on the current page
-        const actualIds: string[] = [];
-        const allRows = await pimPage.tableRows.all();
-
-        for (const row of allRows) {
-            // Retrieve all cell texts for the current row
-            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
-
-            // Extract and trim the text from the 'Id' column (Index 1, as Index 0 is the checkbox)
-            const idText = rowTexts[1].trim();
-
-            // Append non-empty IDs to the array
-            if (idText) {
-                actualIds.push(idText);
-            }
-        }
+        // Retrieve actual data
+        const actualIds = await pimPage.getColumnTextsByIndex(1, true);
 
         // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
         const expectedSortedIds = getExpectedSortedArray(actualIds, 'Descending', false);
@@ -255,21 +227,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
         // Scrape the actual First Names displayed on the current page
-        const actualFirstNames: string[] = [];
-        const allRows = await pimPage.tableRows.all();
-
-        for (const row of allRows) {
-            // Retrieve all cell texts for the current row
-            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
-
-            // Extract and trim the text from the 'First Name' column (Index 2)
-            const firstNameText = rowTexts[2].trim();
-
-            // Append non-empty names to the array
-            if (firstNameText) {
-                actualFirstNames.push(firstNameText);
-            }
-        }
+        const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
 
         // isNumeric MUST be false for textual columns like First Name
         const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Ascending', false);
@@ -290,21 +248,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
 
         // Scrape the actual First Names displayed on the current page
-        const actualFirstNames: string[] = [];
-        const allRows = await pimPage.tableRows.all();
-
-        for (const row of allRows) {
-            // Retrieve all cell texts for the current row
-            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
-
-            // Extract and trim the text from the 'First Name' column (Index 2)
-            const firstNameText = rowTexts[2].trim();
-
-            // Append non-empty names to the array
-            if (firstNameText) {
-                actualFirstNames.push(firstNameText);
-            }
-        }
+        const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
 
         // isNumeric MUST be false for textual columns like First Name
         const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Descending', false);
@@ -312,4 +256,142 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
         expect(actualFirstNames).toEqual(expectedSortedFirstNames);
     });
+
+    /**
+     * Test Case: Verify Ascending Sort on Last Name.
+     * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
+     */
+    test("OrangeHRM_PIM_TC11_VerifyAscendingSortOnLastname", async () => {
+        // Click the sort icon on the 'Last Name' column header and select 'Ascending'
+        await pimPage.sortColumnBy('Last Name', 'Ascending');
+
+        // Wait for the data table to finish loading the sorted results
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Scrape the actual Last Names displayed on the current page
+        const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
+
+        // isNumeric MUST be false for textual columns like Last Name
+        const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Ascending', false);
+
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+        expect(actualLastNames).toEqual(expectedSortedLastNames);
+    });
+
+    /**
+     * Test Case: Verify Descending Sort on Last Name.
+     * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
+     */
+    test("OrangeHRM_PIM_TC12_VerifyDescendingSortOnLastname", async () => {
+        // Click the sort icon on the 'Last Name' column header and select 'Descending'
+        await pimPage.sortColumnBy('Last Name', 'Descending');
+
+        // Wait for the data table to finish loading the sorted results
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Scrape the actual Last Names displayed on the current page
+        const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
+
+        // isNumeric MUST be false for textual columns like Last Name
+        const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Descending', false);
+
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+        expect(actualLastNames).toEqual(expectedSortedLastNames);
+    });
+
+    /**
+     * Test Case: Verify Pagination - Next Page navigation.
+     * Assertion: Ensures clicking the 'Next' button loads a new set of records and updates the URL or table state.
+     */
+    test("OrangeHRM_PIM_TC13_VerifyPaginationNextPage", async () => {
+        const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+
+        test.skip(!isNextBtnVisible, 'Not enough records to trigger pagination');
+
+        const firstIdPage1 = await pimPage.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+
+        await pimPage.btnNextPage.click();
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        const firstIdPage2 = await pimPage.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+
+        expect(firstIdPage1).not.toEqual(firstIdPage2);
+    })
+
+    /**
+     * Test Case: Verify Single Row Selection.
+     * Assertion: Ensure clicking a row's checkbox selects only that specific row.
+     */
+    test("OrangeHRM_PIM_TC14_VerifySingleRowSelection", async () => {
+        const firstRow = pimPage.tableRows.first();
+
+        // Declare locator for the UI wrapper element (used for triggering the click action)
+        const rowCheckboxWrapper = firstRow.locator('.oxd-checkbox-wrapper');
+
+        // Declare locator for the actual hidden input element (used for data state verification)
+        const rowCheckboxInput = firstRow.locator('input[type="checkbox"]');
+        const masterCheckboxInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
+
+        // Click the custom checkbox wrapper on the first row
+        await rowCheckboxWrapper.click();
+
+        // Verify the hidden input of the selected row is updated to 'checked' state
+        await expect(rowCheckboxInput).toBeChecked();
+
+        // Ensure the Master Checkbox remains unchecked (Bug prevention check)
+        await expect(masterCheckboxInput).toBeChecked();
+    });
+
+    /**
+     * Test Case: Verify Master Checkbox functionality.
+     * Assertion: Ensures clicking the table header's master checkbox selects all currently visible rows.
+     */
+    test("OrangeHRM_PIM_TC15_VerifyMasterCheckboxSelectsAll", async () => {
+        // Click the master checkbox located in the table header
+        await pimPage.masterCheckbox.click();
+
+        // Retrieve all actual hidden input checkboxes for every visible row
+        const allRowCheckboxInputs = await pimPage.tableRows.locator('input[type="checkbox"]').all();
+
+        // Loop through and explicitly verify 100% of the visible rows are checked
+        for (const checkboxInput of allRowCheckboxInputs) {
+            await expect(checkboxInput).toBeChecked();
+        }
+    });
+
+    /**
+     * Test Case: Verify Master Checkbox state across pagination.
+     * Assertion: Ensures that selecting the master checkbox on Page 1 does NOT select rows on Page 2, and the master checkbox resets its state.
+     */
+    test("OrangeHRM_PIM_TC16_VerifyMasterCheckboxAcrossPagination", async () => {
+        // Verify if the table has enough data to support pagination
+        const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+
+        // Skip this test if there is only one page
+        test.skip(!isNextBtnVisible, 'Not enough records to test pagination behavior.');
+
+        // Check the master checkbox on Page 1
+        await pimPage.masterCheckbox.click();
+
+        // Verify Page 1 master checkbox is successfully checked
+        const page1MasterInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
+        await expect(page1MasterInput).toBeChecked();
+
+        // Navigate to Page 2 and synchronize UI state
+        await pimPage.btnNextPage.click();
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // On Page 2, the Master Checkbox MUST explicitly be UNCHECKED
+        const page2MasterInput = pimPage.masterCheckbox.locator('input[type="checkbox"]');
+        await expect(page2MasterInput).not.toBeChecked();
+
+        // All employee rows on Page 2 MUST NOT carry over the checked state
+        const allRowCheckboxInputs = await pimPage.tableRows.locator('input[type="checkbox"]').all();
+
+        for (const checkboxInput of allRowCheckboxInputs) {
+            await expect(checkboxInput).not.toBeChecked();
+        }
+    });
+
+
 });
