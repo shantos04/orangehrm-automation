@@ -4,7 +4,7 @@
  * promoting code reusability and easier maintenance for automation tests.
  */
 
-import {Page, Locator} from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 /**
  * Represents the Add Employee Page.
@@ -84,38 +84,38 @@ export class AddEmployeePage {
         this.txtFirstName = page.getByPlaceholder('First Name');
         this.txtMiddleName = page.getByPlaceholder('Middle Name');
         this.txtLastName = page.getByPlaceholder('Last Name');
-        this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input');   //page.locator('//label[text()="Employee Id"]/ancestor::div[contains(@class, "oxd-input-group")]//input');
+        this.txtEmployeeId = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input');   //page.locator('//label[text()="Employee Id"]/ancestor::div[contains(@class, "oxd-input-group")]//input');
         this.fileInputPicture = page.locator('input[type="file"]');
 
         // --- Toggle switch ---
         this.switchCreateLogin = page.locator('.oxd-switch-input');
 
         // --- Initialize Input fields for Create Login Details ---
-        this.txtUsername = page.locator('.oxd-input-group').filter({hasText: 'Username'}).locator('.oxd-input');
-        this.txtPassword = page.locator('.oxd-input-group').filter({hasText: 'Password'}).first().locator('.oxd-input');
-        this.txtConfirmPassword = page.locator('.oxd-input-group').filter({hasText: 'Confirm Password'}).locator('.oxd-input');
+        this.txtUsername = page.locator('.oxd-input-group').filter({ hasText: 'Username' }).locator('.oxd-input');
+        this.txtPassword = page.locator('.oxd-input-group').filter({ hasText: 'Password' }).first().locator('.oxd-input');
+        this.txtConfirmPassword = page.locator('.oxd-input-group').filter({ hasText: 'Confirm Password' }).locator('.oxd-input');
 
         // --- Status Radio buttons ---
-        this.statusEnabled = page.getByRole('radio', {name: 'Enabled'});
-        this.statusDisabled = page.getByRole('radio', {name: 'Disabled'});
+        this.statusEnabled = page.getByRole('radio', { name: 'Enabled' });
+        this.statusDisabled = page.getByRole('radio', { name: 'Disabled' });
 
         // --- Initialize Wrapper Blocks ---
-        this.firstNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('First Name')}).last();
-        this.lastNameBlock = page.locator('.oxd-input-group').filter({has: page.getByPlaceholder('Last Name')}).last();
-        
+        this.firstNameBlock = page.locator('.oxd-input-group').filter({ has: page.getByPlaceholder('First Name') }).last();
+        this.lastNameBlock = page.locator('.oxd-input-group').filter({ has: page.getByPlaceholder('Last Name') }).last();
+
         // --- Initialize Validation Messages scoped within Blocks ---
         this.msgFirstNameRequired = this.firstNameBlock.locator('.oxd-input-field-error-message');
         this.msgLastNameRequired = this.lastNameBlock.locator('.oxd-input-field-error-message');
         this.msgEmployeeIdError = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input-field-error-message');
-        this.msgUsernameError = page.locator('.oxd-input-group').filter({hasText: 'Username'}).locator('.oxd-input-field-error-message');
-        this.msgPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Password'}).first().locator('.oxd-input-field-error-message');
-        this.msgConfirmPasswordError = page.locator('.oxd-input-group').filter({hasText: 'Confirm Password'}).locator('.oxd-input-field-error-message');
+        this.msgUsernameError = page.locator('.oxd-input-group').filter({ hasText: 'Username' }).locator('.oxd-input-field-error-message');
+        this.msgPasswordError = page.locator('.oxd-input-group').filter({ hasText: 'Password' }).first().locator('.oxd-input-field-error-message');
+        this.msgConfirmPasswordError = page.locator('.oxd-input-group').filter({ hasText: 'Confirm Password' }).locator('.oxd-input-field-error-message');
 
         // --- Initialize Buttons ---
-        this.btnSave = page.getByRole('button', {name: 'Save'});
-        this.btnCancel = page.getByRole('button', {name: 'Cancel'});
+        this.btnSave = page.getByRole('button', { name: 'Save' });
+        this.btnCancel = page.getByRole('button', { name: 'Cancel' });
     }
-    
+
     /**
      * Fills out the employee details form, with an option to create login credentials.
      * * @param employeeData - The object containing the employee's information.
@@ -130,11 +130,11 @@ export class AddEmployeePage {
      * @param employeeData.confirmPassword - The password confirmation to validate against the password.
      * @param employeeData.status - The initial status of the account ('Enabled' or 'Disabled').
      */
-    async add(employeeData: { 
-        firstName?: string, 
-        middleName?: string, 
-        lastName?: string, employeeId?: 
-        string, 
+    async add(employeeData: {
+        firstName?: string,
+        middleName?: string,
+        lastName?: string, employeeId?:
+        string,
         profilePicture?: string,
         createLoginDetails?: boolean,
         username?: string,
@@ -166,9 +166,9 @@ export class AddEmployeePage {
             await this.txtUsername.fill(employeeData.username || '');
             await this.txtPassword.fill(employeeData.password || '');
             await this.txtConfirmPassword.fill(employeeData.confirmPassword || '');
-            
+
             if (employeeData.status === 'Disabled') {
-                await this.statusDisabled.click({force: true});
+                await this.statusDisabled.click({ force: true });
             }
         }
     }

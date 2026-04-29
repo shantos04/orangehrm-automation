@@ -242,4 +242,74 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
         expect(actualIds).toEqual(expectedSortedIds);
     });
+
+    /**
+     * Test Case: Verify Ascending Sort on First Name.
+     * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
+     */
+    test("OrangeHRM_PIM_TC09_VerifyAscendingSortOnFirstname", async () => {
+        // Click the sort icon on the 'First (& Middle) Name' column header and select 'Ascending'
+        await pimPage.sortColumnBy('First (& Middle) Name', 'Ascending');
+
+        // Wait for the data table to finish loading the sorted results
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Scrape the actual First Names displayed on the current page
+        const actualFirstNames: string[] = [];
+        const allRows = await pimPage.tableRows.all();
+
+        for (const row of allRows) {
+            // Retrieve all cell texts for the current row
+            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+            // Extract and trim the text from the 'First Name' column (Index 2)
+            const firstNameText = rowTexts[2].trim();
+
+            // Append non-empty names to the array
+            if (firstNameText) {
+                actualFirstNames.push(firstNameText);
+            }
+        }
+
+        // isNumeric MUST be false for textual columns like First Name
+        const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Ascending', false);
+
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+        expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+    });
+
+    /**
+     * Test Case: Verify Descending Sort on First Name.
+     * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
+     */
+    test("OrangeHRM_PIM_TC10_VerifyDescendingSortOnFirstname", async () => {
+        // Click the sort icon on the 'First (& Middle) Name' column header and select 'Descending'
+        await pimPage.sortColumnBy('First (& Middle) Name', 'Descending');
+
+        // Wait for the data table to finish loading the sorted results
+        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+
+        // Scrape the actual First Names displayed on the current page
+        const actualFirstNames: string[] = [];
+        const allRows = await pimPage.tableRows.all();
+
+        for (const row of allRows) {
+            // Retrieve all cell texts for the current row
+            const rowTexts = await row.locator('.oxd-table-cell').allInnerTexts();
+
+            // Extract and trim the text from the 'First Name' column (Index 2)
+            const firstNameText = rowTexts[2].trim();
+
+            // Append non-empty names to the array
+            if (firstNameText) {
+                actualFirstNames.push(firstNameText);
+            }
+        }
+
+        // isNumeric MUST be false for textual columns like First Name
+        const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Descending', false);
+
+        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+        expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+    });
 });
