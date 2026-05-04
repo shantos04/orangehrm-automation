@@ -62,5 +62,9 @@
         "password": "PasswordNoNumber",
         "confirmPassword": "PasswordNoNumber",
         "description": "Password containing only letters to trigger 'minimum 1 number' validation"
+    },
+    "searchEmployeeById": {
+        "validEmployeeId": "0044",
+        "invalidEmployeeId": "INVALID_ID_9999"
     }
 }
