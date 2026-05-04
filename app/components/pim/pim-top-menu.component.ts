@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Shared Component Object for the PIM module's Top Navigation Menu.
+ * 
+ * This component encapsulates the locators and navigation actions for the horizontal
+ * menu bar present across all pages within the PIM (Personal Information Management) module.
+ * 
+ */
 import {Page, Locator} from '@playwright/test';
 
 export class PimTopMenuComponent {
