@@ -10,6 +10,7 @@ export class PimPage {
     // --- Search Filter Locators ---
     readonly dropdownInclude: Locator;
     readonly txtEmployeeName: Locator;
+    readonly txtEmployeeId: Locator;
 
     // --- Web table Locators ---
     readonly tableContainer: Locator;
@@ -36,6 +37,7 @@ export class PimPage {
             .filter({ hasText: 'Include' })
             .locator('.oxd-select-wrapper');
         this.txtEmployeeName = page.getByPlaceholder('Type for hints...').first();
+        this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('input');
 
         this.tableContainer = page.locator('.orangehrm-container');
         this.tableHeaderRow = page.locator('.oxd-table-header');
