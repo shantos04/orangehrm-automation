@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../app/pages/login.page';
-import { PimPage } from '../../app/pages/pim.page';
+import { PimPage } from '../../app/pages/pim/pim.page';
 import { ToastComponent } from '../../app/components/common/toast.component';
 import { getExpectedSortedArray } from '../../utils/sort-helper';
 

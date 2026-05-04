@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { LoginPage } from '../../app/pages/login.page';
-import { AddEmployeePage } from '../../app/components/pim/add-employee.component';
+import { AddEmployeePage } from '../../app/pages/pim/add-employee.component';
 import { ToastComponent } from '../../app/components/common/toast.component';
 
 import usersData from '../../data/users.json';
