@@ -10,6 +10,7 @@ import { ToastComponent } from '../../app/components/common/toast.component';
 import { getExpectedSortedArray } from '../../utils/sort-helper';
 
 import usersData from '../../data/users.json';
+import employeeData from '../../data/employee-data.json';
 import expectedTexts from '../../data/expected-texts.json';
 
 test.describe("PIM Module - Employee List Filters", () => {
@@ -382,5 +383,62 @@ test.describe("PIM Module - Employee List Filters", () => {
         }
     });
 
+    /**
+     * Test Case: Verify Search by exact, existing Employee ID.
+     * Assertion: Ensures searching by a valid ID filters the table to show the correct matching record.
+     */
+    test("OrangeHRM_PIM_TC17_VerifySearchByValidEmployeeid", async () => {
+        const targetId = employeeData.searchEmployeeById.validEmployeeId;
 
+        await pimPage.txtEmployeeId.fill(targetId);
+        await pimPage.btnSearch.click();
+
+        await pimPage.tableLoadingSpinner.waitFor({state: 'hidden'});
+
+        const allRows = await pimPage.tableRows.all();
+        expect(allRows.length).toBeGreaterThan(0);
+
+        const resultId = await pimPage.getFirstRowIdText();
+        expect(resultId).toEqual(targetId);
+    });
+
+    /**
+     * Test Case: Verify Search by non-existent Employee ID (Data-Driven).
+     * Assertion: Ensures searching for an invalid ID from the JSON data file returns no records and displays a toast notification.
+     */
+    test("OrangeHRM_PIM_TC18_VerifySeachByInvalidEmployeeId", async () => {
+        const expectedTextResult = expectedTexts.toastMessages.noRecordsFound;
+        const invalidId = employeeData.searchEmployeeById.invalidEmployeeId;
+
+        await pimPage.txtEmployeeId.fill(invalidId);
+
+        await Promise.all([
+            expect(toastComponent.toastMessage).toBeVisible(),
+            pimPage.btnSearch.click()
+        ]);
+
+        await expect(toastComponent.toastMessage).toContainText(expectedTextResult);
+
+        const allRows = await pimPage.tableRows.all();
+        expect(allRows.length).toEqual(0);
+    });
+
+    /**
+     * Test Case: Verify Reset functionality after performing an Employee ID search (Data-Driven).
+     * Assertion: Ensures clicking 'Reset' clears the input field and reloads the default table data.
+     */
+    test("OrangeHRM_PIM_TC19_VerifyResetAfterEmployeeIdSearch", async () => {
+        const targetId = employeeData.searchEmployeeById.validEmployeeId;
+
+        await pimPage.txtEmployeeId.fill(targetId);
+        await pimPage.btnSearch.click();
+        await pimPage.tableLoadingSpinner.waitFor({state: 'hidden'});
+
+        await pimPage.clickResetButton();
+
+        await expect(pimPage.txtEmployeeId).toHaveValue('');
+
+        const allRows = await pimPage.tableRows.all();
+        expect(allRows.length).toBeGreaterThan(1);
+    })
 });
