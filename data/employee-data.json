@@ -65,6 +65,6 @@
     },
     "searchEmployeeById": {
         "validEmployeeId": "0044",
-        "invalidEmployeeId": "INVALID_ID_9999"
+        "invalidEmployeeId": "8765"
     }
 }

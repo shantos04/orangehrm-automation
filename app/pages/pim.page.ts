@@ -90,6 +90,7 @@ export class PimPage {
      */
     async clickResetButton() {
         await this.btnReset.click();
+        await this.tableLoadingSpinner.waitFor({ state: 'hidden' });
     }
 
     /**
