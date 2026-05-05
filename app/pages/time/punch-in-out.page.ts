@@ -102,6 +102,7 @@ export class PunchInOutPage extends BasePage {
      */
     async clickInButton() {
         await this.btnIn.click();
+        await this.waitForGlobalLoading();
     }
 
     /**
@@ -109,6 +110,29 @@ export class PunchInOutPage extends BasePage {
      */
     async clickOutButton() {
         await this.btnOut.click();
+        await this.waitForGlobalLoading();
+    }
+
+    /**
+     * Fills out and submits the entire Punch In form in a single streamlined flow,
+     * then waits for the global loading spinner to disappear.
+     * 
+     * @param {string} date - The punch-out date.
+     * @param {string} time - The punch-out time.
+     * @param {string} [note] - (Optional) The note for the punch-out record.
+     */
+    async submitPunchInForm(date: string, time: string, note?: string) {
+        await this.enterDate(date);
+        await this.enterTime(time);
+        
+        if (note) {
+            await this.enterNote(note);
+        }
+        
+        await this.clickInButton();
+        
+        // Uses the inherited method from BasePage to ensure the system processes the request 
+        await this.waitForGlobalLoading();
     }
 
     /**
