@@ -41,7 +41,7 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         // Synchronize UI State before excuting test scope
         await expect(pimPage.tableContainer).toBeVisible();
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
     });
 
     /**
@@ -134,7 +134,7 @@ test.describe("PIM Module - Employee List Filters", () => {
     test("OrangeHRM_PIM_TC05_VerifyDefaultTableDataPopulation", async () => {
         // Wait for the table container to be visible and the loading spinner to disappear
         await expect(pimPage.tableContainer).toBeVisible();
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Retrieve all currently visible rows in the data table
         const allRows = await pimPage.tableRows.all();
@@ -183,7 +183,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('Id', 'Ascending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Retrieve actual data
         const actualIds = await pimPage.getColumnTextsByIndex(1, true);
@@ -204,7 +204,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('Id', 'Descending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Retrieve actual data
         const actualIds = await pimPage.getColumnTextsByIndex(1, true);
@@ -225,7 +225,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('First (& Middle) Name', 'Ascending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Scrape the actual First Names displayed on the current page
         const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
@@ -246,7 +246,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('First (& Middle) Name', 'Descending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Scrape the actual First Names displayed on the current page
         const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
@@ -267,7 +267,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('Last Name', 'Ascending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Scrape the actual Last Names displayed on the current page
         const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
@@ -288,7 +288,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.sortColumnBy('Last Name', 'Descending');
 
         // Wait for the data table to finish loading the sorted results
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // Scrape the actual Last Names displayed on the current page
         const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
@@ -312,7 +312,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         const firstIdPage1 = await pimPage.getFirstRowIdText();
 
         await pimPage.btnNextPage.click();
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         const firstIdPage2 = await pimPage.getFirstRowIdText();
 
@@ -370,7 +370,7 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         // Navigate to Page 2 and synchronize UI state
         await pimPage.btnNextPage.click();
-        await pimPage.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        await await pimPage.waitForGlobalLoading();
 
         // On Page 2, the Master Checkbox MUST explicitly be UNCHECKED
         await expect(pimPage.masterCheckboxInput).not.toBeChecked();
@@ -396,7 +396,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         await pimPage.btnSearch.click();
 
         // Wait for the table to finish loading the search results
-        await pimPage.tableLoadingSpinner.waitFor({state: 'hidden'});
+        await await pimPage.waitForGlobalLoading();
 
         // Assertion - Ensure the data table is not empty
         const allRows = await pimPage.tableRows.all();
@@ -442,7 +442,7 @@ test.describe("PIM Module - Employee List Filters", () => {
         const targetId = employeeData.searchEmployeeById.validEmployeeId;
         await pimPage.txtEmployeeId.fill(targetId);
         await pimPage.btnSearch.click();
-        await pimPage.tableLoadingSpinner.waitFor({state: 'hidden'});
+        await await pimPage.waitForGlobalLoading();
 
         // Click the Reset button to clear all filters
         await pimPage.clickResetButton();
