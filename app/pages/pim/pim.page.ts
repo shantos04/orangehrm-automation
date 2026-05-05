@@ -1,12 +1,12 @@
 /**
  * @fileoverview Page Object Model for the PIM Employee List page.
  * Encapsulates locators and UI interaction methods for employee filtering, sorting, and data extraction.
+ * Inherits from BasePage to utilize common elements like global loading spinners.
  */
 import { Page, Locator } from '@playwright/test';
+import { BasePage } from '../base.page';
 
-export class PimPage {
-    readonly page: Page;
-
+export class PimPage extends BasePage {
     // --- Search Filter Locators ---
     readonly dropdownInclude: Locator;
     readonly txtEmployeeName: Locator;
@@ -18,9 +18,7 @@ export class PimPage {
     readonly tableBody: Locator;
     readonly tableRows: Locator;
     readonly columnHeaders: Locator;
-    readonly tableLoadingSpinner: Locator;
     readonly masterCheckbox: Locator;
-
 
     // --- Action Button Locators ---
     readonly btnSearch: Locator;
@@ -29,9 +27,13 @@ export class PimPage {
     readonly btnConfirmDelete: Locator;
     readonly btnNextPage: Locator;
 
-
+    /**
+     * Initializes the PimPage object, inherited properties, and defines specific locators.
+     * @param {Page} page - The Playwright Page instance.
+     */
     constructor(page: Page) {
-        this.page = page;
+        // Calls the parent class constructor to initialize inherited locators and methods
+        super(page);
 
         this.dropdownInclude = page.locator('.oxd-input-group')
             .filter({ hasText: 'Include' })
@@ -44,7 +46,6 @@ export class PimPage {
         this.tableBody = page.locator('.oxd-table-body');
         this.tableRows = page.locator('.oxd-table-card');
         this.columnHeaders = this.tableHeaderRow.locator('.oxd-table-header-cell');
-        this.tableLoadingSpinner = page.locator('.oxd-loading-spinner');
         this.masterCheckbox = this.tableHeaderRow.locator('.oxd-checkbox-wrapper');
 
         this.btnSearch = page.getByRole('button', { name: 'Search' });
@@ -55,8 +56,8 @@ export class PimPage {
     }
 
     /**
-     * Selects an option from the Include dropdown.
-     * @param optionText - The text of the option to select (e.g., 'Current Employees Only', 'Past Employees Only', 'Current and Past Employees')
+     * Selects an option from the 'Include' dropdown filter.
+     * @param {string} optionText - The exact text of the option to select.
      */
     async selectIncludeOption(optionText: string) {
         await this.dropdownInclude.click();
@@ -65,7 +66,7 @@ export class PimPage {
 
     /**
      * Clicks the sort icon on a specified column header and selects the sorting direction.
-     * @param {string} columnName - The exact name of the column header to sort (e.g., 'Id', 'Last Name').
+     * @param {string} columnName - The exact name of the column header to sort.
      * @param {'Ascending' | 'Descending'} sortDirection - The desired sorting direction.
      */
     async sortColumnBy(columnName: string, sortDirection: 'Ascending' | 'Descending') {
@@ -86,17 +87,18 @@ export class PimPage {
     }
 
     /**
-     * Clicks the 'Reset' button to clear all active search filters.
+     * Clicks the 'Reset' button to clear all active search filters and waits for the table to refresh.
      */
     async clickResetButton() {
         await this.btnReset.click();
-        await this.tableLoadingSpinner.waitFor({ state: 'hidden' });
+        // Uses the inherited method from BasePage to wait for the global loading spinner to disappear
+        await this.waitForGlobalLoading();
     }
 
     /**
      * Extracts all text values from a specific column in the data table.
-     * @param {number} columnIndex - The zero-based index of the target column (e.g., 1 for ID, 2 for First Name).
-     * @param {boolean} [scrapeAllPages=false] - If true, the function will navigate through all pagination pages to extract data. Default is false to optimize performance.
+     * @param {number} columnIndex - The zero-based index of the target column.
+     * @param {boolean} [scrapeAllPages=false] - If true, navigates through all pagination pages.
      * @returns {Promise<string[]>} An array containing the trimmed text of each cell in the specified column.
      */
     async getColumnTextsByIndex(columnIndex: number, scrapeAllPages: boolean = false): Promise<string[]> {
@@ -104,8 +106,8 @@ export class PimPage {
         let hasNextPage = true;
 
         while (hasNextPage) {
-            // Wait for the table to fully load to avoid scraping stale data
-            await this.tableLoadingSpinner.waitFor({ state: 'hidden' });
+            // Uses the inherited method to wait for the table data to fully load before scraping
+            await this.waitForGlobalLoading();
 
             const allRows = await this.tableRows.all();
 
@@ -116,7 +118,7 @@ export class PimPage {
                 // Extract the text at the specified column index and trim excess whitespace
                 if (rowTexts.length > columnIndex) {
                     const cellText = rowTexts[columnIndex].trim();
-
+                    
                     // Only append non-empty strings to the array
                     if (cellText) {
                         columnData.push(cellText);
@@ -124,12 +126,10 @@ export class PimPage {
                 }
             }
 
-            // Pagination Logic
+            // Pagination Handling Logic
             if (scrapeAllPages) {
-                // Check if the 'Next' button is visible and active
                 const isNextBtnVisible = await this.btnNextPage.isVisible();
 
-                // OrangeHRM adds a generic 'disabled' or hides the button when on the last page
                 if (isNextBtnVisible) {
                     await this.btnNextPage.click();
                 } else {
@@ -141,7 +141,6 @@ export class PimPage {
                 hasNextPage = false;
             }
         }
-
 
         return columnData;
     }
@@ -156,7 +155,7 @@ export class PimPage {
 
     /**
      * Extracts the Employee ID text from the first row of the currently visible table.
-     * @returns {Promise<string>} The ID text of the first employee
+     * @returns {Promise<string>} The ID text of the first employee.
      */
     async getFirstRowIdText(): Promise<string> {
         return await this.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
@@ -183,6 +182,6 @@ export class PimPage {
      * @returns {Promise<Locator[]>} An array of locators representing each row's checkbox input.
      */
     async getAllRowCheckboxInputs(): Promise<Locator[]> {
-        return this.tableRows.locator('input[type="checkbox]').all();
+        return this.tableRows.locator('input[type="checkbox"]').all();
     }
 }
