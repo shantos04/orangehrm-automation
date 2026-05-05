@@ -131,7 +131,7 @@ export class TimeTopMenuComponent {
         await this.subMenuPunchInOut.click();
         // Note: OrangeHRM dynamically redirects to either 'punchIn' or 'punchOut' 
         // depending on the user's current state. Using '*' handles both cases safely.
-        await this.page.waitForURL('**/attendance/punchOut');
+       await this.page.waitForURL(/.*\/attendance\/punch(In|Out)/);
     }
 
     async goToEmployeeRecords() {

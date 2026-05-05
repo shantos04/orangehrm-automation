@@ -1,0 +1,23 @@
+{
+  "validPunchIn": {
+    "date": "2026-05-05",
+    "time": "08:00 AM",
+    "note": "Morning shift start"
+  },
+  "validPunchOut": {
+    "date": "2026-05-05",
+    "time": "05:30 PM",
+    "note": "Done for the day"
+  },
+  "invalidData": {
+    "format": {
+      "date": "invalid-date-format",
+      "time": "invalid-time"
+    },
+    "logic": {
+      "pastDate": "2020-01-01",
+      "timeBeforeIn": "01:00 AM",
+      "futureDate": "2099-12-31"
+    }
+  }
+}
