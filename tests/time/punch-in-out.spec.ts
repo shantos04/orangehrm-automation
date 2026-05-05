@@ -4,6 +4,7 @@ import {LoginPage} from '../../app/pages/login.page';
 import {TimeTopMenuComponent} from '../../app/components/time/time-top-menu.component';
 import {PunchInOutPage} from '../../app/pages/time/punch-in-out.page';
 import {ToastComponent} from '../../app/components/common/toast.component';
+import {CalendarComponent} from '../../app/components/common/calendar.component';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
@@ -14,6 +15,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
     let timeTopMenu: TimeTopMenuComponent;
     let punchIOPage: PunchInOutPage;
     let toastComponent: ToastComponent;
+    let calendarComponent: CalendarComponent;
 
     // ========================================================================
     // GLOBAL SETUP: Authentication and Navigation
@@ -62,7 +64,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
                 // Already in the correct state
                 await expect(punchIOPage.btnIn).toBeVisible();
             }
-        })
+        });
 
         test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async() => {
             // Clear auto-filled date and time fields to trigger validation
@@ -106,7 +108,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
             } else {
                 await expect(punchIOPage.btnOut).toBeVisible();
             }
-        })
+        });
 
         test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async() => {
             await punchIOPage.submitPunchOutForm('', '');
@@ -114,6 +116,41 @@ test.describe("Time Module - PunchIn/Out Page", () => {
 
             await expect(punchIOPage.errorMessageDate).toHaveText(expectedTextResult);
             await expect(punchIOPage.errorMessageTime).toHaveText(expectedTextResult);
+        });
+
+        test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async() => {
+            const invalidDate = timeData.invalidData.format.date;
+            const validTime = timeData.validPunchOut.time;
+
+            await punchIOPage.submitPunchOutForm(invalidDate, validTime);
+            await expect(punchIOPage.errorMessageDate).toContainText(expectedTexts.validationMessages.invalidDateFormat);
+        });
+
+        test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async() => {
+            const validDate = timeData.validPunchOut.date;
+            const invalidTime = timeData.invalidData.format.time;
+
+            await punchIOPage.submitPunchOutForm(validDate, invalidTime);
+
+            await expect(punchIOPage.txtTime).toHaveValue('');
+            
+            await expect(punchIOPage.errorMessageTime).toHaveText(expectedTexts.validationMessages.required);
+        });
+
+        test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async() => {
+            const validDate = timeData.validPunchOut.date;
+            const timeBeforeIn = timeData.invalidData.logic.timeBeforeIn;
+
+            await punchIOPage.submitPunchOutForm(validDate, timeBeforeIn);
+            await expect(punchIOPage.errorMessageTime).toContainText(expectedTexts.validationMessages.higherThanPunchIn);
+        });
+
+        test("OrangeHRM_TIME_TC07_VerifyPunchOutDateLessThanPunchInDate", async() => {
+            const pastDate = timeData.invalidData.logic.pastDate;
+            const validTime = timeData.validPunchOut.time;
+
+            await punchIOPage.submitPunchOutForm(pastDate, validTime);
+            await expect(punchIOPage.errorMessageDate).toContainText(expectedTexts.validationMessages.higherThanPunchIn);
         })
     })
 })

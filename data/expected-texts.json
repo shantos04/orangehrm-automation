@@ -1,7 +1,8 @@
 {
   "urls": {
     "pim": "/web/index.php/pim/viewEmployeeList",
-    "employeeList": "/web/index.php/pim/viewEmployeeList"
+    "employeeList": "/web/index.php/pim/viewEmployeeList",
+    "attendanceRecord": "viewMyAttendanceRecord"
   },
   "loginPage": {
     "invalidCredentialsError": "Invalid credentials",
@@ -20,7 +21,10 @@
     "usernameMaxLength": "Should not exceed 40 characters",
     "passwordMinLength": "Should have at least 7 characters",
     "passwordMaxLength": "Should not exceed 64 characters",
-    "passwordNoNumber": "Your password must contain minimum 1 number"
+    "passwordNoNumber": "Your password must contain minimum 1 number",
+    "invalidDateFormat": "Should be a valid date in yyyy-dd-mm format",
+    "higherThanPunchIn": "Punch out Time Should Be Later Than Punch in Time",
+    "overlappingRecords": "Overlapping Records Found"
   },
   "dropdownOptions": {
     "include": {
