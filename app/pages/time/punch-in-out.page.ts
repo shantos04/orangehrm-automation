@@ -1,28 +1,27 @@
 /**
- * @fileoverview Page Object Model for the Punch Out page in the Time/Attendance module.
+ * @fileoverview Page Object Model for the Punch In/Out page in the Time/Attendance module.
  * 
  * This file encapsulates all the UI elements (locators) and user actions (methods) 
- * specific to the "Punch Out" form. By centralizing these, we ensure our test scripts 
- * remain clean, maintainable, and resilient to UI changes.
+ * specific to the "Punch In" and "Punch Out" forms. It inherits from BasePage to 
+ * utilize common elements like the global loading spinner.
  */
 
-import {Page, Locator} from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from '../base.page';
 
-export class PunchInOutPage {
-    readonly page: Page;
-
+export class PunchInOutPage extends BasePage {
     // --- Locators ---
 
     // Label displaying the exact date and time the user punched in
     readonly mainTitle: Locator;
     readonly lblPunchedInTime: Locator;
 
-    // Input fields for the Punch Out form
+    // Input fields for the Punch In/Out form
     readonly txtDate: Locator;
     readonly txtTime: Locator;
     readonly txtNote: Locator;
 
-    // Action button to submit the form
+    // Action buttons to submit the form
     readonly btnIn: Locator;
     readonly btnOut: Locator;
 
@@ -31,11 +30,12 @@ export class PunchInOutPage {
     readonly errorMessageTime: Locator;
 
     /**
-     * Initializes the PunchOutPage object and defines locator strategies.
-     * @param page - The Playwright Page instance.
+     * Initializes the PunchInOutPage object, inherits from BasePage, and defines locator strategies.
+     * @param {Page} page - The Playwright Page instance.
      */
     constructor(page: Page) {
-        this.page = page;
+        // Calls the BasePage constructor to initialize the page object and globalLoadingSpinner
+        super(page);
 
         this.mainTitle = page.locator('.orangehrm-main-title');
 
@@ -48,12 +48,12 @@ export class PunchInOutPage {
         this.txtNote = page.getByPlaceholder('Type here');
 
         // Locate the submit button using its accessibility role and accessible name.
-        this.btnIn = page.getByRole('button', {name: 'In'});
-        this.btnOut = page.getByRole('button', {name: 'Out'});
+        this.btnIn = page.getByRole('button', { name: 'In' });
+        this.btnOut = page.getByRole('button', { name: 'Out' });
 
         // Find the parent group by label text, then target the specific OrangeHRM error message class.
-        this.errorMessageDate = page.locator('.oxd-input-group').filter({hasText: 'Date'}).locator('.oxd-input-field-error-message');
-        this.errorMessageTime = page.locator('.oxd-input-group').filter({hasText: 'Time'}).locator('.oxd-input-field-error-message');
+        this.errorMessageDate = page.locator('.oxd-input-group').filter({ hasText: 'Date' }).locator('.oxd-input-field-error-message');
+        this.errorMessageTime = page.locator('.oxd-input-group').filter({ hasText: 'Time' }).locator('.oxd-input-field-error-message');
     }
 
     // ========================================================================
@@ -71,7 +71,7 @@ export class PunchInOutPage {
     }
     
     /**
-     * Enters the punch-out date into the date input field.
+     * Enters the punch-out/in date into the date input field.
      * 
      * @param {string} date - The date to enter (expected format matches placeholder).
      */
@@ -80,7 +80,7 @@ export class PunchInOutPage {
     }
 
     /**
-     * Enters the punch-out time into the time input field.
+     * Enters the punch-out/in time into the time input field.
      * 
      * @param {string} time - The time to enter (expected format: hh:mm AM/PM).
      */ 
@@ -89,7 +89,7 @@ export class PunchInOutPage {
     }
 
     /**
-     * Enters an optional note for the punch-out record.
+     * Enters an optional note for the punch-out/in record.
      * 
      * @param {string} note - The note text to enter.
      */
@@ -98,10 +98,10 @@ export class PunchInOutPage {
     }
 
     /**
-     * Clicks the "In" button to submit the punch-out form.
+     * Clicks the "In" button to submit the punch-in form.
      */
     async clickInButton() {
-        await this.btnOut.click();
+        await this.btnIn.click();
     }
 
     /**
@@ -112,7 +112,8 @@ export class PunchInOutPage {
     }
 
     /**
-     * Fills out and submits the entire Punch Out form in a single streamlined flow.
+     * Fills out and submits the entire Punch Out form in a single streamlined flow,
+     * then waits for the global loading spinner to disappear.
      * 
      * @param {string} date - The punch-out date.
      * @param {string} time - The punch-out time.
@@ -121,9 +122,14 @@ export class PunchInOutPage {
     async submitPunchOutForm(date: string, time: string, note?: string) {
         await this.enterDate(date);
         await this.enterTime(time);
+        
         if (note) {
             await this.enterNote(note);
         }
+        
         await this.clickOutButton();
+        
+        // Uses the inherited method from BasePage to ensure the system processes the request 
+        await this.waitForGlobalLoading();
     }
 }
