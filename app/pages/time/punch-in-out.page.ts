@@ -98,6 +98,13 @@ export class PunchInOutPage {
     }
 
     /**
+     * Clicks the "In" button to submit the punch-out form.
+     */
+    async clickInButton() {
+        await this.btnOut.click();
+    }
+
+    /**
      * Clicks the "Out" button to submit the punch-out form.
      */
     async clickOutButton() {
