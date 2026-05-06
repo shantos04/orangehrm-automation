@@ -32,21 +32,20 @@ export class CalendarComponent {
     constructor(page: Page, index: number = 0) {
         this.page = page;
 
-        // 1. Locate the main parent wrapper 
+        // Locate the main parent wrapper 
         this.dateWrapper = page.locator('.oxd-date-wrapper').nth(index);
         
-        // 2. Locate the icon inside this specific wrapper
+        // Locate the icon inside this specific wrapper
         this.calendarIcon = this.dateWrapper.locator('.oxd-date-input-icon');
 
-        // 3. Locate the dynamic calendar container based on the exact class from the screenshot
+        // Locate the dynamic calendar container based on the exact class from the screenshot
         this.calendarContainer = this.dateWrapper.locator('.oxd-date-input-calendar');
 
         /// --- Header controls scoped to the calendar container ---
         this.monthDropdown = this.calendarContainer.locator('.oxd-calendar-selector-month');
         this.yearDropdown = this.calendarContainer.locator('.oxd-calendar-selector-year');
         
-        // OPTIMIZED: Using Playwright's ':has()' to directly target the button containing the specific icon.
-        // This is much safer and cleaner than using xpath parent traversal ('..')
+        // Using Playwright's ':has()' to directly target the button containing the specific icon.
         this.btnPrevMonth = this.calendarContainer.locator('.oxd-calendar-header button:has(i.bi-chevron-left)');
         this.btnNextMonth = this.calendarContainer.locator('.oxd-calendar-header button:has(i.bi-chevron-right)');
 
@@ -72,7 +71,11 @@ export class CalendarComponent {
      */
     async selectYear(year: string) {
         await this.yearDropdown.click();
-        await this.calendarContainer.getByRole('option', { name: year, exact: true }).click();
+        
+        // FIX: OrangeHRM uses custom <ul>/<li> elements for dropdowns instead of native <select> tags 
+        // and lacks ARIA 'role="option"' attributes. We scope to the dropdown container and find by text.
+        const dropdownList = this.calendarContainer.locator('.oxd-calendar-dropdown--option');
+        await dropdownList.getByText(year, { exact: true }).click();
     }
 
     /**
@@ -81,7 +84,10 @@ export class CalendarComponent {
      */
     async selectMonth(month: string) {
         await this.monthDropdown.click();
-        await this.calendarContainer.getByRole('option', { name: month, exact: true }).click();
+        
+        // FIX: Applied the same stable locator strategy for the month selection.
+        const dropdownList = this.calendarContainer.locator('.oxd-calendar-dropdown--option');
+        await dropdownList.getByText(month, { exact: true }).click();
     }
 
     /**
