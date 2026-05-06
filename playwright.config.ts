@@ -17,6 +17,10 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: './tests',
+  /* Folder for test artifacts such as screenshots, videos, traces, etc.*/
+  outputDir: 'test-results/',
+  /* Maximum time one test can run for */
+  timeout: 60 * 1000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -33,8 +37,32 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
     baseURL: process.env.BASE_URL,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    // trace: 'on-first-retry',
+
+    /**
+     * TRACE: 'retain-on-failure'
+     * Captures a full Playwright trace (DOM snapshots, network requests, logs).
+     * Essential for debugging complex UI or network timing issues.
+     */
+    trace: 'retain-on-failure',
+
     headless: false,
+
+    /**
+     * SCREENSHOT: 'only-on-failure'
+     * Automatically captures a screenshot of the browser viewport exactly 
+     * at the moment a test fails. This saves disk space compared to 'on'.
+     */
+    screenshot: 'only-on-failure',
+
+    /**
+     * VIDEO: 'retain-on-failure'
+     * Records a video of the entire test execution. If the test passes, 
+     * the video is automatically deleted. If it fails, the video is kept.
+     */
+    video: 'retain-on-failure',
+
+
   },
 
   /* Configure projects for major browsers */
