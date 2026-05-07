@@ -134,7 +134,7 @@ test.describe("PIM Module - Employee List Filters", () => {
     test("OrangeHRM_PIM_TC05_VerifyDefaultTableDataPopulation", async () => {
         // Wait for the table container to be visible and the loading spinner to disappear
         await expect(pimPage.tableContainer).toBeVisible();
-        await await pimPage.waitForGlobalLoading();
+        await pimPage.waitForGlobalLoading();
 
         // Retrieve all currently visible rows in the data table
         const allRows = await pimPage.tableRows.all();
