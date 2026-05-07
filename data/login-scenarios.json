@@ -1,0 +1,51 @@
+[
+    {
+        "testCaseId": "OrangeHRM_Login_TC02_VerifySuccessfulLogin",
+        "description": "Verify successful login with valid administrative credentials.",
+        "username": "Admin",
+        "password": "admin123",
+        "expectedResult": "success"
+    },
+    {
+        "testCaseId": "OrangeHRM_Login_TC03_VerifyErrorInvalidPasword",
+        "description": "Verify error handling when using an invalid password.",
+        "username": "Admin",
+        "password": "WrongPassword123",
+        "expectedResult": "invalid_credentials"
+    }, 
+    {
+        "testCaseId": "OrangeHRM_Login_TC04_VerifyErrorEmptyFields",
+        "description": "Verify validation errors when attempting to log in with empty fields.",
+        "username": "",
+        "password": "",
+        "expectedResult": "empty_both"
+    },
+    {
+        "testCaseId": "OrangeHRM_Login_TC07_VerifyErrorInvalidUsername",
+        "description": "Verify error handling when using an invalid username but correct password.",
+        "username": "WrongAdmin",
+        "password": "admin123",
+        "expectedResult": "invalid_credentials"
+    },
+    {
+        "testCaseId": "OrangeHRM_Login_TC08_VerifyErrorEmptyUsername",
+        "description": "Verify validation error when attempting to login with empty username field.",
+        "username": "",
+        "password": "admin123",
+        "expectedResult": "empty_username"
+    },
+    {
+        "testCaseId": "OrangeHRM_Login_TC09_VerifyErrorEmptyPassword",
+        "description": "Verify validation error when attempting to login with empty password field.",
+        "username": "Admin",
+        "password": "",
+        "expectedResult": "empty_password"
+    },
+    {
+        "testCaseId": "OrangeHRM_Login_TC10_VerifyWhitespaceHandling",
+        "description": "Verify authentication behavior when valid credentials contain leading or trailing whitespaces.",
+        "username": " Admin ",
+        "password": "admin123",
+        "expectedResult": "success"
+    }
+]
