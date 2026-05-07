@@ -51,6 +51,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
     // TEST CASES FOR SHARED CALENDAR WIDGET
     // ========================================================================
 
+    /**
+     * Test Case: Verify the visibility of the Date Picker calendar widget.
+     * Assertion: Ensures the dynamic calendar component renders and becomes visible upon interaction with the date input field, and captures screenshot evidence.
+     */
     test("OrangeHRM_TIME_CAL_TC01_VerifyOpeningCalendarWidget", async ({page}, testInfo) => {
         // Utilize the POM method to safely open the calendar and wait for Vue.js rendering
         await calendarComp.openCalendar();
@@ -66,6 +70,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
         });
     });
 
+    /**
+     * Test Case: Verify the date selection functionality within the Date Picker.
+     * Assertion: Ensures selecting a specific year, month, and day correctly populates the input field with the designated date format, dismisses the calendar, and captures evidence.
+     */
     test("OrangeHRM_TIME_CAL_TC02_VerifySelectingSpecificDate", async ({page}, testInfo) => {
         const targetYear = '2026';
         const targetMonth = 'May';
@@ -89,6 +97,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
         });
     });
 
+    /**
+     * Test Case: Verify the functionality of the 'Today' shortcut button.
+     * Assertion: Ensures clicking 'Today' correctly calculates the system's current date, formats it according to system settings (YYYY-DD-MM), populates the field, and closes the widget.
+     */
     test("OrangeHRM_TIME_CAL_TC03_VerifyTodayShortcutButton", async ({ page }, testInfo) => {
         await calendarComp.openCalendar();
 
@@ -122,6 +134,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
         });
     });
 
+    /**
+     * Test Case: Verify the functionality of the 'Clear' shortcut button.
+     * Assertion: Ensures clicking 'Clear' successfully removes any existing data from the input field and dismisses the calendar widget.
+     */
     test("OrangeHRM_TIME_CAL_TC04_VerifyClearShortcutButton", async ({page}, testInfo) => {
         // Pre-fill the input field to ensure there is existing data to clear
         await punchIOPage.txtDate.fill('2026-05-05');
@@ -145,6 +161,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
         });
     });
 
+    /**
+     * Test Case: Verify the functionality of the 'Close' shortcut button.
+     * Assertion: Ensures clicking 'Close' dismisses the calendar without altering any pre-existing data in the input field, maintaining the initial UI state.
+     */
     test("OrangeHRM_TIME_CAL_TC05_VerifyCloseShortcutButton", async ({page}, testInfo) => {
         // Pre-fill the input field with a baseline date to verify it remains unchanged
         const baselineDate = '2026-05-05';
