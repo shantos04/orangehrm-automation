@@ -10,6 +10,7 @@ import {DashboardPage} from '../../app/pages/dashboard.page';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
+import loginTestScenarios from '../../data/login-scenarios.json';
 
 /**
  * Test Suite: Authentication - Login Module
@@ -49,47 +50,47 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify successful login with valid administrative credentials.
      * Assertion: Checks if the user is redirected and the 'Dashboard' header is visible.
      */
-    test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async({page}) => {
-        const { username: testUsername, password: testPassword } = usersData.validAdmin;
+    // test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async({page}) => {
+    //     const { username: testUsername, password: testPassword } = usersData.validAdmin;
 
-        // Perform login action
-        await loginPage.login(testUsername, testPassword);
-        await expect(dashboardPage.labelHeader).toBeVisible();
-        await expect(page).toHaveURL(/.*dashboard/);
-    });
+    //     // Perform login action
+    //     await loginPage.login(testUsername, testPassword);
+    //     await expect(dashboardPage.labelHeader).toBeVisible();
+    //     await expect(page).toHaveURL(/.*dashboard/);
+    // });
 
     /**
      * Test Case: Verify error handling when using an invalid password.
      * Assertion: Checks for the visibility and content of the error message.
      */
-    test("OrangeHRM_Login_TC03_VerifyErrorInvalidPassword", async({page}) => {
-        const { username: testUsername, password: testPassword } = usersData.invalidPassword;
-        const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+    // test("OrangeHRM_Login_TC03_VerifyErrorInvalidPassword", async({page}) => {
+    //     const { username: testUsername, password: testPassword } = usersData.invalidPassword;
+    //     const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
-        await loginPage.login(testUsername, testPassword);
+    //     await loginPage.login(testUsername, testPassword);
 
-        await expect(loginPage.msgError).toBeVisible();
-        await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
-    });
+    //     await expect(loginPage.msgError).toBeVisible();
+    //     await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
+    // });
 
     /**
      * Test Case: Verify validation errors when attempting to log in with empty fields.
      * Assertion: "Required" validation messages appear under both input fields.
      */
-    test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
-        const {username: emptyUsername, password: emptyPassword} = usersData.emptyFields;
-        const expectedErrorText = expectedTexts.loginPage.requiredFieldError;
+    // test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
+    //     const {username: emptyUsername, password: emptyPassword} = usersData.emptyFields;
+    //     const expectedErrorText = expectedTexts.loginPage.requiredFieldError;
 
-        await loginPage.login(emptyUsername, emptyPassword);
+    //     await loginPage.login(emptyUsername, emptyPassword);
 
-        // Verify the exact validation message under the Username field
-        await expect(loginPage.msgUsernameRequired).toBeVisible();
-        await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorText);
+    //     // Verify the exact validation message under the Username field
+    //     await expect(loginPage.msgUsernameRequired).toBeVisible();
+    //     await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorText);
 
-        // Verify the exact validation message under the Password field
-        await expect(loginPage.msgPasswordRequired).toBeVisible();
-        await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorText);
-    });
+    //     // Verify the exact validation message under the Password field
+    //     await expect(loginPage.msgPasswordRequired).toBeVisible();
+    //     await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorText);
+    // });
 
     /**
      * Test Case: Verify the security masking of the password input field.
@@ -127,66 +128,119 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify error handling when using an invalid username but correct password.
      * Assertion: Checks that the generic 'Invalid credentials' error is displayed to prevent user enumeration.
      */
-    test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
-        const {username: testUsername, password: testPassword} = usersData.invalidUsername;
-        const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+    // test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
+    //     const {username: testUsername, password: testPassword} = usersData.invalidUsername;
+    //     const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
 
-        await loginPage.login(testUsername, testPassword);
-        // Verify the error message
-        await expect(loginPage.msgError).toBeVisible();
-        await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
-    });
+    //     await loginPage.login(testUsername, testPassword);
+    //     // Verify the error message
+    //     await expect(loginPage.msgError).toBeVisible();
+    //     await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
+    // });
 
     /**
      * Test Case: Verify validation error when attempting to log in with an empty username field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async({page}) => {
-        const {username: testUsername, password: testPassword} = usersData.emptyUsername;
-        const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+    // test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async({page}) => {
+    //     const {username: testUsername, password: testPassword} = usersData.emptyUsername;
+    //     const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
 
-        // Perform the login action
-        await loginPage.login(testUsername, testPassword);
+    //     // Perform the login action
+    //     await loginPage.login(testUsername, testPassword);
 
-        // Verify the 'Required' error message appears exactly once under the Username field
-        await expect(loginPage.msgUsernameRequired).toHaveCount(1);
-        await expect(loginPage.msgUsernameRequired).toBeVisible();
-        await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorMessage);
+    //     // Verify the 'Required' error message appears exactly once under the Username field
+    //     await expect(loginPage.msgUsernameRequired).toHaveCount(1);
+    //     await expect(loginPage.msgUsernameRequired).toBeVisible();
+    //     await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorMessage);
 
-        // Ensure that NO error message is displayed under the Password field
-        await expect(loginPage.msgPasswordRequired).toBeHidden();
-    });
+    //     // Ensure that NO error message is displayed under the Password field
+    //     await expect(loginPage.msgPasswordRequired).toBeHidden();
+    // });
 
     /**
      * Test Case: Verify validation error when attempting to log in with an empty password field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async({page}) => {
-        const {username: testUsername, password: testPassword} = usersData.emptyPassword;
-        const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+    // test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async({page}) => {
+    //     const {username: testUsername, password: testPassword} = usersData.emptyPassword;
+    //     const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
 
-        // Perform the login action
-        await loginPage.login(testUsername, testPassword);
+    //     // Perform the login action
+    //     await loginPage.login(testUsername, testPassword);
 
-        // Verify the 'Required' error message appears exactly once under the Password field
-        await expect(loginPage.msgPasswordRequired).toHaveCount(1);
-        await expect(loginPage.msgPasswordRequired).toBeVisible();
-        await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorMessage);
+    //     // Verify the 'Required' error message appears exactly once under the Password field
+    //     await expect(loginPage.msgPasswordRequired).toHaveCount(1);
+    //     await expect(loginPage.msgPasswordRequired).toBeVisible();
+    //     await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorMessage);
 
-        // Ensure that NO error message is displayed under the Username field
-        await expect(loginPage.msgUsernameRequired).toBeHidden();
-    });
+    //     // Ensure that NO error message is displayed under the Username field
+    //     await expect(loginPage.msgUsernameRequired).toBeHidden();
+    // });
 
     /**
      * Test Case: Verify authentication behavior when valid credentials contain leading or trailing whitespaces.
      * Assertion: Validating Business logic and data value handling (verifying if the system automatically trims whitespaces).
      */
-    test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async({page}) => {
-        const {username: testUsername, password: testPassword} = usersData.whitespaceUsername;
+    // test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async({page}) => {
+    //     const {username: testUsername, password: testPassword} = usersData.whitespaceUsername;
         
-        await loginPage.login(testUsername, testPassword);
+    //     await loginPage.login(testUsername, testPassword);
         
-        await expect(dashboardPage.labelHeader).toBeVisible();
-        await expect(page).toHaveURL(/.*dashboard/);
-    });
+    //     await expect(dashboardPage.labelHeader).toBeVisible();
+    //     await expect(page).toHaveURL(/.*dashboard/);
+    // });
+
+
+    /**
+     * Data-Driven Execution Block
+     * Iterates over the defined scenarios to perform various login attempts.
+     */
+    for (const scenario of loginTestScenarios) {
+        test(`${scenario.testCaseId}`, async({page}) => {
+            // Perform the login action with data from current scenario
+            await loginPage.login(scenario.username, scenario.password);
+
+            // Dynamically assert based on the expected result defined in the data
+            switch (scenario.expectedResult) {
+                case "success":
+                    await expect(dashboardPage.labelHeader).toBeVisible();
+                    await expect(page).toHaveURL(/.*dashboard/);
+                    break;
+
+                case "invalid_credentials":
+                    const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+                    await expect(loginPage.msgError).toBeVisible();
+                    await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
+                    break;
+
+                case "empty_both":
+                    const requiredError = expectedTexts.loginPage.requiredFieldError;
+                    await expect(loginPage.msgUsernameRequired).toBeVisible();
+                    await expect(loginPage.msgUsernameRequired).toHaveText(requiredError);
+                    await expect(loginPage.msgPasswordRequired).toBeVisible();
+                    await expect(loginPage.msgPasswordRequired).toHaveText(requiredError);
+                    break;
+
+                case "empty_username":
+                    const usernameRequiredError = expectedTexts.loginPage.requiredFieldError;
+                    await expect(loginPage.msgUsernameRequired).toHaveCount(1);
+                    await expect(loginPage.msgUsernameRequired).toBeVisible();
+                    await expect(loginPage.msgUsernameRequired).toHaveText(usernameRequiredError);
+                    await expect(loginPage.msgPasswordRequired).toBeHidden();
+                    break;
+
+                case "empty_password":
+                    const passwordRequiredError = expectedTexts.loginPage.requiredFieldError;
+                    await expect(loginPage.msgPasswordRequired).toHaveCount(1);
+                    await expect(loginPage.msgPasswordRequired).toBeVisible();
+                    await expect(loginPage.msgPasswordRequired).toHaveText(passwordRequiredError);
+                    await expect(loginPage.msgUsernameRequired).toBeHidden();
+                    break;
+                    
+                default:
+                    throw new Error(`Unknown expected result defined in test data: ${scenario.expectedResult}`);
+            }
+        })
+    }
 });
