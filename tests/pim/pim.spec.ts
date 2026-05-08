@@ -49,10 +49,11 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures the system defaults to 'Current Employees Only'.
      */
     test("OrangeHRM_PIM_TC01_VerifyDefaultIncludeFilter", async () => {
-        const expectedDefault = expectedTexts.dropdownOptions.include.default;
-
-        // Check if the dropdown displays the correct initial text
-        await expect(pimPage.dropdownInclude).toHaveText(expectedDefault);
+        await test.step("Verify: The 'Include' dropdown should default to 'Current Employees Only'", async () => {
+            await pimPage.verifySearchFormState({
+                include: expectedTexts.dropdownOptions.include.default
+            })
+        })
     });
 
     /**
@@ -62,11 +63,15 @@ test.describe("PIM Module - Employee List Filters", () => {
     test("OrangeHRM_PIM_TC02_SelectPastEmployeesFilter", async () => {
         const optionToSelect = expectedTexts.dropdownOptions.include.past;
 
-        // Perform selection using the POM method
-        await pimPage.selectIncludeOption(optionToSelect);
+        await test.step("Action: Select 'Past Employees Only' from dropdown", async () => {
+            // Perform selection
+            await pimPage.searchEmployee({include: optionToSelect}, false);
+        })
 
-        // Assert the new value is displayed
-        await expect(pimPage.dropdownInclude).toHaveText(optionToSelect);
+        await test.step("Verify: The dropdown displays the updated selection", async () => {
+            // Assert the new value is displayed
+            await pimPage.verifySearchFormState({include: optionToSelect});
+        })
     });
 
     /**
@@ -77,54 +82,54 @@ test.describe("PIM Module - Employee List Filters", () => {
         const defaultValue = expectedTexts.dropdownOptions.include.default;
         const otherValue = expectedTexts.dropdownOptions.include.both;
 
-        // Change the dropdown value to something else
-        await pimPage.selectIncludeOption(otherValue);
-        await expect(pimPage.dropdownInclude).toHaveText(otherValue);
+        await test.step("Action: Select a non-default value without submitting", async () => {
+            // Change the dropdown value to something else without triggering search
+            await pimPage.searchEmployee({include: otherValue}, false);
+        })
 
-        // Click the Reset button
-        await pimPage.clickResetButton();
+        await test.step("Action: Click Reset button", async () => {
+            // Click the Reset button
+            await pimPage.clickResetButton();
+        })
 
-        // Verify it returns to the default value
-        await expect(pimPage.dropdownInclude).toHaveText(defaultValue);
+        await test.step("Verify: The dropdown reverts to its default value", async () => {
+            // Verify it returns to the default value
+            await pimPage.verifySearchFormState({include: defaultValue});
+        })
     });
 
     /**
      * Test Case: Verify that the Employee List data table displays all required column headers.
      * Assertion: Ensures the table structure is correct, containing the master checkbox, specific text columns, and the exact total column count.
      */
-    test("OrangeHRM_PIM_TC04_VerifyRequiredTableHeaders", async ({ page }) => {
+    test("OrangeHRM_PIM_TC04_VerifyRequiredTableHeaders", async () => {
+        await test.step("Verify: The data table contains all necessary column headers", async () => {
+            // Verify master Checkbox in the Header (first column, no text)
+            await expect(pimPage.masterCheckbox).toBeVisible();
 
-        // Verify master Checkbox in the Header (first column, no text)
-        await expect(pimPage.masterCheckbox).toBeVisible();
+            // Define the expected text for all other columns
+            const expectedTextHeaders = [
+                "Id", "First (& Middle) Name", "Last Name", "Job Title",
+                "Employment Status", "Sub Unit", "Supervisor", "Actions"
+            ];
 
-        // Define the expected text for all other columns
-        const expectedTextHeaders = [
-            "Id",
-            "First (& Middle) Name",
-            "Last Name",
-            "Job Title",
-            "Employment Status",
-            "Sub Unit",
-            "Supervisor",
-            "Actions"
-        ]
+            // Loop through the array and verify each header 
+            for (const headerName of expectedTextHeaders) {
+                // Escape special characters to prevent Regex errors and match the exact column header text
+                const escapedHeader = headerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-        // Loop through the array and verify each header 
-        for (const headerName of expectedTextHeaders) {
-            // Escape special characters to prevent Regex errors
-            const escapedHeader = headerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // Create a Regex to match the exact start of the header text
+                const exactWordRegex = new RegExp('^\\s*' + escapedHeader);
 
-            // Create a Regex to match the exact start of the header text
-            const exactWordRegex = new RegExp('^\\s*' + escapedHeader);
+                // Filter the column headers by the exact regex and verify visibility
+                const specificHeader = pimPage.columnHeaders.filter({ hasText: exactWordRegex });
+                await expect(specificHeader).toBeVisible();
+            }
 
-            // Filter the column headers by the exact regex and verify visibility
-            const specificHeader = pimPage.columnHeaders.filter({ hasText: exactWordRegex });
-            await expect(specificHeader).toBeVisible();
-        }
-
-        // Verify the total number of columns matches the expected count (text columns + 1 checkbox)
-        const expectedTotalColumns = expectedTextHeaders.length + 1;
-        await expect(pimPage.columnHeaders).toHaveCount(expectedTotalColumns);
+            // Verify the total number of columns matches the expected count (text columns + 1 checkbox)
+            const expectedTotalColumns = expectedTextHeaders.length + 1;
+            await expect(pimPage.columnHeaders).toHaveCount(expectedTotalColumns);
+        });
     });
 
     /**
@@ -132,26 +137,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures the data table successfully loads default records, contains at least one row, and the front-end correctly renders vital data fields (ID and First Name) without empty values.
      */
     test("OrangeHRM_PIM_TC05_VerifyDefaultTableDataPopulation", async () => {
-        // Wait for the table container to be visible and the loading spinner to disappear
-        await expect(pimPage.tableContainer).toBeVisible();
-        await pimPage.waitForGlobalLoading();
+        await test.step("Verify: Default table data is populated and valid", async () => {
+            // Retrieve all currently visible rows in the data table
+            const allRows = await pimPage.tableRows.all();
 
-        // Retrieve all currently visible rows in the data table
-        const allRows = await pimPage.tableRows.all();
+            // Assert that the table is not empty (contains at least one record)
+            expect(allRows.length).toBeGreaterThan(0);
 
-        // Assert that the table is not empty (contains at least one record)
-        expect(allRows.length).toBeGreaterThan(0);
+            // Extract text from all cells of the first row to verify the data structure (Schema validation)
+            const firstRowTexts = await allRows[0].locator('.oxd-table-cell').allInnerTexts();
 
-        // Extract text from all cells of the first row to verify the data structure (Schema validation)
-        const firstRowTexts = await allRows[0].locator('.oxd-table-cell').allInnerTexts();
+            // Map the extracted text to specific variables (Index 0 is the checkbox, Index 1 is ID, Index 2 is First Name)
+            const id = firstRowTexts[1].trim();
+            const firstName = firstRowTexts[2].trim();
 
-        // Map the extracted text to specific variables (Index 0 is the checkbox, Index 1 is ID, Index 2 is First Name)
-        const id = firstRowTexts[1].trim();
-        const firstName = firstRowTexts[2].trim();
-
-        // Assert that the front-end successfully renders valid data (ID and First Name are not empty strings)
-        expect(id).not.toBe('');
-        expect(firstName).not.toBe('');
+            // Assert that the front-end successfully renders valid data (ID and First Name are not empty strings)
+            expect(id).not.toBe('');
+            expect(firstName).not.toBe('');
+        });
     });
 
     /**
@@ -159,19 +162,15 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures the system handles empty search results gracefully by showing the correct toast notification.
      */
     test("OrangeHRM_PIM_TC06_VerifyNoRecordsFoundMessage", async () => {
-        const expectedTextResult = expectedTexts.toastMessages.noRecordsFound;
+        await test.step("Action: Input a deliberately invalid or non-existent employee name", async () => {
+            // Input a deliberately invalid or non-existent employee name and submit (default true)
+            await pimPage.searchEmployee({ employeeName: 'Not an employee' });
+        });
 
-        // Input a deliberately invalid or non-existent employee name
-        await pimPage.txtEmployeeName.fill('Not an employee');
-
-        // Click search and simultaneously wait for the toast notification to be visible
-        await Promise.all([
-            expect(toastComponent.toastMessage).toBeVisible(),
-            pimPage.btnSearch.click()
-        ])
-
-        // Verify the toast message contains the expected 'No Records Found' text (case-insensitive)
-        await expect(toastComponent.toastMessage).toContainText(expectedTextResult, { ignoreCase: true });
+        await test.step("Verify: System displays 'No Records Found' and an empty table", async () => {
+            // Verify the toast message contains the expected 'No Records Found' text
+            await pimPage.verifyNoRecordsFoundMessage();
+        });
     });
 
     /**
@@ -179,20 +178,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
      */
     test("OrangeHRM_PIM_TC07_VerifyAscendingSortOnId", async () => {
-        // Click the sort icon on the 'Id' column header and select 'Ascending'
-        await pimPage.sortColumnBy('Id', 'Ascending');
+        await test.step("Action: Click the sort icon on the 'Id' column header and select 'Ascending'", async () => {
+            // Click the sort icon on the 'Id' column header and select 'Ascending'
+            await pimPage.sortColumnBy('Id', 'Ascending');
+            
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+        await test.step("Verify: The UI data strictly matches the programmatically sorted baseline", async () => {
+            // Retrieve actual data
+            const actualIds = await pimPage.getColumnTextsByIndex(1, true);
 
-        // Retrieve actual data
-        const actualIds = await pimPage.getColumnTextsByIndex(1, true);
+            // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
+            const expectedSortedIds = getExpectedSortedArray(actualIds, 'Ascending', false);
 
-        // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
-        const expectedSortedIds = getExpectedSortedArray(actualIds, 'Ascending', false);
-
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualIds).toEqual(expectedSortedIds);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualIds).toEqual(expectedSortedIds);
+        });
     });
 
     /**
@@ -200,20 +203,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
      */
     test("OrangeHRM_PIM_TC08_VerifyDescendingSortOnId", async () => {
-        // Click the sort icon on the 'Id' column header and select 'Ascending'
-        await pimPage.sortColumnBy('Id', 'Descending');
+        await test.step("Action: Click the sort icon on the 'Id' column header and select 'Descending'", async () => {
+            // Click the sort icon on the 'Id' column header and select 'Descending'
+            await pimPage.sortColumnBy('Id', 'Descending');
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Retrieve actual data
-        const actualIds = await pimPage.getColumnTextsByIndex(1, true);
+        await test.step("Verify: The UI data strictly matches the programmatically sorted baseline", async () => {
+            // Retrieve actual data
+            const actualIds = await pimPage.getColumnTextsByIndex(1, true);
 
-        // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
-        const expectedSortedIds = getExpectedSortedArray(actualIds, 'Descending', false);
+            // The 'isNumeric' flag is set to true to correctly handle alphanumeric IDs (e.g., EMP01, EMP10)
+            const expectedSortedIds = getExpectedSortedArray(actualIds, 'Descending', false);
 
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualIds).toEqual(expectedSortedIds);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualIds).toEqual(expectedSortedIds);
+        });
     });
 
     /**
@@ -221,20 +228,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
     test("OrangeHRM_PIM_TC09_VerifyAscendingSortOnFirstname", async () => {
-        // Click the sort icon on the 'First (& Middle) Name' column header and select 'Ascending'
-        await pimPage.sortColumnBy('First (& Middle) Name', 'Ascending');
+        await test.step("Action: Click the sort icon on the 'First Name' column header and select 'Ascending'", async () => {
+            // Click the sort icon on the 'First (& Middle) Name' column header and select 'Ascending'
+            await pimPage.sortColumnBy('First (& Middle) Name', 'Ascending');
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Scrape the actual First Names displayed on the current page
-        const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
+        await test.step("Verify: Verify the UI data strictly matches the programmatically sorted baseline", async () => {
+            // Scrape the actual First Names displayed on the current page
+            const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
 
-        // isNumeric MUST be false for textual columns like First Name
-        const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Ascending', false);
+            // isNumeric MUST be false for textual columns like First Name
+            const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Ascending', false);
 
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+        });
     });
 
     /**
@@ -242,20 +253,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
     test("OrangeHRM_PIM_TC10_VerifyDescendingSortOnFirstname", async () => {
-        // Click the sort icon on the 'First (& Middle) Name' column header and select 'Descending'
-        await pimPage.sortColumnBy('First (& Middle) Name', 'Descending');
+        await test.step("Action: Click the sort icon on the 'First Name' column header and select 'Descending'", async () => {
+            // Click the sort icon on the 'First (& Middle) Name' column header and select 'Descending'
+            await pimPage.sortColumnBy('First (& Middle) Name', 'Descending');
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Scrape the actual First Names displayed on the current page
-        const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
+        await test.step("Verify: Verify the UI data strictly matches the programmatically sorted baseline", async () => {
+            // Scrape the actual First Names displayed on the current page
+            const actualFirstNames = await pimPage.getColumnTextsByIndex(2, true);
 
-        // isNumeric MUST be false for textual columns like First Name
-        const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Descending', false);
+            // isNumeric MUST be false for textual columns like First Name
+            const expectedSortedFirstNames = getExpectedSortedArray(actualFirstNames, 'Descending', false);
 
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualFirstNames).toEqual(expectedSortedFirstNames);
+        });
     });
 
     /**
@@ -263,20 +278,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
     test("OrangeHRM_PIM_TC11_VerifyAscendingSortOnLastname", async () => {
-        // Click the sort icon on the 'Last Name' column header and select 'Ascending'
-        await pimPage.sortColumnBy('Last Name', 'Ascending');
+        await test.step("Action: Click the sort icon on the 'Last Name' column header and select 'Ascending'", async () => {
+            // Click the sort icon on the 'Last Name' column header and select 'Ascending'
+            await pimPage.sortColumnBy('Last Name', 'Ascending');
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Scrape the actual Last Names displayed on the current page
-        const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
+        await test.step("Verify: Verify the UI data strictly matches the programmatically sorted baseline", async () => {
+            // Scrape the actual Last Names displayed on the current page
+            const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
 
-        // isNumeric MUST be false for textual columns like Last Name
-        const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Ascending', false);
+            // isNumeric MUST be false for textual columns like Last Name
+            const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Ascending', false);
 
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualLastNames).toEqual(expectedSortedLastNames);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualLastNames).toEqual(expectedSortedLastNames);
+        });
     });
 
     /**
@@ -284,20 +303,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
     test("OrangeHRM_PIM_TC12_VerifyDescendingSortOnLastname", async () => {
-        // Click the sort icon on the 'Last Name' column header and select 'Descending'
-        await pimPage.sortColumnBy('Last Name', 'Descending');
+        await test.step("Action: Click the sort icon on the 'Last Name' column header and select 'Descending'", async () => {
+            // Click the sort icon on the 'Last Name' column header and select 'Descending'
+            await pimPage.sortColumnBy('Last Name', 'Descending');
 
-        // Wait for the data table to finish loading the sorted results
-        await await pimPage.waitForGlobalLoading();
+            // Wait for the data table to finish loading the sorted results
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // Scrape the actual Last Names displayed on the current page
-        const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
+        await test.step("Verify: Verify the UI data strictly matches the programmatically sorted baseline", async () => {
+            // Scrape the actual Last Names displayed on the current page
+            const actualLastNames = await pimPage.getColumnTextsByIndex(3, true);
 
-        // isNumeric MUST be false for textual columns like Last Name
-        const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Descending', false);
+            // isNumeric MUST be false for textual columns like Last Name
+            const expectedSortedLastNames = getExpectedSortedArray(actualLastNames, 'Descending', false);
 
-        // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
-        expect(actualLastNames).toEqual(expectedSortedLastNames);
+            // Assertion: Verify the UI data strictly matches the programmatically sorted baseline
+            expect(actualLastNames).toEqual(expectedSortedLastNames);
+        });
     });
 
     /**
@@ -305,18 +328,24 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures clicking the 'Next' button loads a new set of records and updates the URL or table state.
      */
     test("OrangeHRM_PIM_TC13_VerifyPaginationNextPage", async () => {
-        const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+        let firstIdPage1: string;
 
-        test.skip(!isNextBtnVisible, 'Not enough records to trigger pagination');
+        await test.step("Action: Record the first ID on Page 1", async () => {
+            const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+            test.skip(!isNextBtnVisible, 'Not enough records to trigger pagination');
 
-        const firstIdPage1 = await pimPage.getFirstRowIdText();
+            firstIdPage1 = await pimPage.getFirstRowIdText();
+        });
 
-        await pimPage.btnNextPage.click();
-        await await pimPage.waitForGlobalLoading();
+        await test.step("Action: Navigate to Page 2", async () => {
+            await pimPage.btnNextPage.click();
+            await pimPage.waitForGlobalLoading();
+        });
 
-        const firstIdPage2 = await pimPage.getFirstRowIdText();
-
-        expect(firstIdPage1).not.toEqual(firstIdPage2);
+        await test.step("Verify: The records are different from Page 1", async () => {
+            const firstIdPage2 = await pimPage.getFirstRowIdText();
+            expect(firstIdPage1).not.toEqual(firstIdPage2);
+        });
     })
 
     /**
@@ -324,14 +353,18 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensure clicking a row's checkbox selects only that specific row.
      */
     test("OrangeHRM_PIM_TC14_VerifySingleRowSelection", async () => {
-        // Click the custom checkbox wrapper on the first row
-        await pimPage.checkFirstRowCheckbox();
+        await test.step("Action: Click the custom checkbox wrapper on the first row", async () => {
+            // Click the custom checkbox wrapper on the first row
+            await pimPage.checkFirstRowCheckbox();
+        });
 
-        // Verify the hidden input of the element row is updated to 'checked' state
-        await expect(pimPage.getFirstRowCheckboxInput()).toBeChecked();
+        await test.step("Verify: The hidden input of the element row is updated to 'checked' state", async () => {
+            // Verify the hidden input of the element row is updated to 'checked' state
+            await expect(pimPage.getFirstRowCheckboxInput()).toBeChecked();
 
-        // Ensure the Master Checkbox remains checked
-        await expect(pimPage.masterCheckboxInput).toBeChecked();
+            // Ensure the Master Checkbox remains checked
+            await expect(pimPage.masterCheckboxInput).toBeChecked();
+        });
     });
 
     /**
@@ -339,16 +372,20 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures clicking the table header's master checkbox selects all currently visible rows.
      */
     test("OrangeHRM_PIM_TC15_VerifyMasterCheckboxSelectsAll", async () => {
-        // Click the master checkbox located in the table header
-        await pimPage.masterCheckbox.click();
+        await test.step("Action: Click the master checkbox located in the table header", async () => {
+            // Click the master checkbox located in the table header
+            await pimPage.masterCheckbox.click();
+        });
 
-        // Retrieve all actual hidden input checkboxes for every visible row
-        const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
+        await test.step("Verify: Loop through and explicitly verify 100% of the visible rows are checked", async () => {
+            // Retrieve all actual hidden input checkboxes for every visible row
+            const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
 
-        // Loop through and explicitly verify 100% of the visible rows are checked
-        for (const checkboxInput of allRowCheckboxInputs) {
-            await expect(checkboxInput).toBeChecked();
-        }
+            // Loop through and explicitly verify 100% of the visible rows are checked
+            for (const checkboxInput of allRowCheckboxInputs) {
+                await expect(checkboxInput).toBeChecked();
+            }
+        });
     });
 
     /**
@@ -356,31 +393,36 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that selecting the master checkbox on Page 1 does NOT select rows on Page 2, and the master checkbox resets its state.
      */
     test("OrangeHRM_PIM_TC16_VerifyMasterCheckboxAcrossPagination", async () => {
-        // Verify if the table has enough data to support pagination
-        const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+        await test.step("Action: Check the master checkbox on Page 1", async () => {
+            // Verify if the table has enough data to support pagination
+            const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
 
-        // Skip this test if there is only one page
-        test.skip(!isNextBtnVisible, 'Not enough records to test pagination behavior.');
+            // Skip this test if there is only one page
+            test.skip(!isNextBtnVisible, 'Not enough records to test pagination behavior.');
 
-        // Check the master checkbox on Page 1
-        await pimPage.masterCheckbox.click();
+            // Check the master checkbox on Page 1
+            await pimPage.masterCheckbox.click();
 
-        // Verify Page 1 master checkbox is successfully checked
-        await expect(pimPage.masterCheckboxInput).toBeChecked();
+            // Verify Page 1 master checkbox is successfully checked
+            await expect(pimPage.masterCheckboxInput).toBeChecked();
+        });
 
-        // Navigate to Page 2 and synchronize UI state
-        await pimPage.btnNextPage.click();
-        await await pimPage.waitForGlobalLoading();
+        await test.step("Action: Navigate to Page 2 and synchronize UI state", async () => {
+            // Navigate to Page 2 and synchronize UI state
+            await pimPage.btnNextPage.click();
+            await pimPage.waitForGlobalLoading();
+        });
 
-        // On Page 2, the Master Checkbox MUST explicitly be UNCHECKED
-        await expect(pimPage.masterCheckboxInput).not.toBeChecked();
+        await test.step("Verify: On Page 2, the Master Checkbox MUST explicitly be UNCHECKED", async () => {
+            // On Page 2, the Master Checkbox MUST explicitly be UNCHECKED
+            await expect(pimPage.masterCheckboxInput).not.toBeChecked();
 
-        // All employee rows on Page 2 MUST NOT carry over the checked state
-        const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
-
-        for (const checkboxInput of allRowCheckboxInputs) {
-            await expect(checkboxInput).not.toBeChecked();
-        }
+            // All employee rows on Page 2 MUST NOT carry over the checked state
+            const allRowCheckboxInputs = await pimPage.getAllRowCheckboxInputs();
+            for (const checkboxInput of allRowCheckboxInputs) {
+                await expect(checkboxInput).not.toBeChecked();
+            }
+        });
     });
 
     /**
@@ -391,20 +433,18 @@ test.describe("PIM Module - Employee List Filters", () => {
         // Retrieve the valid ID from the external JSON data file
         const targetId = employeeData.searchEmployeeById.validEmployeeId;
 
-        // Input the data-driven ID into the search field and submit
-        await pimPage.txtEmployeeId.fill(targetId);
-        await pimPage.btnSearch.click();
+        await test.step("Action: Input the data-driven ID into the search field and submit", async () => {
+            // Input the data-driven ID into the search field and submit
+            await pimPage.searchEmployee({ employeeId: targetId });
+        });
 
-        // Wait for the table to finish loading the search results
-        await await pimPage.waitForGlobalLoading();
+        await test.step("Verify: Form retained the ID, and results match exactly", async () => {
+            // Verify the form retains the inputted values
+            await pimPage.verifySearchFormState({ employeeId: targetId });
 
-        // Assertion - Ensure the data table is not empty
-        const allRows = await pimPage.tableRows.all();
-        expect(allRows.length).toBeGreaterThan(0);
-
-        // Assertion - Verify the ID in the first returned row exactly matches the searched ID
-        const resultId = await pimPage.getFirstRowIdText();
-        expect(resultId).toEqual(targetId);
+            // Assertion - Verify the ID in the first returned row exactly matches the searched ID
+            await pimPage.verifySearchResultsMatch({ employeeId: targetId });
+        });
     });
 
     /**
@@ -412,25 +452,21 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures searching for an invalid ID from the JSON data file returns no records and displays a toast notification.
      */
     test("OrangeHRM_PIM_TC18_VerifySearchByInvalidEmployeeId", async () => {
-        // Define the expected toast message and retrieve the invalid ID from the JSON data file
-        const expectedTextResult = expectedTexts.toastMessages.noRecordsFound;
+        // Retrieve the invalid ID from the JSON data file
         const invalidId = employeeData.searchEmployeeById.invalidEmployeeId;
 
-        // Input the invalid ID into the search field
-        await pimPage.txtEmployeeId.fill(invalidId);
+        await test.step("Action: Input the invalid ID into the search field", async () => {
+            // Input the invalid ID into the search field
+            await pimPage.searchEmployee({ employeeId: invalidId });
+        });
 
-        // Click search and simultaneously wait for the toast notification to appear (handling race conditions)
-        await Promise.all([
-            expect(toastComponent.toastMessage).toBeVisible(),
-            pimPage.btnSearch.click()
-        ]);
+        await test.step("Verify: Verify the toast message contains the correct 'No Records Found' text", async () => {
+            // Verify the form retains the inputted values
+            await pimPage.verifySearchFormState({ employeeId: invalidId });
 
-        // Verify the toast message contains the correct 'No Records Found' text
-        await expect(toastComponent.toastMessage).toContainText(expectedTextResult);
-
-        // Ensure the data table is entirely empty
-        const allRows = await pimPage.tableRows.all();
-        expect(allRows.length).toEqual(0);
+            // Verify the toast message contains the correct 'No Records Found' text and table is empty
+            await pimPage.verifyNoRecordsFoundMessage();
+        });
     });
 
     /**
@@ -440,18 +476,24 @@ test.describe("PIM Module - Employee List Filters", () => {
     test("OrangeHRM_PIM_TC19_VerifyResetAfterEmployeeIdSearch", async () => {
         // Perform an initial search using a valid ID from the JSON file
         const targetId = employeeData.searchEmployeeById.validEmployeeId;
-        await pimPage.txtEmployeeId.fill(targetId);
-        await pimPage.btnSearch.click();
-        await await pimPage.waitForGlobalLoading();
 
-        // Click the Reset button to clear all filters
-        await pimPage.clickResetButton();
+        await test.step("Action: Perform an initial search using a valid ID from the JSON file", async () => {
+            // Perform an initial search using a valid ID from the JSON file
+            await pimPage.searchEmployee({ employeeId: targetId });
+        });
 
-        // Verify the Employee ID input field is cleared
-        await expect(pimPage.txtEmployeeId).toHaveValue('');
+        await test.step("Action: Click the Reset button to clear all filters", async () => {
+            // Click the Reset button to clear all filters
+            await pimPage.clickResetButton();
+        });
 
-        // Ensure the table reloads the default data (expecting more than 1 row)
-        const allRows = await pimPage.tableRows.all();
-        expect(allRows.length).toBeGreaterThan(1);
+        await test.step("Verify: Verify the Employee ID input field is cleared and default data reloads", async () => {
+            // Verify the Employee ID input field is cleared
+            await pimPage.verifySearchFormState({ employeeId: '' });
+
+            // Ensure the table reloads the default data (expecting more than 1 row)
+            const allRows = await pimPage.tableRows.all();
+            expect(allRows.length).toBeGreaterThan(1);
+        });
     });
 });
