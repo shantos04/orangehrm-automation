@@ -52,21 +52,20 @@ test.describe("PIM Module - Add Employee", () => {
     test("OrangeHRM_PIM_ADD_TC01_AddEmployeeWithMandatoryFields", async ({ page }) => {
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
-        // Fill the input fields in the Add Employee form
-        await addEmployeePage.add(employeeData.mandatoryFields);
+        await test.step("Action: Fill mandatory fields and submit the form", async () => {
+            await addEmployeePage.add(employeeData.mandatoryFields);
 
-        // Handle the race condition using Promise.all
-        // This ensures the framework captures the transient Toast message concurrently with the form submission
-        await Promise.all([
-            // Continuously checks the DOM for the visibility of the toast container
-            expect(toastComponent.toastMessage).toBeVisible(),
+            // Handle the race condition: capture the transient Toast message concurrently with the form submission
+            await Promise.all([
+                expect(toastComponent.toastMessage).toBeVisible(),
+                addEmployeePage.btnSave.click()
+            ]);
+        });
 
-            // Clicks the save button to submit the form and trigger the toast
-            addEmployeePage.btnSave.click()
-        ]);
-
-        // Validate the text content of the captured Toast message
-        await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, { ignoreCase: true });
+        await test.step("Verify: System displays a successful creation toast message", async () => {
+            // Validate the text content of the captured Toast message
+            await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
+        });
     });
 
     /**
@@ -78,27 +77,25 @@ test.describe("PIM Module - Add Employee", () => {
         const absoluteImagePath = path.resolve(profilePicturePath);
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
-        // Fill the input fields and attach the profile picture
-        await addEmployeePage.add({
-            firstName,
-            middleName,
-            lastName,
-            employeeId,
-            profilePicture: absoluteImagePath
-        });
+       await test.step("Action: Fill all fields, attach profile picture, and submit", async () => {
+            await addEmployeePage.add({
+                firstName,
+                middleName,
+                lastName,
+                employeeId,
+                profilePicture: absoluteImagePath
+            });
 
-        // Handle the race condition using Promise.all
-        // This ensures the framework captures the transient Toast message concurrently with the form submission
-        await Promise.all([
-            // Continuously checks the DOM for the visibility of the toast container
-            expect(toastComponent.toastMessage).toBeVisible(),
+            // Handle the race condition to catch the toast notification
+            await Promise.all([
+                expect(toastComponent.toastMessage).toBeVisible(),
+                addEmployeePage.btnSave.click()
+            ]);
+       });
 
-            // Clicks the save button to submit the form and trigger the toast
-            addEmployeePage.btnSave.click()
-        ]);
-
-        // Validate the text content of the captured Toast message
-        await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, { ignoreCase: true });
+       await test.step("Verify: System displays a successful creation toast message", async () => {
+            await expect(toastComponent.toastMessage).toContainText(expectedSuccessText);
+       });
     });
 
     /**
@@ -106,15 +103,17 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Form Validation - Verifying the visibility and exact text content of 'Required' error messages upon submission.
      */
     test("OrangeHRM_PIM_ADD_TC03_VerifyRequiredFieldValidation", async ({ page }) => {
-        const expectedRequiredText = expectedTexts.validationMessages.required;
+        await test.step("Action: Click 'Save' button without filling any fields", async () => {
+            await addEmployeePage.btnSave.click();
+        });
 
-        await addEmployeePage.btnSave.click();
-
-        await expect(addEmployeePage.msgFirstNameRequired).toBeVisible();
-        await expect(addEmployeePage.msgLastNameRequired).toBeVisible();
-
-        await expect(addEmployeePage.msgFirstNameRequired).toHaveText(expectedRequiredText);
-        await expect(addEmployeePage.msgLastNameRequired).toHaveText(expectedRequiredText);
+        await test.step("Verify: 'Required' error messages appear under mandatory fields", async () => {
+            // Utilize the verification keyword from the POM to assert UI state
+            await addEmployeePage.verifyRequiredFieldErrors({
+                firstName: true,
+                lastName: true
+            });
+        });
     });
 
     /**
@@ -124,11 +123,15 @@ test.describe("PIM Module - Add Employee", () => {
     test("OrangeHRM_PIM_ADD_TC04_VerifyDuplicateEmployeeIdError", async ({ page }) => {
         const expectedDuplicateText = expectedTexts.validationMessages.duplicateEmployeeId;
 
-        await addEmployeePage.add(employeeData.duplicateIdScenario);
-        await addEmployeePage.btnSave.click();
+        await test.step("Action: Fill form with an already existing Employee ID and submit", async () => {
+            await addEmployeePage.add(employeeData.duplicateIdScenario);
+            await addEmployeePage.btnSave.click();
+        });
 
-        await expect(addEmployeePage.msgEmployeeIdError).toBeVisible();
-        await expect(addEmployeePage.msgEmployeeIdError).toHaveText(expectedDuplicateText);
+        await test.step("Verify: System displays a duplicate ID error message", async () => {
+            await expect(addEmployeePage.msgEmployeeIdError).toBeVisible();
+            await expect(addEmployeePage.msgEmployeeIdError).toHaveText(expectedDuplicateText);
+        });
     });
 
     /**
@@ -138,9 +141,13 @@ test.describe("PIM Module - Add Employee", () => {
     test("OrangeHRM_PIM_ADD_TC05_VerifyCancelAddEmployee", async ({ page }) => {
         const expectedEmployeeListUrl = expectedTexts.urls.employeeList;
 
-        await addEmployeePage.btnCancel.click();
+        await test.step("Action: Click the 'Cancel' button on the form", async () => {
+            await addEmployeePage.btnCancel.click();
+        });
 
-        await expect(page).toHaveURL(new RegExp(expectedEmployeeListUrl));
+        await test.step("Verify: Application redirects back to the Employee List Page", async () => {
+            await expect(page).toHaveURL(new RegExp(expectedEmployeeListUrl));
+        });
     });
 
     /**
@@ -150,14 +157,18 @@ test.describe("PIM Module - Add Employee", () => {
     test("OrangeHRM_PIM_ADD_TC06_AddEmployeeWithLoginDetails", async ({ page }) => {
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
-        await addEmployeePage.add(employeeData.loginDetailsSuccess);
+        await test.step("Action: Enable and fill login details, then submit", async () => {
+            await addEmployeePage.add(employeeData.loginDetailsSuccess);
 
-        await Promise.all([
-            expect(toastComponent.toastMessage).toBeVisible(),
-            addEmployeePage.btnSave.click()
-        ])
+            await Promise.all([
+                expect(toastComponent.toastMessage).toBeVisible(),
+                addEmployeePage.btnSave.click()
+            ]);
+        });
 
-        await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, { ignoreCase: true });
+        await test.step("Verify: System displays a successful creation toast message", async () => {
+            await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, { ignoreCase: true });  
+        });
     });
 
     /**
@@ -167,10 +178,16 @@ test.describe("PIM Module - Add Employee", () => {
     test("OrangeHRM_PIM_ADD_TC07_VerifyPasswordMismatchError", async ({ page }) => {
         const expectedErrorText = expectedTexts.validationMessages.passwordMismatch;
 
-        await addEmployeePage.add(employeeData.loginDetailsMismatch);
-        await addEmployeePage.btnSave.click();
+        await test.step("Action: Enter mismatched passwords and submit", async () => {
+            await addEmployeePage.add(employeeData.loginDetailsMismatch);
+            await addEmployeePage.btnSave.click();
+        });
 
-        await expect(addEmployeePage.msgConfirmPasswordError).toBeVisible();
+        await test.step("Verify: Confirm Password field displays a mismatch error", async () => {
+            await addEmployeePage.verifyLoginDetailsErrors({
+                confirmPassword: expectedErrorText
+            });
+        });
     });
 
     /**
@@ -181,13 +198,16 @@ test.describe("PIM Module - Add Employee", () => {
         const expectedUsernameError = expectedTexts.validationMessages.usernameMinLength;
         const expectedPasswordError = expectedTexts.validationMessages.passwordMinLength;
 
-        await addEmployeePage.add(employeeData.loginDetailsShort);
+        await test.step("Action: Input credentials that are below the minimum length requirement", async () => {
+            await addEmployeePage.add(employeeData.loginDetailsShort);
+        });
 
-        await expect(addEmployeePage.msgUsernameError).toBeVisible();
-        await expect(addEmployeePage.msgUsernameError).toHaveText(expectedUsernameError);
-
-        await expect(addEmployeePage.msgPasswordError).toBeVisible();
-        await expect(addEmployeePage.msgPasswordError).toHaveText(expectedPasswordError);
+        await test.step("Verify: Real-time validation errors appear for Username and Password limits", async () => {
+            await addEmployeePage.verifyLoginDetailsErrors({
+                username: expectedUsernameError,
+                password: expectedPasswordError
+            });
+        });
     });
 
     /**
@@ -198,21 +218,29 @@ test.describe("PIM Module - Add Employee", () => {
         const expectedUsernameError = expectedTexts.validationMessages.usernameMaxLength;
         const expectedPasswordError = expectedTexts.validationMessages.passwordMaxLength;
 
-        await addEmployeePage.add(employeeData.loginDetailsMaxLength);
+        await test.step("Action: Input credentials that exceed tha maximum length limit", async () => {
+            await addEmployeePage.add(employeeData.loginDetailsMaxLength);
+        })
 
-        await expect(addEmployeePage.msgUsernameError).toBeVisible();
-        await expect(addEmployeePage.msgUsernameError).toHaveText(expectedUsernameError);
-
-        await expect(addEmployeePage.msgPasswordError).toBeVisible();
-        await expect(addEmployeePage.msgPasswordError).toHaveText(expectedPasswordError);
+        await test.step("Verify: Real-time validation errors appear for exceeding character limits", async () => {
+            await addEmployeePage.verifyLoginDetailsErrors({
+                username: expectedUsernameError,
+                password: expectedPasswordError
+            })
+        })
     });
 
     test("OrangeHRM_PIM_ADD_TC10_VerifyPasswordNumberRequirementValidation", async ({ page }) => {
         const expectedPasswordError = expectedTexts.validationMessages.passwordNoNumber;
 
-        await addEmployeePage.add(employeeData.loginDetailsNoNumber);
+        await test.step("Action: Input a password string without any numerical characters", async () => {
+            await addEmployeePage.add(employeeData.loginDetailsNoNumber);
+        });
 
-        await expect(addEmployeePage.msgPasswordError).toBeVisible();
-        await expect(addEmployeePage.msgPasswordError).toHaveText(expectedPasswordError);
+        await test.step("Verify: Real-time validation error prompts for a number requirement", async () => {
+            await addEmployeePage.verifyLoginDetailsErrors({
+                password: expectedPasswordError
+            });
+        });
     });
 })
