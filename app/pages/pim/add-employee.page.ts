@@ -4,7 +4,9 @@
  * promoting code reusability and easier maintenance for automation tests.
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
+
+import expectedTexts from '../../../data/expected-texts.json';
 
 /**
  * Represents the Add Employee Page.
@@ -130,7 +132,7 @@ export class AddEmployeePage {
      * @param employeeData.confirmPassword - The password confirmation to validate against the password.
      * @param employeeData.status - The initial status of the account ('Enabled' or 'Disabled').
      */
-    async add(employeeData: {
+    public async add(employeeData: {
         firstName?: string,
         middleName?: string,
         lastName?: string, employeeId?:
@@ -171,5 +173,62 @@ export class AddEmployeePage {
                 await this.statusDisabled.click({ force: true });
             }
         }
+    }
+
+    // ========================================================
+    // --- Verification Keywords (Step Verify) ---
+    // ========================================================
+
+    /**
+     * KEYWORD STEP VERIFY: Validates the presence of 'Required' error messages for mandatory fields.
+     * @param expectedErrors - Object indicating which fields are expected to show the 'Required' error.
+     */
+    public async verifyRequiredFieldErrors(expectedErrors: {
+        firstName?: boolean,
+        lastName?: boolean
+    }) {
+        if (expectedErrors.firstName) {
+            await expect(this.msgFirstNameRequired).toBeVisible();
+            await expect(this.msgFirstNameRequired).toHaveText(expectedTexts.validationMessages.required);
+        }
+
+        if (expectedErrors.lastName) {
+            await expect(this.msgLastNameRequired).toBeVisible();
+            await expect(this.msgLastNameRequired).toHaveText(expectedTexts.validationMessages.required);
+        }
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Validates specific error messages within the Login Details section.
+     * @param expectedErrors - Object defining the specific error text expected for each field.
+     */
+    public async verifyLoginDetailsErrors(expectedErrors: {
+        username?: string,
+        password?: string,
+        confirmPassword?: string
+    }) {
+        if (expectedErrors.username) {
+            await expect(this.msgUsernameError).toBeVisible();
+            await expect(this.msgUsernameError).toHaveText(expectedErrors.username);
+        }
+        
+        if (expectedErrors.password) {
+            await expect(this.msgPasswordError).toBeVisible();
+            await expect(this.msgPasswordError).toHaveText(expectedErrors.password);
+        }
+    
+        if (expectedErrors.confirmPassword) {
+            await expect(this.msgConfirmPasswordError).toBeVisible();
+            await expect(this.msgConfirmPasswordError).toHaveText(expectedErrors.confirmPassword);
+        }
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Validates specific error messages related to the Employee ID format or uniqueness.
+     * @param expectedErrorText - The exact text expected in the Employee ID error message.
+     */
+    public async verifyEmployeeIdError(expectedErrorText: string) {
+        await expect(this.msgEmployeeIdError).toBeVisible();
+        await expect(this.msgEmployeeIdError).toHaveText(expectedErrorText);
     }
 }
