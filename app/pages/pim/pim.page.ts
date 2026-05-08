@@ -11,6 +11,12 @@ export class PimPage extends BasePage {
     readonly dropdownInclude: Locator;
     readonly txtEmployeeName: Locator;
     readonly txtEmployeeId: Locator;
+    readonly txtSupervisorName: Locator;
+
+    // --- Dropdown Extractors for Validation ---
+    readonly lblSelectedJobTitle: Locator;
+    readonly lblSelectedEmpStatus: Locator;
+    readonly lblSelectedSubUnit: Locator;
 
     // --- Web table Locators ---
     readonly tableContainer: Locator;
@@ -35,12 +41,18 @@ export class PimPage extends BasePage {
         // Calls the parent class constructor to initialize inherited locators and methods
         super(page);
 
-        this.dropdownInclude = page.locator('.oxd-input-group')
-            .filter({ hasText: 'Include' })
-            .locator('.oxd-select-wrapper');
+        // --- Input ---
+        this.dropdownInclude = page.locator('.oxd-input-group').filter({ hasText: 'Include' }).locator('.oxd-select-text');
         this.txtEmployeeName = page.getByPlaceholder('Type for hints...').first();
         this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('input');
+        this.txtSupervisorName = page.locator('.oxd-input-group').filter({hasText: 'Supervisor Name'}).locator('input');
 
+        // --- Extractors ---
+        this.lblSelectedJobTitle = page.locator('.oxd-input-group').filter({hasText: 'Job Title'}).locator('.oxd-select-text');
+        this.lblSelectedEmpStatus = page.locator('.oxd-input-group').filter({hasText: 'Employment Status'}).locator('.oxd-select-text');
+        this.lblSelectedSubUnit = page.locator('.oxd-input-group').filter({hasText: 'Sub Unit'}).locator('.oxd-select-text');
+
+        // --- Table ---
         this.tableContainer = page.locator('.orangehrm-container');
         this.tableHeaderRow = page.locator('.oxd-table-header');
         this.tableBody = page.locator('.oxd-table-body');
@@ -56,12 +68,28 @@ export class PimPage extends BasePage {
     }
 
     /**
-     * Selects an option from the 'Include' dropdown filter.
-     * @param {string} optionText - The exact text of the option to select.
+     * Helper method to interact with custom div/span-based dropdowns.
+     * It utilizes explicitly defined locators from the constructor to expand the menu and select a specific option.
+     * * @param {Locator} dropdownLocator - The specific Playwright Locator for the dropdown wrapper.
+     * @param {string} optionToSelect - The exact text of the option to select from the list.
      */
-    async selectIncludeOption(optionText: string) {
-        await this.dropdownInclude.click();
-        await this.page.getByRole('option', { name: optionText }).click();
+    private async selectDropdownOption(dropdownLocator: Locator, optionToSelect: string) {
+        // 1. Click the provided locator to expand the dropdown menu
+        await dropdownLocator.click();
+
+        // 2. Wait for the listbox popup to become fully visible, then select the target option
+        const activeListbox = this.page.getByRole('listbox');
+        await activeListbox.waitFor({ state: 'visible' });
+        await activeListbox.getByRole('option', {name: optionToSelect}).click()
+    }
+
+     /**
+     * Clicks the 'Reset' button to clear all active search filters and waits for the table to refresh.
+     */
+    async clickResetButton() {
+        await this.btnReset.click();
+        // Uses the inherited method from BasePage to wait for the global loading spinner to disappear
+        await this.waitForGlobalLoading();
     }
 
     /**
@@ -84,15 +112,6 @@ export class PimPage extends BasePage {
         const sortOption = sortDropdown.getByText(sortDirection);
 
         await sortOption.click();
-    }
-
-    /**
-     * Clicks the 'Reset' button to clear all active search filters and waits for the table to refresh.
-     */
-    async clickResetButton() {
-        await this.btnReset.click();
-        // Uses the inherited method from BasePage to wait for the global loading spinner to disappear
-        await this.waitForGlobalLoading();
     }
 
     /**
@@ -183,5 +202,50 @@ export class PimPage extends BasePage {
      */
     async getAllRowCheckboxInputs(): Promise<Locator[]> {
         return this.tableRows.locator('input[type="checkbox"]').all();
+    }
+
+    /**
+     * Comprehensive search method utilizing explicitly defined locators.
+     * Supports Data-Driven Testing by dynamically filling inputs and selecting dropdowns based on the provided data object.
+     * * @param {Object} searchData - An object containing optional search parameters.
+     * @param {string} [searchData.employeeName] - Target employee name.
+     * @param {string} [searchData.employeeId] - Target employee ID.
+     * @param {string} [searchData.supervisorName] - Target supervisor name.
+     * @param {string} [searchData.employmentStatus] - Exact text for the Employment Status dropdown.
+     * @param {string} [searchData.include] - Exact text for the Include dropdown.
+     * @param {string} [searchData.jobTitle] - Exact text for the Job Title dropdown.
+     * @param {string} [searchData.subUnit] - Exact text for the Sub Unit dropdown.
+     */
+    public async searchEmployee(searchData: {
+        employeeName?: string,
+        employeeId?: string,
+        supervisorName?: string,
+        employmentStatus?: string,
+        include?: string,
+        jobTitle?: string,
+        subUnit?: string
+    }) {
+        // --- Process Text Inputs ---
+        if (searchData.employeeName) await this.txtEmployeeName.fill(searchData.employeeName);
+        if (searchData.employeeId) await this.txtEmployeeId.fill(searchData.employeeId);
+        if (searchData.supervisorName) await this.txtSupervisorName.fill(searchData.supervisorName);
+
+        // --- Process Custom Dropdowns (Utilizing the Helper Method) ---
+        if (searchData.employmentStatus) {
+            await this.selectDropdownOption(this.lblSelectedEmpStatus, searchData.employmentStatus);
+        }
+        if (searchData.include) {
+            await this.selectDropdownOption(this.dropdownInclude, searchData.include);
+        }
+        if (searchData.jobTitle) {
+            await this.selectDropdownOption(this.lblSelectedJobTitle, searchData.jobTitle);
+        }
+        if (searchData.subUnit) {
+            await this.selectDropdownOption(this.lblSelectedSubUnit, searchData.subUnit);
+        }
+
+        // --- Trigger Search and Wait for completion ---
+        await this.btnSearch.click();
+        await this.waitForGlobalLoading();
     }
 }
