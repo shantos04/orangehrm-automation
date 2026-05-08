@@ -41,7 +41,7 @@ test.describe("PIM Module - Employee List Filters", () => {
 
         // Synchronize UI State before excuting test scope
         await expect(pimPage.tableContainer).toBeVisible();
-        await await pimPage.waitForGlobalLoading();
+        await pimPage.waitForGlobalLoading();
     });
 
     /**
