@@ -218,16 +218,20 @@ export class PimPage extends BasePage {
      * @param {string} [searchData.include] - Exact text for the Include dropdown.
      * @param {string} [searchData.jobTitle] - Exact text for the Job Title dropdown.
      * @param {string} [searchData.subUnit] - Exact text for the Sub Unit dropdown.
+     * @param {boolean} [submitSearch=true] - Determines whether to click the search button and wait for loading after filling the form. Defaults to true.
      */
-    public async searchEmployee(searchData: {
-        employeeName?: string,
-        employeeId?: string,
-        supervisorName?: string,
-        employmentStatus?: string,
-        include?: string,
-        jobTitle?: string,
-        subUnit?: string
-    }) {
+    public async searchEmployee(
+        searchData: {
+            employeeName?: string,
+            employeeId?: string,
+            supervisorName?: string,
+            employmentStatus?: string,
+            include?: string,
+            jobTitle?: string,
+            subUnit?: string
+        },
+        submitSearch: boolean = true
+    ) {
         // --- Process Text Inputs ---
         if (searchData.employeeName) await this.txtEmployeeName.fill(searchData.employeeName);
         if (searchData.employeeId) await this.txtEmployeeId.fill(searchData.employeeId);
@@ -247,9 +251,11 @@ export class PimPage extends BasePage {
             await this.selectDropdownOption(this.lblSelectedSubUnit, searchData.subUnit);
         }
 
-        // --- Trigger Search and Wait for completion ---
-        await this.btnSearch.click();
-        await this.waitForGlobalLoading();
+        /// --- Trigger Search and Wait for Completion (Conditional) ---
+        if (submitSearch) {
+            await this.btnSearch.click();
+            await this.waitForGlobalLoading();
+        }
     }
 
     // ========================================================
