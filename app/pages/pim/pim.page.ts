@@ -3,8 +3,11 @@
  * Encapsulates locators and UI interaction methods for employee filtering, sorting, and data extraction.
  * Inherits from BasePage to utilize common elements like global loading spinners.
  */
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from '../base.page';
+import { ToastComponent } from '../../components/common/toast.component';
+
+import expectedTexts from '../../../data/expected-texts.json';
 
 export class PimPage extends BasePage {
     // --- Search Filter Locators ---
@@ -247,5 +250,77 @@ export class PimPage extends BasePage {
         // --- Trigger Search and Wait for completion ---
         await this.btnSearch.click();
         await this.waitForGlobalLoading();
+    }
+
+    // ========================================================
+    // --- Verification Keywords (Step Verify) ---
+    // ========================================================
+
+    /**
+     * KEYWORD STEP VERIFY: Valid Search Results
+     * Verifies that the data table displays results, and the first row matches the expected search criteria.
+     * Maps the expected data to specific column indexes in the OrangeHRM table.
+     * * @param {Object} expectedData - An object containing the exact values expected in the first row.
+     * @param {string} [expectedData.employeeId] - Expected text in the ID column.
+     * @param {string} [expectedData.employeeName] - Expected text to be contained within the row (First/Last name).
+     * @param {string} [expectedData.jobTitle] - Expected text in the Job Title column.
+     * @param {string} [expectedData.employmentStatus] - Expected text in the Employment Status column.
+     * @param {string} [expectedData.subUnit] - Expected text in the Sub Unit column.
+     * @param {string} [expectedData.supervisorName] - Expected text in the Supervisor column.
+     */ 
+    public async verifySearchResultsMatch(expectedData: {
+        employeeName?: string,
+        employeeId?: string,
+        supervisorName?: string,
+        employmentStatus?: string,
+        include?: string,
+        jobTitle?: string,
+        subUnit?: string
+    }) {
+        // Assert that the table is not empty and at least one row is visible
+        const firstRow = this.tableRows.first();
+        await expect(firstRow).toBeVisible();
+
+        // Retrieve all cells for the first row to perform targeted assertions
+        // Column Index Mapping: 1=Id, 2=Firstname, 3=Lastname, 4=jobTitle, 5=EmploymentStatus, 6=SubUnit, 7=Supervisor
+        const cells = firstRow.locator('.oxd-table-cell');
+
+        // Dynamically assert only the fields that were passed in the expectedData object
+        if (expectedData.employeeId) {
+            await expect(cells.nth(1)).toHaveText(expectedData.employeeId);
+        }   
+        if (expectedData.employeeName) {
+            // Because Employee Name is split into First and Last Name columns (nth 2 and 3), 
+            // using a broad toContainText on the entire row is safer and more resilient.
+            await expect(firstRow).toContainText(expectedData.employeeName);
+        }
+        if (expectedData.jobTitle) {
+            await expect(cells.nth(4)).toContainText(expectedData.jobTitle);
+        }
+        if (expectedData.employmentStatus) {
+            await expect(cells.nth(5)).toHaveText(expectedData.employmentStatus);
+        }
+        if (expectedData.subUnit) {
+            await expect(cells.nth(6)).toHaveText(expectedData.subUnit);
+        }
+        if (expectedData.supervisorName) {
+            await expect(cells.nth(7)).toHaveText(expectedData.supervisorName);
+        }
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Invalid Search / No Results
+     * Verifies that the system correctly handles empty search results by displaying a toast notification
+     * and rendering an empty data table.
+     */
+    public async verifyNoRecordsFoundMessage() {
+        // Instantiate the shared ToastComponent using the current page context
+        const toastComponent = new ToastComponent(this.page);
+
+        // Assert that the toast container appears and contains the expected text
+        // Utilizing the locator defined within ToastComponent
+        await expect(toastComponent.toastMessage).toBeVisible();
+        await expect(toastComponent.toastMessage).toContainText(expectedTexts.toastMessages.noRecordsFound);
+        await expect(this.tableRows).toHaveCount(0);
     }
 }
