@@ -257,6 +257,54 @@ export class PimPage extends BasePage {
     // ========================================================
 
     /**
+     * KEYWORD STEP VERIFY: Search Form State
+     * Verifies that the input fields and dropdowns in the Employee Information search form
+     * retain the correct values after a search or reset action.
+     * @param {Object} expectedState - An object containing the exact values expected to be visible in the form fields.
+     * @param {string} [expectedState.employeeName] - Expected value in the Employee Name input.
+     * @param {string} [expectedState.employeeId] - Expected value in the Employee Id input.
+     * @param {string} [expectedState.supervisorName] - Expected value in the Supervisor Name input.
+     * @param {string} [expectedState.employmentStatus] - Expected text in the Employment Status dropdown label.
+     * @param {string} [expectedState.include] - Expected text in the Include dropdown label.
+     * @param {string} [expectedState.jobTitle] - Expected text in the Job Title dropdown label.
+     * @param {string} [expectedState.subUnit] - Expected text in the Sub Unit dropdown label.
+     */
+    public async verifySearchFormState(expectedState: {
+        employeeName?: string,
+        employeeId?: string,
+        supervisorName?: string,
+        employmentStatus?: string,
+        include?: string,
+        jobTitle?: string,
+        subUnit?: string
+    }) {
+        // --- Verify Text Inputs ---
+        if (expectedState.employeeName) {
+            await expect(this.txtEmployeeName).toHaveValue(expectedState.employeeName);
+        }
+        if (expectedState.employeeId) {
+            await expect(this.txtEmployeeId).toHaveValue(expectedState.employeeId);
+        }
+        if (expectedState.supervisorName) {
+            await expect(this.txtSupervisorName).toHaveValue(expectedState.supervisorName);
+        }
+
+        // --- Verify Dropdowns ---
+        if (expectedState.employmentStatus) {
+            await expect(this.lblSelectedEmpStatus).toHaveText(expectedState.employmentStatus);
+        }
+        if (expectedState.include) {
+            await expect(this.dropdownInclude).toHaveText(expectedState.include);
+        }
+        if (expectedState.jobTitle) {
+            await expect(this.lblSelectedJobTitle).toHaveText(expectedState.jobTitle);
+        }
+        if (expectedState.subUnit) {
+            await expect(this.lblSelectedSubUnit).toHaveText(expectedState.subUnit);
+        }
+    }
+
+    /**
      * KEYWORD STEP VERIFY: Valid Search Results
      * Verifies that the data table displays results, and the first row matches the expected search criteria.
      * Maps the expected data to specific column indexes in the OrangeHRM table.
