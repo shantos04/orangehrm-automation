@@ -3,7 +3,7 @@
  * This class encapsulates the locators and UI elements specific to the authentication screen.
  */
 
-import {Page, Locator} from '@playwright/test';
+import {Page, Locator, expect} from '@playwright/test';
 
 export class LoginPage {
     /** The Playwright Page instance representing the current browser tab. */
@@ -53,6 +53,10 @@ export class LoginPage {
         this.msgPasswordRequired = this.passwordBlock.locator('.oxd-input-field-error-message');
     }
 
+    // ========================================================
+    // --- Action Keywords (Step Action) ---
+    // ========================================================
+
     /**
      * Performs the login sequence by entering credentials.
      * Optionally clicks the submit button based on the provided flag.
@@ -67,6 +71,39 @@ export class LoginPage {
 
         if (clickSubmit) {
             await this.btnLogin.click();
-        };
+        }
+    }
+
+    // ========================================================
+    // --- Verification Keywords (Step Verify) ---
+    // ========================================================
+
+    /**
+     * KEYWORD STEP VERIFY: Validates the invalid credentials alert message.
+     * @param {string} expectedErrorText - The exact text expected in the error alert.
+     */
+    async verifyInvalidCredentialsError(expectedErrorText: string) {
+        await expect(this.msgError).toBeVisible();
+        await expect(this.msgError).toContainText(expectedErrorText);
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Validates the presence of error messages for empty required fields.
+     * @param expectedErrors - Object indicating the expected error text for username and/or password.
+     * @param {string} [expectedErrors.username] - Expected error text under the Username field.
+     * @param {string} [expectedErrors.password] - Expected error text under the Password field.
+     */
+    async verifyRequiredFieldErrors(expectedError: {
+        username?: string,
+        password?: string
+    }) {
+        if (expectedError.username) {
+            await expect(this.msgUsernameRequired).toBeVisible();
+            await expect(this.msgUsernameRequired).toContainText(expectedError.username);
+        }
+        if (expectedError.password) {
+            await expect(this.msgPasswordRequired).toBeVisible();
+            await expect(this.msgPasswordRequired).toContainText(expectedError.password);
+        }
     }
 }
