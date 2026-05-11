@@ -1,4 +1,5 @@
 import {test, expect} from '@playwright/test';
+import * as allure from "allure-js-commons";
 
 import {LoginPage} from '../../app/pages/login.page';
 import {TimeTopMenuComponent} from '../../app/components/time/time-top-menu.component';
@@ -21,6 +22,10 @@ test.describe("Time Module - PunchIn/Out Page", () => {
     // GLOBAL SETUP: Authentication and Navigation
     // ========================================================================
     test.beforeEach(async ({page}) => {
+
+        // --- Allure Metadata ---
+        await allure.epic("Time Module");
+        await allure.feature("Punch In/Out");
 
         // Increase timeout for stable execution across complex state setups
         test.setTimeout(60000);
@@ -67,6 +72,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async() => {
+            await allure.story("Negative - Punch In Empty Fields Validation");
+            await allure.severity("normal");
+
             const expectedRequiredError = expectedTexts.validationMessages.required;
             
             await test.step("Action: Clear auto-filled fields and click 'In'", async () => {
@@ -82,6 +90,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC02_VerifySuccessfulPunchIn", async() => {
+            await allure.story("Positive - Valid Punch In Flow");
+            await allure.severity("critical");
+
             // Retrieve valid Punch In data from JSON
             const {date, time, note} = timeData.validPunchIn;
             const expectedSuccessText = expectedTexts.toastMessages.successSaved;
@@ -124,6 +135,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async() => {
+            await allure.story("Negative - Punch Out Empty Fields Validation");
+            await allure.severity("normal");
+
             const expectedRequiredError = expectedTexts.validationMessages.required
 
             await test.step("Action: Clear auto-filled fields and click 'Out'", async () => {
@@ -139,6 +153,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async() => {
+            await allure.story("Negative - Invalid Date Format Processing");
+            await allure.severity("normal");
+
             const invalidDate = timeData.invalidData.format.date;
             const validTime = timeData.validPunchOut.time;
             const expectedFormatError = expectedTexts.validationMessages.invalidDateFormat;
@@ -154,6 +171,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async() => {
+            await allure.story("Negative - Invalid Time Format Auto-Correction");
+            await allure.severity("normal");
+
             const validDate = timeData.validPunchOut.date;
             const invalidTime = timeData.invalidData.format.time;
             const expectedRequiredError = expectedTexts.validationMessages.required;
@@ -170,6 +190,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async() => {
+            await allure.story("Business Logic - Time Validation Against Punch In");
+            await allure.severity("critical");
+
             const validDate = timeData.validPunchOut.date;
             const timeBeforeIn = timeData.invalidData.logic.timeBeforeIn;
             const expectedLogicError = expectedTexts.validationMessages.higherThanPunchIn;
@@ -185,6 +208,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
         });
 
         test("OrangeHRM_TIME_TC07_VerifyPunchOutDateLessThanPunchInDate", async () => {
+            await allure.story("Business Logic - Date Validation Against Punch In");
+            await allure.severity("critical");
+
             const pastDate = timeData.invalidData.logic.pastDate;
             const validTime = timeData.validPunchOut.time;
             const expectedLogicError = expectedTexts.validationMessages.higherThanPunchIn;
