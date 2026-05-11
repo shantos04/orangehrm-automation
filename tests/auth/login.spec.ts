@@ -61,47 +61,64 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify successful login with valid administrative credentials.
      * Assertion: Checks if the user is redirected and the 'Dashboard' header is visible.
      */
-    // test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async({page}) => {
-    //     const { username: testUsername, password: testPassword } = usersData.validAdmin;
+    test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async ({ page }) => {
+        await allure.story("Positive - Valid Login Scenario");
+        await allure.severity("blocker");
 
-    //     // Perform login action
-    //     await loginPage.login(testUsername, testPassword);
-    //     await expect(dashboardPage.labelHeader).toBeVisible();
-    //     await expect(page).toHaveURL(/.*dashboard/);
-    // });
+        const { username: validUser, password: validPass } = usersData.validAdmin;
+
+        await test.step("Action: Perform login with valid credentials", async () => {
+            await loginPage.login(validUser, validPass);
+        });
+
+        await test.step("Verify: Dashboard is accessible and header is visible", async () => {
+            await expect(dashboardPage.labelHeader).toBeVisible();
+            await expect(page).toHaveURL(/.*dashboard/);
+        });
+    });
 
     /**
-     * Test Case: Verify error handling when using an invalid password.
-     * Assertion: Checks for the visibility and content of the error message.
+     * Test Case: Verify error handling when using invalid credentials.
+     * Assertion: Checks for the visibility and content of the generic error message.
      */
-    // test("OrangeHRM_Login_TC03_VerifyErrorInvalidPassword", async({page}) => {
-    //     const { username: testUsername, password: testPassword } = usersData.invalidPassword;
-    //     const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+    test("OrangeHRM_Login_TC03_VerifyInvalidCredentials", async () => {
+        await allure.story("Negative - Invalid Credentials Handling");
+        await allure.severity("critical");
 
-    //     await loginPage.login(testUsername, testPassword);
+        const { username: invalidUser, password: invalidPass } = usersData.invalidPassword;
+        const expectedInvalidError = expectedTexts.loginPage.invalidCredentialsError;
 
-    //     await expect(loginPage.msgError).toBeVisible();
-    //     await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
-    // });
+        await test.step("Action: Perform login with invalid credentials", async () => {
+            await loginPage.login(invalidUser, invalidPass);
+        });
+
+        await test.step("Verify: System displays 'Invalid credentials' error", async () => {
+            await loginPage.verifyInvalidCredentialsError(expectedInvalidError);
+        });
+    });
 
     /**
-     * Test Case: Verify validation errors when attempting to log in with empty fields.
+     * Test Case: Verify validation errors when attempting to log in with both fields empty.
      * Assertion: "Required" validation messages appear under both input fields.
      */
-    // test("OrangeHRM_Login_TC04_VerifyErrorEmptyFields", async({page}) => {
-    //     const {username: emptyUsername, password: emptyPassword} = usersData.emptyFields;
-    //     const expectedErrorText = expectedTexts.loginPage.requiredFieldError;
+    test("OrangeHRM_Login_TC04_VerifyEmptyBothFields", async () => {
+        await allure.story("Negative - Empty Fields Validation");
+        await allure.severity("normal");
 
-    //     await loginPage.login(emptyUsername, emptyPassword);
+        const { username: emptyUser, password: emptyPass } = usersData.emptyFields;
+        const expectedRequiredError = expectedTexts.loginPage.requiredFieldError;
 
-    //     // Verify the exact validation message under the Username field
-    //     await expect(loginPage.msgUsernameRequired).toBeVisible();
-    //     await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorText);
+        await test.step("Action: Submit the form without entering any data", async () => {
+            await loginPage.login(emptyUser, emptyPass);
+        });
 
-    //     // Verify the exact validation message under the Password field
-    //     await expect(loginPage.msgPasswordRequired).toBeVisible();
-    //     await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorText);
-    // });
+        await test.step("Verify: 'Required' error messages appear under both fields", async () => {
+            await loginPage.verifyRequiredFieldErrors({
+                username: expectedRequiredError,
+                password: expectedRequiredError
+            });
+        });
+    });
 
     /**
      * Test Case: Verify the security masking of the password input field.
@@ -151,149 +168,91 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify error handling when using an invalid username but correct password.
      * Assertion: Checks that the generic 'Invalid credentials' error is displayed to prevent user enumeration.
      */
-    // test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async({page}) => {
-    //     const {username: testUsername, password: testPassword} = usersData.invalidUsername;
-    //     const expectedErrorMessage = expectedTexts.loginPage.invalidCredentialsError;
+    test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async () => {
+        await allure.story("Negative - Invalid Credentials Handling");
+        await allure.severity("critical");
 
-    //     await loginPage.login(testUsername, testPassword);
-    //     // Verify the error message
-    //     await expect(loginPage.msgError).toBeVisible();
-    //     await expect(loginPage.msgError).toHaveText(expectedErrorMessage);
-    // });
+        const { username: invalidUser, password: validPass } = usersData.invalidUsername;
+        const expectedInvalidError = expectedTexts.loginPage.invalidCredentialsError;
+
+        await test.step("Action: Perform login with invalid username", async () => {
+            await loginPage.login(invalidUser, validPass);
+        });
+
+        await test.step("Verify: System displays 'Invalid credentials' error", async () => {
+            await loginPage.verifyInvalidCredentialsError(expectedInvalidError);
+        });
+    });
 
     /**
      * Test Case: Verify validation error when attempting to log in with an empty username field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    // test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async({page}) => {
-    //     const {username: testUsername, password: testPassword} = usersData.emptyUsername;
-    //     const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+    test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async () => {
+        await allure.story("Negative - Empty Fields Validation");
+        await allure.severity("normal");
 
-    //     // Perform the login action
-    //     await loginPage.login(testUsername, testPassword);
+        const { username: emptyUser, password: validPass } = usersData.emptyUsername;
+        const expectedRequiredError = expectedTexts.loginPage.requiredFieldError;
 
-    //     // Verify the 'Required' error message appears exactly once under the Username field
-    //     await expect(loginPage.msgUsernameRequired).toHaveCount(1);
-    //     await expect(loginPage.msgUsernameRequired).toBeVisible();
-    //     await expect(loginPage.msgUsernameRequired).toHaveText(expectedErrorMessage);
+        await test.step("Action: Submit the form with an empty username", async () => {
+            await loginPage.login(emptyUser, validPass);
+        });
 
-    //     // Ensure that NO error message is displayed under the Password field
-    //     await expect(loginPage.msgPasswordRequired).toBeHidden();
-    // });
+        await test.step("Verify: 'Required' error message appears exactly once under the Username field", async () => {
+            await expect(loginPage.msgUsernameRequired).toHaveCount(1);
+            await expect(loginPage.msgPasswordRequired).toBeHidden();
+            
+            await loginPage.verifyRequiredFieldErrors({
+                username: expectedRequiredError
+            });
+        });
+    });
 
     /**
      * Test Case: Verify validation error when attempting to log in with an empty password field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    // test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async({page}) => {
-    //     const {username: testUsername, password: testPassword} = usersData.emptyPassword;
-    //     const expectedErrorMessage = expectedTexts.loginPage.requiredFieldError;
+    test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async () => {
+        await allure.story("Negative - Empty Fields Validation");
+        await allure.severity("normal");
 
-    //     // Perform the login action
-    //     await loginPage.login(testUsername, testPassword);
+        const { username: validUser, password: emptyPass } = usersData.emptyPassword;
+        const expectedRequiredError = expectedTexts.loginPage.requiredFieldError;
 
-    //     // Verify the 'Required' error message appears exactly once under the Password field
-    //     await expect(loginPage.msgPasswordRequired).toHaveCount(1);
-    //     await expect(loginPage.msgPasswordRequired).toBeVisible();
-    //     await expect(loginPage.msgPasswordRequired).toHaveText(expectedErrorMessage);
+        await test.step("Action: Submit the form with an empty password", async () => {
+            await loginPage.login(validUser, emptyPass);
+        });
 
-    //     // Ensure that NO error message is displayed under the Username field
-    //     await expect(loginPage.msgUsernameRequired).toBeHidden();
-    // });
+        await test.step("Verify: 'Required' error message appears exactly once under the Password field", async () => {
+            await expect(loginPage.msgPasswordRequired).toHaveCount(1);
+            await expect(loginPage.msgUsernameRequired).toBeHidden();
+            
+            await loginPage.verifyRequiredFieldErrors({
+                password: expectedRequiredError
+            });
+        });
+    });
 
     /**
      * Test Case: Verify authentication behavior when valid credentials contain leading or trailing whitespaces.
      * Assertion: Validating Business logic and data value handling (verifying if the system automatically trims whitespaces).
      */
-    // test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async({page}) => {
-    //     const {username: testUsername, password: testPassword} = usersData.whitespaceUsername;
+    test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async ({ page }) => {
+        await allure.story("Positive - Data Sanitization (Whitespace Handling)");
+        await allure.severity("normal");
+
+        const { username: whitespaceUser, password: validPass } = usersData.whitespaceUsername;
         
-    //     await loginPage.login(testUsername, testPassword);
-        
-    //     await expect(dashboardPage.labelHeader).toBeVisible();
-    //     await expect(page).toHaveURL(/.*dashboard/);
-    // });
-
-
-    /**
-     * Data-Driven Execution Block
-     * Iterates over the defined scenarios in JSON to perform various login attempts.
-     */
-    for (const scenario of loginTestScenarios) {
-        test(`${scenario.testCaseId}`, async({page}) => {
-        
-            switch (scenario.expectedResult) {
-                case "success":
-                    await allure.story("Positive - Valid Login Scenario");
-                    await allure.severity("blocker"); 
-                    break;
-                case "invalid_credentials":
-                    await allure.story("Negative - Invalid Credentials Handling");
-                    await allure.severity("critical");
-                    break;
-                case "empty_both":
-                case "empty_username":
-                case "empty_password":
-                    await allure.story("Negative - Empty Fields Validation");
-                    await allure.severity("normal");
-                    break;
-                default:
-                    await allure.story("Authentication Scenario");
-                    await allure.severity("normal");
-            }
-            
-            await test.step(`Action: Perform login with Scenario - ${scenario.expectedResult}`, async () => {
-                await loginPage.login(scenario.username, scenario.password);
-            });
-
-            await test.step(`Verify: Assert the expected result (${scenario.expectedResult})`, async () => {
-                // Pre-fetch expected text from JSON to use in verifications
-                const expectedRequiredError = expectedTexts.loginPage.requiredFieldError;
-                const expectedInvalidError = expectedTexts.loginPage.invalidCredentialsError;
-
-                switch (scenario.expectedResult) {
-                    case "success":
-                        await expect(dashboardPage.labelHeader).toBeVisible();
-                        await expect(page).toHaveURL(/.*dashboard/);
-                        break;
-
-                    case "invalid_credentials":
-                        await loginPage.verifyInvalidCredentialsError(expectedInvalidError);
-                        break;
-
-                    case "empty_both":
-                        await loginPage.verifyRequiredFieldErrors({
-                            username: expectedRequiredError,
-                            password: expectedRequiredError
-                        });
-                        break;
-
-                    case "empty_username":
-                        // Check exact count to ensure password field does NOT show error
-                        await expect(loginPage.msgUsernameRequired).toHaveCount(1);
-                        await expect(loginPage.msgPasswordRequired).toBeHidden();
-                        
-                        await loginPage.verifyRequiredFieldErrors({
-                            username: expectedRequiredError
-                        });
-                        break;
-
-                    case "empty_password":
-                        // Check exact count to ensure username field does NOT show error
-                        await expect(loginPage.msgPasswordRequired).toHaveCount(1);
-                        await expect(loginPage.msgUsernameRequired).toBeHidden();
-                        
-                        await loginPage.verifyRequiredFieldErrors({
-                            password: expectedRequiredError
-                        });
-                        break;
-                        
-                    default:
-                        throw new Error(`Unknown expected result defined in test data: ${scenario.expectedResult}`);
-                }
-            });
+        await test.step("Action: Submit credentials containing leading/trailing whitespaces", async () => {
+            await loginPage.login(whitespaceUser, validPass);
         });
-    };
+
+        await test.step("Verify: System automatically trims whitespaces and logs in successfully", async () => {
+            await expect(dashboardPage.labelHeader).toBeVisible();
+            await expect(page).toHaveURL(/.*dashboard/);
+        });
+    });
 
     /**
      * Test Case: Verify form data is cleared upon page refresh.
