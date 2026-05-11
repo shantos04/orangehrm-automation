@@ -54,7 +54,6 @@ export default defineConfig({
      * Essential for debugging complex UI or network timing issues.
      */
     trace: 'retain-on-failure',
-    ignoreHTTPSErrors: true,
     headless: false,
 
     /**
