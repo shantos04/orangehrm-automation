@@ -6,6 +6,8 @@
 
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import * as allure from "allure-js-commons";
+
 import { LoginPage } from '../../app/pages/login.page';
 import { AddEmployeePage } from '../../app/pages/pim/add-employee.page';
 import { ToastComponent } from '../../app/components/common/toast.component';
@@ -29,6 +31,10 @@ test.describe("PIM Module - Add Employee", () => {
      * and routes directly to the Add Employee URL to optimize test execution time.
      */
     test.beforeEach(async ({ page }) => {
+        // --- Allure Metadata ---
+        await allure.epic("PIM Module");
+        await allure.feature("Add Employee Functionality");
+
         // Increase the default timeout to 60 seconds to prevent flaky failures on slow environments
         test.setTimeout(60000);
 
@@ -50,6 +56,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Business Logic and Transient UI validation (Toast message handling).
      */
     test("OrangeHRM_PIM_ADD_TC01_AddEmployeeWithMandatoryFields", async ({ page }) => {
+        await allure.story("Positive - Add Employee with Mandatory Fields");
+        await allure.severity("critical");
+            
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
         await test.step("Action: Fill mandatory fields and submit the form", async () => {
@@ -73,6 +82,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Business Logic, File Upload functionality, and Transient UI validation (Toast message handling).
      */
     test("OrangeHRM_PIM_ADD_TC02_AddEmployeeWithFullDetails", async ({ page }) => {
+        await allure.story("Positive - Add Employee with Full Details & Profile Picture");
+        await allure.severity("critical");
+        
         const { firstName, middleName, lastName, employeeId, profilePicturePath } = employeeData.fullDetails;
         const absoluteImagePath = path.resolve(profilePicturePath);
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
@@ -103,6 +115,12 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Form Validation - Verifying the visibility and exact text content of 'Required' error messages upon submission.
      */
     test("OrangeHRM_PIM_ADD_TC03_VerifyRequiredFieldValidation", async ({ page }) => {
+        await allure.story("Negative - Form Submission with Empty Mandatory Fields");
+        await allure.severity("normal");
+        
+        await allure.story("Negative - Form Submission with Empty Mandatory Fields");
+        await allure.severity("normal");
+       
         await test.step("Action: Click 'Save' button without filling any fields", async () => {
             await addEmployeePage.btnSave.click();
         });
@@ -121,6 +139,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Business Logic - Validates unique constraint handling on the Employee ID field.
      */
     test("OrangeHRM_PIM_ADD_TC04_VerifyDuplicateEmployeeIdError", async ({ page }) => {
+        await allure.story("Negative - Handle Duplicate Employee ID");
+        await allure.severity("critical");
+       
         const expectedDuplicateText = expectedTexts.validationMessages.duplicateEmployeeId;
 
         await test.step("Action: Fill form with an already existing Employee ID and submit", async () => {
@@ -139,6 +160,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Page Routing - Ensures the application navigates back to the correct URL.
      */
     test("OrangeHRM_PIM_ADD_TC05_VerifyCancelAddEmployee", async ({ page }) => {
+        await allure.story("UI Interaction - Cancel Form Submission");
+        await allure.severity("minor");
+
         const expectedEmployeeListUrl = expectedTexts.urls.employeeList;
 
         await test.step("Action: Click the 'Cancel' button on the form", async () => {
@@ -155,6 +179,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: End-to-End Flow - Validates data persistence and success Toast message feedback.
      */
     test("OrangeHRM_PIM_ADD_TC06_AddEmployeeWithLoginDetails", async ({ page }) => {
+        await allure.story("Positive - Add Employee with User Account Creation");
+        await allure.severity("blocker");
+
         const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
         await test.step("Action: Enable and fill login details, then submit", async () => {
@@ -176,6 +203,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Form Validation - Ensures data integrity for password confirmation.
      */
     test("OrangeHRM_PIM_ADD_TC07_VerifyPasswordMismatchError", async ({ page }) => {
+        await allure.story("Negative - Login Details: Password Mismatch Validation");
+        await allure.severity("normal");
+
         const expectedErrorText = expectedTexts.validationMessages.passwordMismatch;
 
         await test.step("Action: Enter mismatched passwords and submit", async () => {
@@ -195,6 +225,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Data Constraint - Ensures fields reject inputs below the required length threshold.
      */
     test("OrangeHRM_PIM_ADD_TC08_VerifyLoginDetailsMinLengthValidation", async ({ page }) => {
+        await allure.story("Negative - Login Details: Minimum Length Constraints");
+        await allure.severity("normal");
+        
         const expectedUsernameError = expectedTexts.validationMessages.usernameMinLength;
         const expectedPasswordError = expectedTexts.validationMessages.passwordMinLength;
 
@@ -215,6 +248,9 @@ test.describe("PIM Module - Add Employee", () => {
      * Assertion: Data Constraint - Ensures fields reject inputs exceeding the character limit (User: 40, Pass: 64).
      */
     test("OrangeHRM_PIM_ADD_TC09_VerifyLoginDetailsMaxLengthValidation", async ({ page }) => {
+        await allure.story("Negative - Login Details: Maximum Length Constraints");
+        await allure.severity("normal");
+        
         const expectedUsernameError = expectedTexts.validationMessages.usernameMaxLength;
         const expectedPasswordError = expectedTexts.validationMessages.passwordMaxLength;
 
@@ -231,6 +267,9 @@ test.describe("PIM Module - Add Employee", () => {
     });
 
     test("OrangeHRM_PIM_ADD_TC10_VerifyPasswordNumberRequirementValidation", async ({ page }) => {
+        await allure.story("Negative - Login Details: Password Complexity (Number Required)");
+        await allure.severity("normal");
+        
         const expectedPasswordError = expectedTexts.validationMessages.passwordNoNumber;
 
         await test.step("Action: Input a password string without any numerical characters", async () => {
