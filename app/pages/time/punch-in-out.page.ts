@@ -6,7 +6,7 @@
  * utilize common elements like the global loading spinner.
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from '../base.page';
 
 export class PunchInOutPage extends BasePage {
@@ -57,8 +57,64 @@ export class PunchInOutPage extends BasePage {
     }
 
     // ========================================================================
-    // --- Action Methods ---
+    // --- Action Keywords (Step Action) ---
     // ========================================================================
+
+    /**
+     * KEYWORD STEP ACTION: Fills out and optionally submits the Punch In form.
+     * * @param {Object} punchData - Object containing the Punch In details.
+     * @param {string} punchData.date - The punch-in date (yyyy-dd-mm).
+     * @param {string} punchData.time - The punch-in time (hh:mm AM/PM).
+     * @param {string} [punchData.note] - Optional note for the punch-in record.
+     * @param {boolean} [submitPunch=true] - Determines whether to click the 'In' button. Defaults to true.
+     */
+    async punchIn(punchData: {
+        date: string,
+        time: string,
+        note?: string
+        },
+        submitPunch: boolean = true
+    ) {
+        await this.txtDate.fill(punchData.date);
+        await this.txtTime.fill(punchData.time);
+
+        if (punchData.note) {
+            await this.txtNote.fill(punchData.note);
+        }
+
+        if (submitPunch) {
+            await this.btnIn.click();
+            await this.waitForGlobalLoading();
+        }
+    }
+
+    /**
+     * KEYWORD STEP ACTION: Fills out and optionally submits the Punch Out form.
+     * * @param {Object} punchData - Object containing the Punch Out details.
+     * @param {string} punchData.date - The punch-out date (yyyy-dd-mm).
+     * @param {string} punchData.time - The punch-out time (hh:mm AM/PM).
+     * @param {string} [punchData.note] - Optional note for the punch-out record.
+     * @param {boolean} [submitPunch=true] - Determines whether to click the 'Out' button. Defaults to true.
+     */
+    async punchOut(punchData: {
+        date: string,
+        time: string,
+        note?: string,
+        },
+        submitPunch: boolean = true
+    ) {
+        await this.txtDate.fill(punchData.date);
+        await this.txtTime.fill(punchData.time);
+        
+        if (punchData.note) {
+            await this.txtNote.fill(punchData.note);
+        }
+
+        if (submitPunch) {
+            await this.btnOut.click();
+            await this.waitForGlobalLoading();
+        }
+    }
 
     /**
      * Retrieves the exact "Punched in time" text displayed on the UI.
@@ -69,91 +125,40 @@ export class PunchInOutPage extends BasePage {
     async getPunchedInTimeText(): Promise<string> {
         return (await this.lblPunchedInTime.innerText()).trim();
     }
-    
-    /**
-     * Enters the punch-out/in date into the date input field.
-     * 
-     * @param {string} date - The date to enter (expected format matches placeholder).
-     */
-    async enterDate(date: string) {
-        await this.txtDate.fill(date);
-    }
+
+    // ========================================================================
+    // --- Verification Keywords (Step Verify) ---
+    // ========================================================================
 
     /**
-     * Enters the punch-out/in time into the time input field.
-     * 
-     * @param {string} time - The time to enter (expected format: hh:mm AM/PM).
-     */ 
-    async enterTime(time: string) {
-        await this.txtTime.fill(time);
-    }
-
-    /**
-     * Enters an optional note for the punch-out/in record.
-     * 
-     * @param {string} note - The note text to enter.
+     * KEYWORD STEP VERIFY: Validates the presence of error messages for the Date and/or Time fields.
+     * Useful for testing empty field submissions or invalid formats.
+     * * @param expectedErrors - Object indicating the expected error text.
+     * @param {string} [expectedErrors.date] - Expected error text under the Date field.
+     * @param {string} [expectedErrors.time] - Expected error text under the Time field.
      */
-    async enterNote(note: string) {
-        await this.txtNote.fill(note);
-    }
-
-    /**
-     * Clicks the "In" button to submit the punch-in form.
-     */
-    async clickInButton() {
-        await this.btnIn.click();
-        await this.waitForGlobalLoading();
-    }
-
-    /**
-     * Clicks the "Out" button to submit the punch-out form.
-     */
-    async clickOutButton() {
-        await this.btnOut.click();
-        await this.waitForGlobalLoading();
-    }
-
-    /**
-     * Fills out and submits the entire Punch In form in a single streamlined flow,
-     * then waits for the global loading spinner to disappear.
-     * 
-     * @param {string} date - The punch-out date.
-     * @param {string} time - The punch-out time.
-     * @param {string} [note] - (Optional) The note for the punch-out record.
-     */
-    async submitPunchInForm(date: string, time: string, note?: string) {
-        await this.enterDate(date);
-        await this.enterTime(time);
-        
-        if (note) {
-            await this.enterNote(note);
+    async verifyFormValidationErrors(expectedErrors: {
+        date?: string,
+        time?: string
+    }) {
+        if (expectedErrors.date) {
+            await expect(this.errorMessageDate).toBeVisible();
+            await expect(this.errorMessageDate).toHaveText(expectedErrors.date);
         }
-        
-        await this.clickInButton();
-        
-        // Uses the inherited method from BasePage to ensure the system processes the request 
-        await this.waitForGlobalLoading();
+
+        if (expectedErrors.time) {
+            await expect(this.errorMessageTime).toBeVisible();
+            await expect(this.errorMessageTime).toHaveText(expectedErrors.time);
+        }
     }
 
     /**
-     * Fills out and submits the entire Punch Out form in a single streamlined flow,
-     * then waits for the global loading spinner to disappear.
-     * 
-     * @param {string} date - The punch-out date.
-     * @param {string} time - The punch-out time.
-     * @param {string} [note] - (Optional) The note for the punch-out record.
+     * KEYWORD STEP VERIFY: Validates that the form successfully loaded the correct Title.
+     * * @param {string} expectedTitle - The expected main title (e.g., 'Punch In' or 'Punch Out').
      */
-    async submitPunchOutForm(date: string, time: string, note?: string) {
-        await this.enterDate(date);
-        await this.enterTime(time);
-        
-        if (note) {
-            await this.enterNote(note);
-        }
-        
-        await this.clickOutButton();
-        
-        // Uses the inherited method from BasePage to ensure the system processes the request 
-        await this.waitForGlobalLoading();
+    async verifyMainTitle(expectedTitle: string) {
+        // Verify the page's main title text matches the expected title
+        await expect(this.mainTitle).toBeVisible();
+        await expect(this.mainTitle).toHaveText(expectedTitle);
     }
 }
