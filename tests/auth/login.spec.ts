@@ -5,6 +5,8 @@
  */
 
 import { test, expect } from '@playwright/test';
+import * as allure from "allure-js-commons";
+
 import {LoginPage} from '../../app/pages/login.page';
 import {DashboardPage} from '../../app/pages/dashboard.page';
 
@@ -25,6 +27,10 @@ test.describe("Login Module - Authentication", () => {
      * Setup: Initializes the page object and navigates to the login route.
      */
     test.beforeEach(async ({page}) => {
+        // --- Allure Metadata ---
+        await allure.epic("Authentication Module");
+        await allure.feature("Login Functionality");
+
         loginPage = new LoginPage(page);
         dashboardPage = new DashboardPage(page);
         await page.goto('/web/index.php/auth/login');
@@ -35,6 +41,9 @@ test.describe("Login Module - Authentication", () => {
      * Assertion Category: UI state (toBeVisible).
      */
     test("OrangeHRM_Login_TC01_VerifyUILoginPage", async({page}) => {
+        await allure.story("UI Structure and Component Validation");
+        await allure.severity("normal");
+
         const expectedTitle = expectedTexts.loginPage.pageTitle;
 
         await test.step("Verify: Page Title is Correct", async () => {
@@ -99,6 +108,9 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: The entered characters are masked (hidden as dots/asterisks).
      */
     test("OrangeHRM_Login_TC05_VerifyPasswordMasking", async({page}) => {
+        await allure.story("Security - Password Field Masking");
+        await allure.severity("critical");
+
         const testPassword = usersData.validAdmin.password;
 
         await test.step("Action: Input text into the password field", async () => {
@@ -115,6 +127,9 @@ test.describe("Login Module - Authentication", () => {
      * Assertion: The form submits and navigates to the Dashboard page
      */
     test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page}) => {
+        await allure.story("Accessibility - Keyboard Enter Key Submission");
+        await allure.severity("normal");
+
         const {username: testUsername, password: testPassword} = usersData.validAdmin;
 
         await test.step("Action: Fill the form but strictly instruct not to click the login button", async () => {
@@ -206,6 +221,26 @@ test.describe("Login Module - Authentication", () => {
      */
     for (const scenario of loginTestScenarios) {
         test(`${scenario.testCaseId}`, async({page}) => {
+        
+            switch (scenario.expectedResult) {
+                case "success":
+                    await allure.story("Positive - Valid Login Scenario");
+                    await allure.severity("blocker"); 
+                    break;
+                case "invalid_credentials":
+                    await allure.story("Negative - Invalid Credentials Handling");
+                    await allure.severity("critical");
+                    break;
+                case "empty_both":
+                case "empty_username":
+                case "empty_password":
+                    await allure.story("Negative - Empty Fields Validation");
+                    await allure.severity("normal");
+                    break;
+                default:
+                    await allure.story("Authentication Scenario");
+                    await allure.severity("normal");
+            }
             
             await test.step(`Action: Perform login with Scenario - ${scenario.expectedResult}`, async () => {
                 await loginPage.login(scenario.username, scenario.password);
