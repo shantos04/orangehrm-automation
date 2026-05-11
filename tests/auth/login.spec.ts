@@ -293,5 +293,184 @@ test.describe("Login Module - Authentication", () => {
                 }
             });
         });
-    }
+    };
+
+    /**
+     * Test Case: Verify form data is cleared upon page refresh.
+     * Assertion: Ensures sensitive data does not persist in DOM/cache after a reload.
+     */
+    test("OrangeHRM_Login_TC11_VerifyFormReload", async ({page}) => {
+        await allure.story("Browser Action - Form Reload Protection");
+        await allure.severity("normal");
+
+        const { username: validUser, password: validPass} = usersData.validAdmin;
+
+        await test.step("Action: Input valid credentials but do NOT submit", async () => {
+            await loginPage.login(validUser, validPass, false);
+        });
+
+        await test.step("Action: Simulate user pressing F5 (Refresh)", async () => {
+            await page.reload();
+            await loginPage.txtUsername.waitFor({state: 'visible'});
+        });
+
+        await test.step("Verify: Username and Password fields are completely cleared", async () => {
+            await expect(loginPage.txtUsername).toBeEmpty();
+            await expect(loginPage.txtUsername).toBeEmpty();
+        });
+    });
+
+    /**
+     * Test Case: Verify system prevents returning to Login page via Back button after successful authentication.
+     * Assertion: Session validation ensures users are forced back to the secure Dashboard.
+     */
+    test("OrangeHRM_Login_TC12_VerifyBrowserBackButton", async ({page}) => {
+        await allure.story("Browser Actions - Back Button Session Handling");
+        await allure.severity("critical");
+
+        const { username: validUser, password: validPass } = usersData.validAdmin;
+
+        await test.step("Action: Authenticate successfully and navigate to Dashboard", async () => {
+            await loginPage.login(validUser, validPass);
+            await expect(dashboardPage.labelHeader).toBeVisible();
+        });
+
+        await test.step("Action: Simulate user pressing the browser's Back button", async () => {
+            await page.goBack();
+            await page.waitForLoadState('networkidle');
+        });
+
+        await test.step("Verify: System redirects back to Dashboard, denying access to Login form", async () => {
+            await expect(page).not.toHaveURL(/.*login/);
+            await expect(dashboardPage.labelHeader).toBeVisible();
+        });
+    });
+
+    /**
+     * Test Case: Verify session persistence across multiple browser tabs.
+     * Assertion: Ensures logging in on Tab 1 automatically authorizes Tab 2 upon reload.
+     */
+    test("OrangeHRM_Login_TC13_VerifyMultipleTabsLogin", async ({context, page}) => {
+        await allure.story("Browser Actions - Cross-Tab Session Synchronization");
+        await allure.severity("critical");
+
+        const { username: validUser, password: validPass } = usersData.validAdmin;
+
+        // Initialize a second tab within the same browser context
+        const page2 = await context.newPage();
+        const loginPageTab2 = new LoginPage(page2);
+
+        await test.step("Action: Open Login form on both Tab 1 and Tab 2", async () => {
+            await page2.goto('/web/index.php/auth/login');
+            await loginPageTab2.txtUsername.waitFor({state: 'visible'});
+        });
+
+        await test.step("Action: Authenticate successfully on Tab 1", async () => {
+            await loginPage.login(validUser, validPass);
+            await expect(dashboardPage.labelHeader).toBeVisible();
+        });
+
+        await test.step("Action: Switch to Tab 2 and refresh the page", async () => {
+            await page2.bringToFront();
+            await page2.reload();
+            await page2.waitForLoadState('networkidle');
+        });
+
+        await test.step("Verify: Tab 2 automatically bypasses and routes to Dashboard", async () => {
+            const dashboardPageTab2 = new DashboardPage(page2);
+            await expect(page2).toHaveURL(/.*dashboard/);
+            await expect(dashboardPageTab2.labelHeader).toBeVisible();
+        });
+    });
+
+    /**
+     * Test Case: Verify strict case sensitivity for password validation.
+     * Assertion: Capitalizing a valid password should trigger an Invalid Credentials error.
+     */
+    test("OrangeHRM_Login_TC14_VerifyCaseSensitivity", async () => {
+        await allure.story("Security - Strict Case Sensitivity Validation");
+        await allure.severity("critical");
+
+        const validUser = usersData.validAdmin.username;
+        const uppercasePass = usersData.validAdmin.password.toUpperCase();
+        const expectedInvalidError = expectedTexts.loginPage.invalidCredentialsError;
+
+        await test.step("Action: Attempt login with an intentionally uppercase password", async () => {
+            await loginPage.login(validUser, uppercasePass);
+        });
+
+        await test.step("Verify: System rejects the altered password format", async () => {
+            await loginPage.verifyInvalidCredentialsError(expectedInvalidError);
+        });
+    });
+
+    /**
+     * Test Case: Verify form vulnerability against basic SQL Injection attacks.
+     * Assertion: Inputs should be sanitized, preventing unauthorized bypass.
+     */
+    test("OrangeHRM_Login_TC15_VerifySqlInjectionBypass", async () => {
+        await allure.story("Security - SQL Injection Mitigation");
+        await allure.severity("blocker");
+
+        const sqlPayload = "' OR '1'='1";
+        const expectedInvalidError = expectedTexts.loginPage.invalidCredentialsError;
+
+        await test.step("Action: Inject SQL payload into both input fields and submit", async () => {
+            await loginPage.login(sqlPayload, sqlPayload);
+        });
+
+        await test.step("Verify: System sanitizes input, does not crash, and denies access", async () => {
+            await loginPage.verifyInvalidCredentialsError(expectedInvalidError);
+        });
+    });
+
+    /**
+     * Test Case: Verify standard clipboard paste operations on the password field.
+     * Assertion: Validates if the project requirements permit or restrict pasting into sensitive fields.
+     */
+    test("OrangeHRM_Login_TC16_VerifyCopyPasteFunctionality", async ({page}) => {
+        await allure.story("Security - Clipboard Interaction (Paste)");
+        await allure.severity("minor");
+
+        const secretText = "PastedSecretPass123!"
+
+        await test.step("Action: Simulate a clipboard paste event into the password field", async () => {
+            // Focus the element and simulate rapid text insertion akin to Ctrl+V
+            await loginPage.txtPassword.focus();
+            await page.keyboard.insertText(secretText);
+        });
+
+        await test.step("Verify: The system accepts pasted input into the password field", async () => {
+            await expect(loginPage.txtPassword).toHaveText(secretText);
+        });
+    });
+
+    /**
+     * Test Case: Verify forceful session termination triggers immediate re-authentication.
+     * Assertion: Simulates a session timeout (cookie deletion) and attempts to access protected routes.
+     */
+    test("OrangeHRM_Login_TC17_VerifySessionTimeout", async ({ context, page }) => {
+        await allure.story("Security - Session Timeout Enforcement");
+        await allure.severity("blocker");
+
+        const { username: validUser, password: validPass } = usersData.validAdmin;
+
+        await test.step("Action: Authenticate successfully and establish a session", async () => {
+            await loginPage.login(validUser, validPass);
+            await expect(dashboardPage.labelHeader).toBeVisible();
+        });
+
+        await test.step("Action: Terminate session by clearing browser cookies", async () => {
+            await context.clearCookies();
+        });
+
+        await test.step("Action: Attempt to navigate to a protected internal module (PIM)", async () => {
+            await page.goto('/web/index.php/pim/viewEmployeeList');
+        });
+
+        await test.step("Verify: System revokes access and redirects to Login interface", async () => {
+            await expect(page).toHaveURL(/.*login/);
+            await expect(loginPage.btnLogin).toBeVisible();
+        });
+    });
 });
