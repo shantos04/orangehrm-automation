@@ -32,7 +32,12 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
-    ['./reporters/custom-reporter.ts']
+    ['./reporters/custom-reporter.ts'],
+    ['allure-playwright', {
+            detail: true,
+            outputFolder: 'allure-results',
+            suiteTitle: false
+    }]
   ],
   
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -49,7 +54,7 @@ export default defineConfig({
      * Essential for debugging complex UI or network timing issues.
      */
     trace: 'retain-on-failure',
-
+    ignoreHTTPSErrors: true,
     headless: false,
 
     /**
