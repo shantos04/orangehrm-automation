@@ -5,6 +5,8 @@
  */
 
 import { test, expect } from '@playwright/test';
+import * as allure from "allure-js-commons";
+
 import { LoginPage } from '../../app/pages/login.page';
 import { TimeTopMenuComponent } from '../../app/components/time/time-top-menu.component';
 import { PunchInOutPage } from '../../app/pages/time/punch-in-out.page';
@@ -23,6 +25,10 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
     // GLOBAL SETUP: Authentication and Navigation
     // ========================================================================
     test.beforeEach(async ({ page }) => {
+        // --- Allure Metadata ---
+        await allure.epic("Time Module");
+        await allure.feature("Calendar Widget UI Component");
+
         test.setTimeout(60000);
 
         loginPage = new LoginPage(page);
@@ -56,17 +62,24 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
      * Assertion: Ensures the dynamic calendar component renders and becomes visible upon interaction with the date input field, and captures screenshot evidence.
      */
     test("OrangeHRM_TIME_CAL_TC01_VerifyOpeningCalendarWidget", async ({page}, testInfo) => {
-        // Utilize the POM method to safely open the calendar and wait for Vue.js rendering
-        await calendarComp.openCalendar();
+        await allure.story("UI Interaction - Open Calendar Widget");
+        await allure.severity("critical");
 
-        // Assert that the dynamic calendar container is injected and visible
-        await expect(calendarComp.calendarContainer).toBeVisible();
+        await test.step("Action: Click the calendar icon", async () => {
+            // Utilize the POM method to safely open the calendar
+            await calendarComp.openCalendar();
+        });
 
-        // Capture the entire viewport to show the calendar is open and rendered correctly
-        const screenshot = await page.screenshot();
-        await testInfo.attach('Evidence-TC01-Calendar-Opened', { 
-            body: screenshot, 
-            contentType: 'image/png' 
+        await test.step("Verify: Dynamic calendar is injected and visible", async () => {
+            // Assert that the dynamic calendar container is injected and visible
+            await calendarComp.verifyCalendarIsVisible();
+
+            // Capture the entire viewport to show the calendar is open and rendered correctly
+            const screenshot = await page.screenshot();
+            await testInfo.attach('Evidence-TC01-Calendar-Opened', { 
+                body: screenshot, 
+                contentType: 'image/png' 
+            });
         });
     });
 
@@ -75,25 +88,32 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
      * Assertion: Ensures selecting a specific year, month, and day correctly populates the input field with the designated date format, dismisses the calendar, and captures evidence.
      */
     test("OrangeHRM_TIME_CAL_TC02_VerifySelectingSpecificDate", async ({page}, testInfo) => {
+        await allure.story("UI Interaction - Select Specific Date");
+        await allure.severity("critical");
+
         const targetYear = '2026';
         const targetMonth = 'May';
         const targetDay = '15';
         const expectedFormat = '2026-15-05';
 
-        // Select the full date using the encapsulated component method
-        await calendarComp.selectFullDate(targetYear, targetMonth, targetDay);
+        await test.step("Action: Select specific Year, Month and Day from the widget", async () => {
+            // Select the full date using the encapsulated component method
+            await calendarComp.selectFullDate(targetYear, targetMonth, targetDay);
+        });
 
-        // Assert that the calendar automatically closes after a specific day is selected
-        await expect(calendarComp.calendarContainer).toBeHidden();
+        await test.step("Verify: Calendar closes and input field displays the correct date format", async () => {
+            // Assert that the calendar automatically closes after a specific day is selected
+            await calendarComp.verifyCalendarIsHidden();
 
-        // Assert that the input field displays the correctly formatted date
-        await expect(punchIOPage.txtDate).toHaveValue(expectedFormat);
+            // Assert that the input field displays the correctly formatted date
+            await calendarComp.verifySelectedDateValue(expectedFormat);
 
-        // Capture ONLY the input field element to prove it contains the new date
-        const elementScreenshot = await punchIOPage.txtDate.screenshot();
-        await testInfo.attach('Evidence-TC02-Date-Selected', { 
-            body: elementScreenshot, 
-            contentType: 'image/png' 
+            // Capture ONLY the input field element to prove it contains the new date
+            const elementScreenshot = await punchIOPage.txtDate.screenshot();
+            await testInfo.attach('Evidence-TC02-Date-Selected', { 
+                body: elementScreenshot, 
+                contentType: 'image/png' 
+            });
         });
     });
 
@@ -102,35 +122,40 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
      * Assertion: Ensures clicking 'Today' correctly calculates the system's current date, formats it according to system settings (YYYY-DD-MM), populates the field, and closes the widget.
      */
     test("OrangeHRM_TIME_CAL_TC03_VerifyTodayShortcutButton", async ({ page }, testInfo) => {
-        await calendarComp.openCalendar();
-
-        // Click the 'Today' button located in the calendar footer
-        await calendarComp.btnToday.click();
-
-        // Assert that the calendar closes automatically
-        await expect(calendarComp.calendarContainer).toBeHidden();
-
-        // Dynamically calculate the system's current date in YYYY-DD-MM format
-        // to match the specific Date Format configuration of this OrangeHRM instance.
-        const today = new Date();
-        const year = today.getFullYear();
+        await allure.story("Widget Feature - 'Today' Shortcut Button");
+        await allure.severity("normal");
         
-        // getMonth() is zero-based (Jan = 0), so we add 1. 
-        // padStart(2, '0') ensures it's always 2 digits (e.g., '5' becomes '05')
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        
-        // Construct the expected string specifically as yyyy-dd-mm
-        const expectedDateString = `${year}-${day}-${month}`;
+        await test.step("Action: Open calendar and click the 'Today' shortcut button", async () => {
+            await calendarComp.openCalendar();
+            await calendarComp.selectToday();
+        });
 
-        // Assert that the input field contains today's exact date in the correct format
-        await expect(punchIOPage.txtDate).toHaveValue(expectedDateString);
+        await test.step("Verify: Calendar closes and input field with system's current date", async () => {
+            // Assert that the calendar closes automatically
+            await expect(calendarComp.calendarContainer).toBeHidden();
 
-        // Capture the input field showing today's date
-        const elementScreenshot = await punchIOPage.txtDate.screenshot();
-        await testInfo.attach('Evidence-TC03-Today-Date-Populated', { 
-            body: elementScreenshot, 
-            contentType: 'image/png' 
+            // Dynamically calculate the system's current date in YYYY-DD-MM format
+            // to match the specific Date Format configuration of this OrangeHRM instance.
+            const today = new Date();
+            const year = today.getFullYear();
+
+            // getMonth() is zero-based (Jan = 0), so we add 1. 
+            // padStart(2, '0') ensures it's always 2 digits (e.g., '5' becomes '05')
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const date = String(today.getDate()).padStart(2, '0');
+
+            // Construct the expected string specifically as yyyy-dd-mm
+            const expectedDateString = `${year}-${date}-${month}`;
+
+            // Assert that the input field contains today's exact date in the correct format
+            await calendarComp.verifySelectedDateValue(expectedDateString);
+
+            // Capture the input field showing today's date
+            const elementScreenshot = await punchIOPage.txtDate.screenshot();
+            await testInfo.attach('Evidence-TC03-Today-Date-Populated', { 
+                body: elementScreenshot, 
+                contentType: 'image/png' 
+            });
         });
     });
 
@@ -139,25 +164,30 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
      * Assertion: Ensures clicking 'Clear' successfully removes any existing data from the input field and dismisses the calendar widget.
      */
     test("OrangeHRM_TIME_CAL_TC04_VerifyClearShortcutButton", async ({page}, testInfo) => {
-        // Pre-fill the input field to ensure there is existing data to clear
-        await punchIOPage.txtDate.fill('2026-05-05');
+        await allure.story("Widget Feature - 'Clear' Shortcut Button");
+        await allure.severity("normal");
+
+        await test.step("Action: Pre-fill date, open calendar and Click 'Clear'", async () => {
+            // Pre-fill the input field to ensure there is existing data to clear
+            await punchIOPage.txtDate.fill('2026-05-05');
         
-        await calendarComp.openCalendar();
+            await calendarComp.openCalendar();
+            await calendarComp.clearDate();
+        });
 
-        // Click the 'Clear' button located in the calendar footer
-        await calendarComp.btnClear.click();
+        await test.step("Verify: Calendar closes and input field is emptied", async () => {
+            // Assert that the calendar closes automatically
+            await expect(calendarComp.calendarContainer).toBeHidden();
 
-        // Assert that the calendar closes automatically
-        await expect(calendarComp.calendarContainer).toBeHidden();
+            // Assert that the input field has been successfully wiped empty
+            await calendarComp.verifyDateIsEmpty();
 
-        // Assert that the input field has been successfully wiped empty
-        await expect(punchIOPage.txtDate).toHaveValue('');
-
-        // Capture the input field to prove it is completely empty
-        const elementScreenshot = await punchIOPage.txtDate.screenshot();
-        await testInfo.attach('Evidence-TC04-Date-Cleared', { 
-            body: elementScreenshot, 
-            contentType: 'image/png' 
+            // Capture the input field to prove it is completely empty
+            const elementScreenshot = await punchIOPage.txtDate.screenshot();
+            await testInfo.attach('Evidence-TC04-Date-Cleared', { 
+                body: elementScreenshot, 
+                contentType: 'image/png' 
+            });
         });
     });
 
