@@ -3,13 +3,14 @@
  * Handles dynamic Vue.js DOM rendering by scoping locators to specific date wrappers.
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class CalendarComponent {
     readonly page: Page;
 
     // --- Core Containers ---
     readonly dateWrapper: Locator;
+    readonly dateInput: Locator;
     readonly calendarIcon: Locator;
     readonly calendarContainer: Locator;
     
@@ -34,6 +35,9 @@ export class CalendarComponent {
 
         // Locate the main parent wrapper 
         this.dateWrapper = page.locator('.oxd-date-wrapper').nth(index);
+
+        // Locate the actual input field for reading its value
+        this.dateInput = this.dateWrapper.locator('input');
         
         // Locate the icon inside this specific wrapper
         this.calendarIcon = this.dateWrapper.locator('.oxd-date-input-icon');
@@ -55,14 +59,41 @@ export class CalendarComponent {
         this.btnClose = this.calendarContainer.getByText('Close', { exact: true }); // Newly added from your screenshot
     }
 
+
+    // ========================================================================
+    // --- Action Keywords (Step Action) ---
+    // ========================================================================
+
     /**
-     * Clicks the calendar icon to trigger the Vue.js DOM rendering of the widget.
+     * KEYWORD STEP ACTION: Clicks the calendar icon to trigger the Vue.js DOM rendering of the widget.
      */
     async openCalendar() {
         await this.calendarIcon.click();
         
         // Explicitly wait for the newly injected DOM node to become visible
         await this.calendarContainer.waitFor({ state: 'visible' });
+    }
+
+    /**
+     * KEYWORD STEP ACTION: Closes the calendar widget using the 'Close' button.
+     */
+    async closeCalendar() {
+        await this.btnClose.click();
+        await this.calendarContainer.waitFor({state: 'hidden'});
+    }
+
+    /**
+     * KEYWORD STEP ACTION: Clicks the 'Clear' button to erase the selected date.
+     */
+    async clearDate() {
+        await this.btnClear.click();
+    }
+
+    /**
+     * KEYWORD STEP ACTION: Clicks the 'Today' button to quickly select the current date.
+     */
+    async selectToday() {
+        await this.btnToday.click();
     }
 
     /**
@@ -111,5 +142,38 @@ export class CalendarComponent {
         await this.selectYear(year);
         await this.selectMonth(month);
         await this.selectDay(day);
+    }
+
+    // ========================================================================
+    // --- Verification Keywords (Step Verify) ---
+    // ========================================================================
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts whether the calendar widget popup is visible on the screen.
+     */
+    async verifyCalendarIsVisible() {
+        await expect(this.calendarContainer).toBeVisible();
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts whether the calendar widget popup is hidden.
+     */
+    async verifyCalendarIsHidden() {
+        await expect(this.calendarContainer).toBeHidden();
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Validates that the input field displays the correct date string.
+     * @param {string} expectedDateString - The formatted date expected in the input field (e.g., '2026-05-15').
+     */
+    async verifySelectedDateValue(expectedDateString: string) {
+        await expect(this.dateInput).toHaveValue(expectedDateString);
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Validates that the input field is completely empty.
+     */
+    async verifyDateIsEmpty() {
+        await expect(this.dateInput).toHaveValue('');
     }
 }
