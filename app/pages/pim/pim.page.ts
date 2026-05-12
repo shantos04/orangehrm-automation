@@ -35,6 +35,7 @@ export class PimPage extends BasePage {
     readonly btnAdd: Locator;
     readonly btnConfirmDelete: Locator;
     readonly btnNextPage: Locator;
+    readonly btnBulkDelete: Locator;
 
     /**
      * Initializes the PimPage object, inherited properties, and defines specific locators.
@@ -68,6 +69,7 @@ export class PimPage extends BasePage {
         this.btnAdd = page.getByRole('button', { name: 'Add' });
         this.btnConfirmDelete = page.locator('.oxd-table-cell-actions').locator('//button[i[contains(@class, "bi-trash")]]');
         this.btnNextPage = page.locator('.oxd-pagination-page-item--previous-next').filter({ has: page.locator('i.bi-chevron-right') });
+        this.btnBulkDelete = page.getByRole('button', {name: 'Delete Selected'});
     }
 
     /**

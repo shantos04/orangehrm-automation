@@ -120,6 +120,17 @@ export class PimTopMenuComponent {
     }
 
     /**
+     * Helper method to extract the actual computed background color of a menu.
+     * @param {PrimaryMenuKey} menuName - The exact name of the menu.
+     * @returns {Promise<string>} The RGB/RGBA color string.
+     */
+    async getMenuBackgroundColor(menuName: PrimaryMenuKey): Promise<string> {
+        const menuLocator = this.getMenuLocator(menuName);
+        // Inject JavaScript into the browser to read the real-time CSS rendering
+        return await menuLocator.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+    }
+
+    /**
      * KEYWORD STEP ACTION: Hovers over a specific primary menu based on its name.
      * @param {PrimaryMenuKey} menuName - The exact name of the menu to hover.
      */
@@ -129,15 +140,48 @@ export class PimTopMenuComponent {
     }
 
     /**
-     * KEYWORD STEP VERIFY: Asserts the hover CSS state of a specific primary menu.
-     * @param {PrimaryMenuKey} menuName - The exact name of the menu to verify.
+     * KEYWORD STEP VERIFY: Asserts that all primary top menu tabs are visible on the UI.
      */
-    async verifyPrimaryMenuHoverState(menuName: PrimaryMenuKey) {
-        const menuLocator = this.getMenuLocator(menuName);
-        
-        // In OrangeHRM, hovering typically triggers a visual change.
-        // We assert the base class remains intact and the element is interactive.
-        await expect(menuLocator).toHaveClass(/oxd-topbar-body-nav-tab/);
+    async verifyPrimaryMenusVisible() {
+        await expect(this.menuConfiguration).toBeVisible();
+        await expect(this.menuEmployeeList).toBeVisible();
+        await expect(this.menuAddEmployee).toBeVisible();
+        await expect(this.menuReports).toBeVisible();
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts that all sub-menu items within the Configuration dropdown are visible.
+     */
+    async verifyConfigurationSubMenusVisible() {
+        await expect(this.subMenuOptionalFields).toBeVisible();
+        await expect(this.subMenuCustomFields).toBeVisible();
+        await expect(this.subMenuDataImport).toBeVisible();
+        await expect(this.subMenuReportingMethods).toBeVisible();
+        await expect(this.subMenuTerminationReasons).toBeVisible();
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts that a specific menu tab is currently active (highlighted).
+     * @param {PrimaryMenuKey} tabName - The name of the tab to check.
+     */
+    async verifyTabIsActive(tabName: PrimaryMenuKey) {
+        const targetTab = this.getMenuLocator(tabName);
+        // OrangeHRM appends the '--visited' class to the active tab
+        await expect(targetTab).toHaveClass(/oxd-topbar-body-nav-tab--visited/);
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts the visual hover effect by comparing background colors.
+     * @param {PrimaryMenuKey} menuName - The exact name of the menu to verify.
+     * @param {string} originalColor - The background color captured BEFORE the hover action.
+     */
+    async verifyPrimaryMenuVisualHover(menuName: PrimaryMenuKey, originalColor: string) {
+        // Playwright's expect.toPass() will automatically retry the assertion until the 
+        // CSS transition animation finishes and the color actually changes.
+        await expect(async () => {
+            const hoveredColor = await this.getMenuBackgroundColor(menuName);
+            expect(hoveredColor).not.toEqual(originalColor);
+        }).toPass({ timeout: 5000 });
     }
 
     /**
