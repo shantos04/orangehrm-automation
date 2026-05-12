@@ -66,5 +66,10 @@
     "searchEmployeeById": {
         "validEmployeeId": "0044",
         "invalidEmployeeId": "8765"
+    },
+    "searchEmployeeByName": {
+        "validName": "John",
+        "partialName": "Joh",
+        "invalidName": "Not an employee"
     }
 }
