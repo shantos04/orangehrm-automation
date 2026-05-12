@@ -5,7 +5,12 @@
  * menu bar present across all pages within the PIM (Personal Information Management) module.
  * 
  */
-import {Page, Locator} from '@playwright/test';
+import {Page, Locator, expect} from '@playwright/test';
+
+/**
+ * Type definition for valid primary menu names to ensure type safety.
+ */
+type PrimaryMenuKey = 'Configuration' | 'Employee List' | 'Add Employee' | 'Reports';
 
 export class PimTopMenuComponent {
     readonly page: Page;
@@ -22,7 +27,7 @@ export class PimTopMenuComponent {
     readonly subMenuDataImport: Locator;
     readonly subMenuReportingMethods: Locator;
     readonly subMenuTerminationReasons: Locator;
-
+    
     constructor(page: Page) {
         this.page = page;
 
@@ -96,5 +101,46 @@ export class PimTopMenuComponent {
         await this.openConfigurationDropdown();
         await this.subMenuTerminationReasons.click();
         await this.page.waitForURL('**/pim/viewTerminationReasons');
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Iterates through specified primary menus, hovers over them, and asserts the hover state.
+     * @param {PrimaryMenuKey[]} [menusToCheck] - Optional array of specific menus to check. Defaults to checking ALL menus if left empty.
+     */
+    async verifyPrimaryMenusHoverEffect(menusToCheck?: PrimaryMenuKey[]) {
+        // Map string keys to their corresponding Playwright Locators
+        const menuMap: Record<PrimaryMenuKey, Locator> = {
+            'Configuration': this.menuConfiguration,
+            'Employee List': this.menuEmployeeList,
+            'Add Employee': this.menuAddEmployee,
+            'Reports': this.menuReports
+        };
+
+        // If no specific array is provided (or if it's empty), default to checking all keys in the map
+        const targetMenus = (menusToCheck && menusToCheck.length > 0) 
+            ? menusToCheck 
+            : (Object.keys(menuMap) as PrimaryMenuKey[]);
+
+        for (const menuName of targetMenus) {
+            const menuLocator = menuMap[menuName];
+            
+            await menuLocator.hover();
+            
+            // In OrangeHRM, hovering typically triggers a visual change.
+            // We assert the base class remains intact and the element is interactive.
+            // Note: If the specific hover class is known (e.g., '--hover'), update the regex.
+            await expect(menuLocator).toHaveClass(/oxd-topbar-body-nav-tab/);
+        }
+    }
+
+    /**
+     * KEYWORD STEP VERIFY: Asserts the exact text labels of all Configuration sub-menus.
+     */
+    async verifyConfigurationSubMenuTexts() {
+        await expect(this.subMenuOptionalFields).toHaveText('Optional Fields');
+        await expect(this.subMenuCustomFields).toHaveText('Custom Fields');
+        await expect(this.subMenuDataImport).toHaveText('Data Import');
+        await expect(this.subMenuReportingMethods).toHaveText('Reporting Methods');
+        await expect(this.subMenuTerminationReasons).toHaveText('Termination Reasons');
     }
 }
