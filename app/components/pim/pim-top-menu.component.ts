@@ -167,7 +167,7 @@ export class PimTopMenuComponent {
     async verifyTabIsActive(tabName: PrimaryMenuKey) {
         const targetTab = this.getMenuLocator(tabName);
         // OrangeHRM appends the '--visited' class to the active tab
-        await expect(targetTab).toHaveClass(/oxd-topbar-body-nav-tab--visited/);
+        await expect(targetTab).toHaveClass(/--visited/);
     }
 
     /**

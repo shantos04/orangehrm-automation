@@ -10,32 +10,49 @@ import { ToastComponent } from '../../components/common/toast.component';
 import expectedTexts from '../../../data/expected-texts.json';
 
 export class PimPage extends BasePage {
-    // --- Search Filter Locators ---
+    // ========================================================================
+    // --- Search Form & Filter Locators ---
+    // ========================================================================
     readonly dropdownInclude: Locator;
-    readonly txtEmployeeName: Locator;
     readonly txtEmployeeId: Locator;
+    readonly txtEmployeeName: Locator;
     readonly txtSupervisorName: Locator;
 
     // --- Dropdown Extractors for Validation ---
-    readonly lblSelectedJobTitle: Locator;
     readonly lblSelectedEmpStatus: Locator;
+    readonly lblSelectedJobTitle: Locator;
     readonly lblSelectedSubUnit: Locator;
 
-    // --- Web table Locators ---
-    readonly tableContainer: Locator;
-    readonly tableHeaderRow: Locator;
-    readonly tableBody: Locator;
-    readonly tableRows: Locator;
+    // ========================================================================
+    // --- Main Action Button Locators ---
+    // ========================================================================
+    readonly btnAdd: Locator;
+    readonly btnBulkDelete: Locator;
+    readonly btnReset: Locator;
+    readonly btnSearch: Locator;
+
+    // ========================================================================
+    // --- Web Table & Results Locators ---
+    // ========================================================================
     readonly columnHeaders: Locator;
     readonly masterCheckbox: Locator;
+    readonly tableBody: Locator;
+    readonly tableContainer: Locator;
+    readonly tableHeaderRow: Locator;
+    readonly tableRows: Locator;
+    readonly textRecordCount: Locator;
 
-    // --- Action Button Locators ---
-    readonly btnSearch: Locator;
-    readonly btnReset: Locator;
-    readonly btnAdd: Locator;
-    readonly btnConfirmDelete: Locator;
+    // ========================================================================
+    // --- Pagination Locators ---
+    // ========================================================================
     readonly btnNextPage: Locator;
-    readonly btnBulkDelete: Locator;
+
+    // ========================================================================
+    // --- Modal Dialog Locators (e.g., Delete Confirmation) ---
+    // ========================================================================
+    readonly btnCancelDelete: Locator;
+    readonly btnConfirmDelete: Locator;
+    readonly modalConfirmDelete: Locator;
 
     /**
      * Initializes the PimPage object, inherited properties, and defines specific locators.
@@ -50,7 +67,7 @@ export class PimPage extends BasePage {
         this.txtEmployeeName = page.getByPlaceholder('Type for hints...').first();
         this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('input');
         this.txtSupervisorName = page.locator('.oxd-input-group').filter({hasText: 'Supervisor Name'}).locator('input');
-
+        
         // --- Extractors ---
         this.lblSelectedJobTitle = page.locator('.oxd-input-group').filter({hasText: 'Job Title'}).locator('.oxd-select-text');
         this.lblSelectedEmpStatus = page.locator('.oxd-input-group').filter({hasText: 'Employment Status'}).locator('.oxd-select-text');
@@ -63,6 +80,7 @@ export class PimPage extends BasePage {
         this.tableRows = page.locator('.oxd-table-card');
         this.columnHeaders = this.tableHeaderRow.locator('.oxd-table-header-cell');
         this.masterCheckbox = this.tableHeaderRow.locator('.oxd-checkbox-wrapper');
+        this.textRecordCount = page.locator('.orangehrm-horizontal-padding span');
 
         this.btnSearch = page.getByRole('button', { name: 'Search' });
         this.btnReset = page.getByRole('button', { name: 'Reset' });
@@ -70,6 +88,8 @@ export class PimPage extends BasePage {
         this.btnConfirmDelete = page.locator('.oxd-table-cell-actions').locator('//button[i[contains(@class, "bi-trash")]]');
         this.btnNextPage = page.locator('.oxd-pagination-page-item--previous-next').filter({ has: page.locator('i.bi-chevron-right') });
         this.btnBulkDelete = page.getByRole('button', {name: 'Delete Selected'});
+        this.modalConfirmDelete = page.locator('.orangehrm-dialog-popup');
+        this.btnCancelDelete = page.locator('button', { hasText: 'No, Cancel' });
     }
 
     /**
@@ -258,6 +278,17 @@ export class PimPage extends BasePage {
             await this.btnSearch.click();
             await this.waitForGlobalLoading();
         }
+    }
+
+    /**
+     * KEYWORD STEP ACTION: Clicks the Edit (Pencil) icon for a specific row index.
+     * @param {number} rowIndex - The index of the row (0-based).
+     */
+    async clickEditIconByIndex(rowIndex: number) {
+        const row = this.tableRows.nth(rowIndex);
+        const btnEdit = row.locator('.bi-pencil').locator('..'); // Finds the button containing the pencil icon
+        await btnEdit.click();
+        await this.page.waitForLoadState('networkidle');
     }
 
     // ========================================================
