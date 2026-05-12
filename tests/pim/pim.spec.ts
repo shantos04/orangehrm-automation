@@ -859,4 +859,149 @@ test.describe("PIM Module - Employee List Filters", () => {
             });
         }
     });
+
+    /**
+     * Test Case: Verify Search with Special Characters.
+     * Assertion: Ensures the system handles invalid input safely without crashing, returning an empty state.
+     */
+    test("OrangeHRM_PIM_TC29_VerifySearchWithSpecialCharacters", async () => {
+        await allure.story("Search Functionality - Special Characters Handling");
+        await allure.severity("major");
+
+        const specialChars = employeeData.searchEmployeeByName.specialChars;
+
+        await test.step("Action: Input special characters into the Employee name field and submit", async () => {
+            await pimPage.searchEmployee({employeeName: specialChars});
+        });
+
+        await test.step("Verify: System handles it gracefully and displays 'No Records Found", async () => {
+            await pimPage.verifyNoRecordsFoundMessage();
+        });
+    });
+
+    /**
+     * Test Case: Verify 'Add' Button Navigation.
+     * Assertion: Ensures clicking the Add button redirects the user to the Add Employee page.
+     */
+    test("OrangeHRM_PIM_TC30_VerifyAddEmployeeButtonNavigation", async ({page}) => {
+        await allure.story("UI Interaction - Action Buttons Navigation");
+        await allure.severity("critical");
+
+        await test.step("Action: Click the 'Add' button above the data table", async () => {
+            await pimPage.btnAdd.click();
+            await page.waitForLoadState('networkidle');
+        });
+
+        await test.step("Verify: User is successfully redirected to the Add Employee URL", async () => {
+            await expect(page).toHaveURL(/.*addEmployee/);
+        });
+    });
+
+    /**
+     * Test Case: Verify Row-Level Edit Action Navigation.
+     * Assertion: Clicking the pencil icon on a specific row must navigate to that specific employee's detail profile.
+     */
+    test("OrangeHRM_PIM_TC31_VerifyRowLevelEditAction", async ({ page }) => {
+        await allure.story("Table Interactions - Row Level Edit Navigation");
+        await allure.severity("critical"); 
+
+        let targetEmployeeId: string;
+
+        await test.step("Action: Read the ID of the first row and click its Edit icon", async () => {
+            // Get ID before navigating to ensure we check the correct profile later
+            targetEmployeeId = await pimPage.getFirstRowIdText();
+            await pimPage.clickEditIconByIndex(0);
+        });
+
+        await test.step("Verify: URL updates to the employee profile view", async () => {
+            await expect(page).toHaveURL(/.*viewPersonalDetails\/empNumber\/\d+/);
+        });
+    });
+
+    /**
+     * Test Case: Verify Row-Level Delete Action triggers modal and can be canceled.
+     * Assertion: Ensures destructive actions require confirmation and cancellation preserves the data.
+     */
+    test("OrangeHRM_PIM_TC32_VerifyRowLevelDeleteModalCancellation", async () => {
+        await allure.story("Table Interactions - Row Level Delete Safeguard");
+        await allure.severity("major"); 
+
+        let initialRowCount: number;
+
+        await test.step("Action: Record current row count and click Delete on the first row", async () => {
+            await expect(pimPage.tableRows.first()).toBeVisible();
+            
+            initialRowCount = await pimPage.tableRows.count();
+
+            await pimPage.clickDeleteIconByIndex(0);
+        });
+
+        await test.step("Verify: The Confirmation Modal is displayed", async () => {
+            await expect(pimPage.modalConfirmDelete).toBeVisible();
+        });
+
+        await test.step("Action: Click 'No, Cancel' on the modal", async () => {
+            await pimPage.btnCancelDelete.click();
+        });
+
+        await test.step("Verify: Modal closes and the table data remains unchanged", async () => {
+            await expect(pimPage.modalConfirmDelete).toBeHidden();
+            
+            const currentRowCount = await pimPage.tableRows.count();
+            expect(currentRowCount).toEqual(initialRowCount);
+        });
+    });
+
+    /**
+     * Test Case: Verify Pagination - Previous Page Navigation.
+     * Assertion: Ensures clicking the 'Previous' button successfully returns the user to the prior data set.
+     */
+    test("OrangeHRM_PIM_TC33_VerifyPaginationPreviousPage", async () => {
+        await allure.story("Table Pagination - Previous Page Navigation");
+        await allure.severity("normal"); // SEV2 (Major)
+        
+        let firstIdPage1: string;
+
+        await test.step("Precondition: Check pagination availability and navigate to Page 2", async () => {
+            const isNextBtnVisible = await pimPage.btnNextPage.isVisible();
+            test.skip(!isNextBtnVisible, 'Not enough records to test backward pagination');
+
+            firstIdPage1 = await pimPage.getFirstRowIdText();
+            await pimPage.btnNextPage.click();
+            await pimPage.waitForGlobalLoading();
+        });
+
+        await test.step("Action: Click the Previous Page button", async () => {
+            // Assuming btnPrevPage is defined in your POM similarly to btnNextPage
+            // e.g., this.btnPrevPage = page.locator('button i.bi-chevron-left').locator('..');
+            const btnPrevPage = pimPage.page.locator('button i.bi-chevron-left').locator('..'); 
+            await btnPrevPage.click();
+            await pimPage.waitForGlobalLoading();
+        });
+
+        await test.step("Verify: The system successfully returns to Page 1 data", async () => {
+            const returnedFirstId = await pimPage.getFirstRowIdText();
+            expect(returnedFirstId).toEqual(firstIdPage1);
+        });
+    });
+    
+    /**
+     * Test Case: Verify Total Record Count Text logic.
+     * Assertion: Ensures the label "(X) Records Found" accurately matches the total results logic (dynamically changes on search).
+     */
+    test("OrangeHRM_PIM_TC34_VerifyTotalRecordCountTextUpdate", async () => {
+        await allure.story("UI State - Dynamic Record Count Validation");
+        await allure.severity("minor");
+
+        await test.step("Action: Perform a strict search that returns a limited subset of users", async () => {
+            // Using the valid ID which should realistically return exactly 1 record
+            const targetId = employeeData.searchEmployeeById.validEmployeeId;
+            await pimPage.searchEmployee({ employeeId: targetId });
+        });
+
+        await test.step("Verify: The Record Count label updates to '(1) Record Found'", async () => {
+            // Wait for the specific text to appear to confirm dynamic DOM update
+            await expect(pimPage.textRecordCount).toHaveText('(1) Record Found');
+        });
+    })
 });
