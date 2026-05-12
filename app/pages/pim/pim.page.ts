@@ -281,6 +281,18 @@ export class PimPage extends BasePage {
     }
 
     /**
+     * KEYWORD STEP ACTION: Clicks the Delete (Trash) icon for a specific row index.
+     * @param {number} rowIndex - The index of the row (0-based).
+     */
+    async clickDeleteIconByIndex(rowIndex: number) {
+        const row = this.tableRows.nth(rowIndex);
+        
+        const btnDelete = row.locator('.bi-trash').locator('..'); 
+        
+        await btnDelete.click();
+    }
+
+    /**
      * KEYWORD STEP ACTION: Clicks the Edit (Pencil) icon for a specific row index.
      * @param {number} rowIndex - The index of the row (0-based).
      */

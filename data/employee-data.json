@@ -64,12 +64,13 @@
         "description": "Password containing only letters to trigger 'minimum 1 number' validation"
     },
     "searchEmployeeById": {
-        "validEmployeeId": "0044",
+        "validEmployeeId": "0419",
         "invalidEmployeeId": "8765"
     },
     "searchEmployeeByName": {
         "validName": "John",
         "partialName": "Joh",
-        "invalidName": "Not an employee"
+        "invalidName": "Not an employee",
+        "specialChars": "!@#$%^&*()_+"
     }
 }
