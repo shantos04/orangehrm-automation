@@ -61,6 +61,7 @@ export class PimTopMenuComponent {
         await this.page.waitForURL('**/pim/viewDefinedPredefinedReports')
     }
 
+
     // --- Action Methods: Configuration Dropdown ---
 
     /**
@@ -104,33 +105,39 @@ export class PimTopMenuComponent {
     }
 
     /**
-     * KEYWORD STEP VERIFY: Iterates through specified primary menus, hovers over them, and asserts the hover state.
-     * @param {PrimaryMenuKey[]} [menusToCheck] - Optional array of specific menus to check. Defaults to checking ALL menus if left empty.
+     * Helper method to map string keys to their corresponding Playwright Locators.
+     * @param {PrimaryMenuKey} menuName - The exact name of the menu.
+     * @returns {Locator} The mapped Playwright Locator.
      */
-    async verifyPrimaryMenusHoverEffect(menusToCheck?: PrimaryMenuKey[]) {
-        // Map string keys to their corresponding Playwright Locators
+    getMenuLocator(menuName: PrimaryMenuKey): Locator {
         const menuMap: Record<PrimaryMenuKey, Locator> = {
             'Configuration': this.menuConfiguration,
             'Employee List': this.menuEmployeeList,
             'Add Employee': this.menuAddEmployee,
             'Reports': this.menuReports
         };
+        return menuMap[menuName];
+    }
 
-        // If no specific array is provided (or if it's empty), default to checking all keys in the map
-        const targetMenus = (menusToCheck && menusToCheck.length > 0) 
-            ? menusToCheck 
-            : (Object.keys(menuMap) as PrimaryMenuKey[]);
+    /**
+     * KEYWORD STEP ACTION: Hovers over a specific primary menu based on its name.
+     * @param {PrimaryMenuKey} menuName - The exact name of the menu to hover.
+     */
+    async hoverPrimaryMenu(menuName: PrimaryMenuKey) {
+        const menuLocator = this.getMenuLocator(menuName);
+        await menuLocator.hover();
+    }
 
-        for (const menuName of targetMenus) {
-            const menuLocator = menuMap[menuName];
-            
-            await menuLocator.hover();
-            
-            // In OrangeHRM, hovering typically triggers a visual change.
-            // We assert the base class remains intact and the element is interactive.
-            // Note: If the specific hover class is known (e.g., '--hover'), update the regex.
-            await expect(menuLocator).toHaveClass(/oxd-topbar-body-nav-tab/);
-        }
+    /**
+     * KEYWORD STEP VERIFY: Asserts the hover CSS state of a specific primary menu.
+     * @param {PrimaryMenuKey} menuName - The exact name of the menu to verify.
+     */
+    async verifyPrimaryMenuHoverState(menuName: PrimaryMenuKey) {
+        const menuLocator = this.getMenuLocator(menuName);
+        
+        // In OrangeHRM, hovering typically triggers a visual change.
+        // We assert the base class remains intact and the element is interactive.
+        await expect(menuLocator).toHaveClass(/oxd-topbar-body-nav-tab/);
     }
 
     /**
