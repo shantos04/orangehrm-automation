@@ -4,11 +4,8 @@
  * and business logic (authentication) of the login page using the Page Object Model.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/login.fixture';
 import * as allure from "allure-js-commons";
-
-import {LoginPage} from '../../app/pages/login.page';
-import {DashboardPage} from '../../app/pages/dashboard.page';
 
 import usersData from '../../data/users.json';
 import expectedTexts from '../../data/expected-texts.json';
@@ -20,27 +17,20 @@ import loginTestScenarios from '../../data/login-scenarios.json';
  */
 test.describe("Login Module - Authentication", () => {
 
-    let loginPage: LoginPage;
-    let dashboardPage: DashboardPage;
-
     /**
      * Setup: Initializes the page object and navigates to the login route.
      */
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async () => {
         // --- Allure Metadata ---
         await allure.epic("Authentication Module");
         await allure.feature("Login Functionality");
-
-        loginPage = new LoginPage(page);
-        dashboardPage = new DashboardPage(page);
-        await page.goto('/web/index.php/auth/login');
     });
 
     /**
      * Test Case: Verify basic UI elements on the login page.
      * Assertion Category: UI state (toBeVisible).
      */
-    test("OrangeHRM_Login_TC01_VerifyUILoginPage", async({page}) => {
+    test("OrangeHRM_Login_TC01_VerifyUILoginPage", async({page, loginPage}) => {
         await allure.story("UI Structure and Component Validation");
         await allure.severity("normal");
 
@@ -61,7 +51,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify successful login with valid administrative credentials.
      * Assertion: Checks if the user is redirected and the 'Dashboard' header is visible.
      */
-    test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async ({ page }) => {
+    test("OrangeHRM_Login_TC02_VerifySuccessfulLogin", async ({ page, loginPage, dashboardPage }) => {
         await allure.story("Positive - Valid Login Scenario");
         await allure.severity("blocker");
 
@@ -81,7 +71,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify error handling when using invalid credentials.
      * Assertion: Checks for the visibility and content of the generic error message.
      */
-    test("OrangeHRM_Login_TC03_VerifyInvalidCredentials", async () => {
+    test("OrangeHRM_Login_TC03_VerifyInvalidCredentials", async ({ loginPage }) => {
         await allure.story("Negative - Invalid Credentials Handling");
         await allure.severity("critical");
 
@@ -101,7 +91,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify validation errors when attempting to log in with both fields empty.
      * Assertion: "Required" validation messages appear under both input fields.
      */
-    test("OrangeHRM_Login_TC04_VerifyEmptyBothFields", async () => {
+    test("OrangeHRM_Login_TC04_VerifyEmptyBothFields", async ( {loginPage}) => {
         await allure.story("Negative - Empty Fields Validation");
         await allure.severity("normal");
 
@@ -124,7 +114,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify the security masking of the password input field.
      * Assertion: The entered characters are masked (hidden as dots/asterisks).
      */
-    test("OrangeHRM_Login_TC05_VerifyPasswordMasking", async({page}) => {
+    test("OrangeHRM_Login_TC05_VerifyPasswordMasking", async({loginPage}) => {
         await allure.story("Security - Password Field Masking");
         await allure.severity("critical");
 
@@ -143,7 +133,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify the form submission using the Enter key on the keyboard.
      * Assertion: The form submits and navigates to the Dashboard page
      */
-    test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page}) => {
+    test("OrangeHRM_Login_TC06_VerifyKeyboardEnterKey", async({page, loginPage, dashboardPage}) => {
         await allure.story("Accessibility - Keyboard Enter Key Submission");
         await allure.severity("normal");
 
@@ -168,7 +158,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify error handling when using an invalid username but correct password.
      * Assertion: Checks that the generic 'Invalid credentials' error is displayed to prevent user enumeration.
      */
-    test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async () => {
+    test("OrangeHRM_Login_TC07_VerifyErrorInvalidUsername", async ({loginPage}) => {
         await allure.story("Negative - Invalid Credentials Handling");
         await allure.severity("critical");
 
@@ -188,7 +178,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify validation error when attempting to log in with an empty username field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async () => {
+    test("OrangeHRM_Login_TC08_VerifyErrorEmptyUsername", async ({ loginPage }) => {
         await allure.story("Negative - Empty Fields Validation");
         await allure.severity("normal");
 
@@ -213,7 +203,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify validation error when attempting to log in with an empty password field.
      * Assertion: UI state, Element Count, and Negative UI validation.
      */
-    test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async () => {
+    test("OrangeHRM_Login_TC09_VerifyErrorEmptyPassword", async ({ loginPage }) => {
         await allure.story("Negative - Empty Fields Validation");
         await allure.severity("normal");
 
@@ -238,7 +228,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify authentication behavior when valid credentials contain leading or trailing whitespaces.
      * Assertion: Validating Business logic and data value handling (verifying if the system automatically trims whitespaces).
      */
-    test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async ({ page }) => {
+    test("OrangeHRM_Login_TC10_VerifyWhitespaceHandling", async ({ page, loginPage, dashboardPage }) => {
         await allure.story("Positive - Data Sanitization (Whitespace Handling)");
         await allure.severity("normal");
 
@@ -258,7 +248,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify form data is cleared upon page refresh.
      * Assertion: Ensures sensitive data does not persist in DOM/cache after a reload.
      */
-    test("OrangeHRM_Login_TC11_VerifyFormReload", async ({page}) => {
+    test("OrangeHRM_Login_TC11_VerifyFormReload", async ({page, loginPage}) => {
         await allure.story("Browser Action - Form Reload Protection");
         await allure.severity("normal");
 
@@ -283,7 +273,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify system prevents returning to Login page via Back button after successful authentication.
      * Assertion: Session validation ensures users are forced back to the secure Dashboard.
      */
-    test("OrangeHRM_Login_TC12_VerifyBrowserBackButton", async ({page}) => {
+    test("OrangeHRM_Login_TC12_VerifyBrowserBackButton", async ({page, loginPage, dashboardPage}) => {
         await allure.story("Browser Actions - Back Button Session Handling");
         await allure.severity("critical");
 
@@ -309,7 +299,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify session persistence across multiple browser tabs.
      * Assertion: Ensures logging in on Tab 1 automatically authorizes Tab 2 upon reload.
      */
-    test("OrangeHRM_Login_TC13_VerifyMultipleTabsLogin", async ({context, page}) => {
+    test("OrangeHRM_Login_TC13_VerifyMultipleTabsLogin", async ({context, loginPage, dashboardPage}) => {
         await allure.story("Browser Actions - Cross-Tab Session Synchronization");
         await allure.severity("critical");
 
@@ -317,7 +307,8 @@ test.describe("Login Module - Authentication", () => {
 
         // Initialize a second tab within the same browser context
         const page2 = await context.newPage();
-        const loginPageTab2 = new LoginPage(page2);
+        const LoginPageClass = loginPage.constructor as new (page: typeof page2) => typeof loginPage;
+        const loginPageTab2 = new LoginPageClass(page2);
 
         await test.step("Action: Open Login form on both Tab 1 and Tab 2", async () => {
             await page2.goto('/web/index.php/auth/login');
@@ -336,7 +327,8 @@ test.describe("Login Module - Authentication", () => {
         });
 
         await test.step("Verify: Tab 2 automatically bypasses and routes to Dashboard", async () => {
-            const dashboardPageTab2 = new DashboardPage(page2);
+            const DashboardPageClass = dashboardPage.constructor as new (page: typeof page2) => typeof dashboardPage;
+            const dashboardPageTab2 = new DashboardPageClass(page2);
             await expect(page2).toHaveURL(/.*dashboard/);
             await expect(dashboardPageTab2.labelHeader).toBeVisible();
         });
@@ -346,7 +338,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify strict case sensitivity for password validation.
      * Assertion: Capitalizing a valid password should trigger an Invalid Credentials error.
      */
-    test("OrangeHRM_Login_TC14_VerifyCaseSensitivity", async () => {
+    test("OrangeHRM_Login_TC14_VerifyCaseSensitivity", async ( {loginPage }) => {
         await allure.story("Security - Strict Case Sensitivity Validation");
         await allure.severity("critical");
 
@@ -367,7 +359,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify form vulnerability against basic SQL Injection attacks.
      * Assertion: Inputs should be sanitized, preventing unauthorized bypass.
      */
-    test("OrangeHRM_Login_TC15_VerifySqlInjectionBypass", async () => {
+    test("OrangeHRM_Login_TC15_VerifySqlInjectionBypass", async ( {loginPage}) => {
         await allure.story("Security - SQL Injection Mitigation");
         await allure.severity("blocker");
 
@@ -387,7 +379,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify standard clipboard paste operations on the password field.
      * Assertion: Validates if the project requirements permit or restrict pasting into sensitive fields.
      */
-    test("OrangeHRM_Login_TC16_VerifyCopyPasteFunctionality", async ({page}) => {
+    test("OrangeHRM_Login_TC16_VerifyCopyPasteFunctionality", async ({page, loginPage}) => {
         await allure.story("Security - Clipboard Interaction (Paste)");
         await allure.severity("minor");
 
@@ -408,7 +400,7 @@ test.describe("Login Module - Authentication", () => {
      * Test Case: Verify forceful session termination triggers immediate re-authentication.
      * Assertion: Simulates a session timeout (cookie deletion) and attempts to access protected routes.
      */
-    test("OrangeHRM_Login_TC17_VerifySessionTimeout", async ({ context, page }) => {
+    test("OrangeHRM_Login_TC17_VerifySessionTimeout", async ({ context, page, loginPage, dashboardPage }) => {
         await allure.story("Security - Session Timeout Enforcement");
         await allure.severity("blocker");
 
