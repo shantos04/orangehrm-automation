@@ -19,6 +19,8 @@ export class CalendarComponent {
     readonly yearDropdown: Locator;
     readonly btnNextMonth: Locator;
     readonly btnPrevMonth: Locator;
+    readonly lblCurrentMonth: Locator;
+    readonly lblCurrentYear: Locator;
     
     // --- Footer Action Buttons ---
     readonly btnToday: Locator;
@@ -48,6 +50,10 @@ export class CalendarComponent {
         /// --- Header controls scoped to the calendar container ---
         this.monthDropdown = this.calendarContainer.locator('.oxd-calendar-selector-month');
         this.yearDropdown = this.calendarContainer.locator('.oxd-calendar-selector-year');
+
+        // Locate the current month label
+        this.lblCurrentMonth = this.monthDropdown.locator('.oxd-text--p');
+        this.lblCurrentYear = this.yearDropdown.locator('.oxd-text--p')
         
         // Using Playwright's ':has()' to directly target the button containing the specific icon.
         this.btnPrevMonth = this.calendarContainer.locator('.oxd-calendar-header button:has(i.bi-chevron-left)');
