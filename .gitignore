@@ -9,3 +9,4 @@ node_modules/
 .env
 /allure-report
 /allure-results
+cucumber-report.html
