@@ -5,17 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "report:allure": "npx allure generate ./allure-results --clean && npx allure open ./allure-report"
+    "report:allure": "npx allure generate ./allure-results --clean && npx allure open ./allure-report",
+    "test:bdd": "cucumber-js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@cucumber/cucumber": "^12.8.3",
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.6.0",
     "allure-commandline": "^2.40.0",
     "allure-playwright": "^3.7.2",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "ts-node": "^10.9.2"
   }
 }

@@ -64,7 +64,7 @@
         "description": "Password containing only letters to trigger 'minimum 1 number' validation"
     },
     "searchEmployeeById": {
-        "validEmployeeId": "0419",
+        "validEmployeeId": "1235",
         "invalidEmployeeId": "8765"
     },
     "searchEmployeeByName": {
