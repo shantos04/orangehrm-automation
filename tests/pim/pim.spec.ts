@@ -10,7 +10,11 @@ import { getExpectedSortedArray } from '../../utils/sort-helper';
 import employeeData from '../../data/employee-data.json';
 import expectedTexts from '../../data/expected-texts.json';
 
-test.describe("PIM Module - Employee List Filters", () => {
+// ============================================================================
+// SUITE 1: UI STRUCTURE & VISUAL VALIDATION
+// ============================================================================
+test.describe("PIM Module - UI Structure & Data Population @UIGroup", () => {
+    
     /**
      * Setup: Authentication and navigation to the PIM Employee List.
      */
@@ -23,15 +27,11 @@ test.describe("PIM Module - Employee List Filters", () => {
         test.setTimeout(60000);
     });
 
-    // ========================================================================
-    // UI STRUCTURE & VISUAL VALIDATION
-    // ========================================================================
-
      /**
      * Test Case: Verify that the Employee List data table displays all required column headers.
      * Assertion: Ensures the table structure is correct, containing the master checkbox, specific text columns, and the exact total column count.
      */
-    test("OrangeHRM_PIM_TC01_VerifyRequiredTableHeaders", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC01_VerifyRequiredTableHeaders @UI", async ({pimPage}) => {
         await allure.story("UI Structure - Data Table Headers Validation");
         await allure.severity("minor");
 
@@ -68,7 +68,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify the Top Menu UI Structure and Navigation logic.
      * Assertion: Leverages the Verification Keywords from PimTopMenuComponent to ensure all menus render correctly.
      */
-    test("OrangeHRM_PIM_TC02_VerifyTopMenuStructure", async ({pimTopMenu}) => {
+    test("OrangeHRM_PIM_TC02_VerifyTopMenuStructure @UI", async ({pimTopMenu}) => {
         await allure.story("UI Structure - Top Menu Navigation Bar");
         await allure.severity("minor");
 
@@ -93,7 +93,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify the Configuration dropdown submenus explicitly.
      * Assertion: Ensures the dropdown expands correctly, displays all 5 required items, and verifies their exact text labels.
      */
-    test("OrangeHRM_PIM_TC03_VerifyConfigurationSubMenusData", async ({pimTopMenu}) => {
+    test("OrangeHRM_PIM_TC03_VerifyConfigurationSubMenusData @UI", async ({pimTopMenu}) => {
         await allure.story("UI Structure - Configuration Submenus Verification");
         await allure.severity("minor");
 
@@ -115,7 +115,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Assertion: Ensures that hovering triggers a CSS background color change, dynamically verified via computed styles.
      * Edge Case Handled: Automatically skips the currently active tab since its hover color is persistently applied.
      */
-    test("OrangeHRM_PIM_TC04_VerifyAllTopMenusHoverEffect", async ({pimTopMenu}) => {
+    test("OrangeHRM_PIM_TC04_VerifyAllTopMenusHoverEffect @UI @EdgeCase", async ({pimTopMenu}) => {
         await allure.story("UI Interaction - Top Bar Menus Hover Effects");
         await allure.severity("low");
 
@@ -162,7 +162,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify the default selected value of the 'Include' dropdown.
      * Assertion: Ensures the system defaults to 'Current Employees Only'.
      */
-    test("OrangeHRM_PIM_TC05_VerifyDefaultIncludeFilter", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC05_VerifyDefaultIncludeFilter @UI", async ({pimPage}) => {
         await allure.story("UI State - Default Filter Values");
         await allure.severity("minor");
 
@@ -177,7 +177,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Default Table Data Population (Schema Validation).
      * Assertion: Ensures the data table successfully loads default records, contains at least one row, and the front-end correctly renders vital data fields (ID and First Name) without empty values.
      */
-    test("OrangeHRM_PIM_TC06_VerifyDefaultTableDataPopulation", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC06_VerifyDefaultTableDataPopulation @Smoke @HappyPath", async ({pimPage}) => {
         await allure.story("Data Population - Default Table Schema Validation");
         await allure.severity("critical");
 
@@ -202,16 +202,27 @@ test.describe("PIM Module - Employee List Filters", () => {
             expect(firstName).not.toBe('');
         });
     });
+});
 
-    // ========================================================================
-    // BASIC FILTER INTERACTIONS
-    // ========================================================================
+// ============================================================================
+// SUITE 2: BASIC FILTER INTERACTIONS & DATA SORTING
+// ============================================================================
+test.describe("PIM Module - Filters & Data Sorting @FilterSortGroup", () => {
+    
+    /**
+     * Setup: Authentication and navigation to the PIM Employee List.
+     */
+    test.beforeEach(async ({ page }) => {
+        await allure.epic("PIM Module");
+        await allure.feature("Employee List functionality");
+        test.setTimeout(60000);
+    });
 
     /**
      * Test Case: Verify that the 'Include' dropdown updates correctly when selecting 'Past Employees Only'.
      * Assertion: Functional check for custom dropdown selection logic.
      */
-    test("OrangeHRM_PIM_TC07_SelectPastEmployeesFilter", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC07_SelectPastEmployeesFilter @HappyPath", async ({pimPage}) => {
         await allure.story("UI Interaction - Custom Dropdown Selection");
         await allure.severity("major");
 
@@ -232,7 +243,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify that clicking 'Reset' reverts the 'Include' dropdown to its default state.
      * Assertion: Ensures the Reset button correctly clears filter state.
      */
-    test("OrangeHRM_PIM_TC08_VerifyResetIncludeFilter", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC08_VerifyResetIncludeFilter @HappyPath", async ({pimPage}) => {
         await allure.story("Filter Controls - Reset Functionality");
         await allure.severity("major");
         
@@ -255,15 +266,11 @@ test.describe("PIM Module - Employee List Filters", () => {
         })
     });
 
-    // ========================================================================
-    // DATA SORTING
-    // ========================================================================
-
     /**
      * Test Case: Verify Ascending Sort on ID.
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
      */
-    test("OrangeHRM_PIM_TC09_VerifyAscendingSortOnId", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC09_VerifyAscendingSortOnId @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - ID Column Ascending");
         await allure.severity("major");
 
@@ -291,7 +298,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Descending Sort on ID.
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical (A-Z) order.
      */
-    test("OrangeHRM_PIM_TC10_VerifyDescendingSortOnId", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC10_VerifyDescendingSortOnId @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - ID Column Descending");
         await allure.severity("major");
 
@@ -319,7 +326,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Ascending Sort on First Name.
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
-    test("OrangeHRM_PIM_TC11_VerifyAscendingSortOnFirstname", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC11_VerifyAscendingSortOnFirstname @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - First Name Ascending");
         await allure.severity("major");
 
@@ -347,7 +354,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Descending Sort on First Name.
      * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
-    test("OrangeHRM_PIM_TC12_VerifyDescendingSortOnFirstname", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC12_VerifyDescendingSortOnFirstname @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - First Name Descending");
         await allure.severity("major");
 
@@ -375,7 +382,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Ascending Sort on Last Name.
      * Assertion: Ensures that after applying the Ascending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
-    test("OrangeHRM_PIM_TC13_VerifyAscendingSortOnLastname", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC13_VerifyAscendingSortOnLastname @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - Last Name Ascending");
         await allure.severity("major");
 
@@ -403,7 +410,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Descending Sort on Last Name.
      * Assertion: Ensures that after applying the Descending sort filter, the UI displays the First Name column in strictly alphabetical order.
      */
-    test("OrangeHRM_PIM_TC14_VerifyDescendingSortOnLastname", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC14_VerifyDescendingSortOnLastname @HappyPath", async ({pimPage}) => {
         await allure.story("Data Sorting - Last Name Descending");
         await allure.severity("major");
 
@@ -426,16 +433,27 @@ test.describe("PIM Module - Employee List Filters", () => {
             expect(actualLastNames).toEqual(expectedSortedLastNames);
         });
     });
+});
 
-    // ========================================================================
-    // ADVANCED SEARCH FUNCTIONALITY
-    // ========================================================================
+// ============================================================================
+// SUITE 3: ADVANCED SEARCH FUNCTIONALITY
+// ============================================================================
+test.describe("PIM Module - Advanced Search Functionality @SearchGroup", () => {
+    
+    /**
+     * Setup: Authentication and navigation to the PIM Employee List.
+     */
+    test.beforeEach(async ({ page }) => {
+        await allure.epic("PIM Module");
+        await allure.feature("Employee List functionality");
+        test.setTimeout(60000);
+    });
 
     /**
      * Test Case: Verify Search by exact, existing Employee ID.
      * Assertion: Ensures searching by a valid ID filters the table to show the correct matching record.
      */
-    test("OrangeHRM_PIM_TC15_VerifySearchByValidEmployeeId", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC15_VerifySearchByValidEmployeeId @Smoke @HappyPath", async ({pimPage}) => {
         await allure.story("Data-Driven Search - Valid Employee ID");
         await allure.severity("critical");
 
@@ -460,7 +478,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Search by partial Employee Name across both First and Last Name columns.
      * Assertion: Ensures the system's wildcard search logic correctly filters records containing the substring in either name field.
      */
-    test("OrangeHRM_PIM_TC16_VerifySearchByPartialName", async ({pimPage, page}, testInfo) => {
+    test("OrangeHRM_PIM_TC16_VerifySearchByPartialName @HappyPath", async ({pimPage, page}, testInfo) => {
         await allure.story("Data-Driven Search - Partial String Matching");
         await allure.severity("critical");
 
@@ -479,7 +497,7 @@ test.describe("PIM Module - Employee List Filters", () => {
             // Ensure at least one record is returned to avoid false positives
             expect(actualFirstNames.length, "Search returned empty results, expected at least one match.").toBeGreaterThan(0);
             expect(actualFirstNames.length, "DOM Structure Error: First Name and Last Name column counts mismatch!").toEqual(actualLastNames.length);
-           
+            
             // Loop through every single result to verify strict matching on both columns
             for (let i = 0; i < actualFirstNames.length; i++) {
                 // Convert all strings to lowercase to ensure case-insensitive comparison
@@ -509,7 +527,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify combining multiple search criteria.
      * Assertion: Ensures the search engine processes AND conditions correctly.
      */
-    test("OrangeHRM_PIM_TC17_VerifyCombinedSearchCriteria", async ({pimPage, page}, testInfo) => {
+    test("OrangeHRM_PIM_TC17_VerifyCombinedSearchCriteria @HappyPath", async ({pimPage, page}, testInfo) => {
         await allure.story("Advanced Search - Combined Filters(AND Logic)");
         await allure.severity("critical");
 
@@ -567,7 +585,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Search by non-existent Employee ID (Data-Driven).
      * Assertion: Ensures searching for an invalid ID from the JSON data file returns no records and displays a toast notification.
      */
-    test("OrangeHRM_PIM_TC18_VerifySearchByInvalidEmployeeId", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC18_VerifySearchByInvalidEmployeeId @Negative", async ({pimPage}) => {
         await allure.story("Data-Driven Search - Invalid Employee ID Handling");
         await allure.severity("major");
 
@@ -592,7 +610,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify that searching for a non-existent employee displays a 'No Records Found' message.
      * Assertion: Ensures the system handles empty search results gracefully by showing the correct toast notification.
      */
-    test("OrangeHRM_PIM_TC19_VerifyNoRecordsFoundMessage", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC19_VerifyNoRecordsFoundMessage @Negative", async ({pimPage}) => {
         await allure.story("Search Functionality - Empty Results Handling");
         await allure.severity("major");
 
@@ -613,7 +631,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Search with Special Characters.
      * Assertion: Ensures the system handles invalid input safely without crashing, returning an empty state.
      */
-    test("OrangeHRM_PIM_TC20_VerifySearchWithSpecialCharacters", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC20_VerifySearchWithSpecialCharacters @EdgeCase @Negative", async ({pimPage}) => {
         await allure.story("Search Functionality - Special Characters Handling");
         await allure.severity("major");
 
@@ -632,7 +650,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Data Sanitization on Search (Leading/Trailing Whitespaces).
      * Assertion: Ensures the system automatically trims whitespaces before executing the database query.
      */
-    test("OrangeHRM_PIM_TC21_VerifySearchWhitespaceSanitization", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC21_VerifySearchWhitespaceSanitization @EdgeCase @HappyPath", async ({pimPage}) => {
         await allure.story("Search Functionality - Data Sanitization");
         await allure.severity("minor");
 
@@ -653,7 +671,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Total Record Count Text logic.
      * Assertion: Ensures the label "(X) Records Found" accurately matches the total results logic (dynamically changes on search).
      */
-    test("OrangeHRM_PIM_TC22_VerifyTotalRecordCountTextUpdate", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC22_VerifyTotalRecordCountTextUpdate @UI @HappyPath", async ({pimPage}) => {
         await allure.story("UI State - Dynamic Record Count Validation");
         await allure.severity("minor");
 
@@ -673,7 +691,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Reset functionality after performing an Employee ID search (Data-Driven).
      * Assertion: Ensures clicking 'Reset' clears the input field and reloads the default table data.
      */
-    test("OrangeHRM_PIM_TC23_VerifyResetAfterEmployeeIdSearch", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC23_VerifyResetAfterEmployeeIdSearch @HappyPath", async ({pimPage}) => {
         await allure.story("Filter Controls - Reset Search Filters");
         await allure.severity("major");
 
@@ -699,16 +717,27 @@ test.describe("PIM Module - Employee List Filters", () => {
             expect(allRows.length).toBeGreaterThan(1);
         });
     });
+});
 
-    // ========================================================================
-    // TABLE ROW INTERACTIONS & ACTIONS
-    // ========================================================================
+// ============================================================================
+// SUITE 4: TABLE ROW INTERACTIONS & ACTIONS
+// ============================================================================
+test.describe("PIM Module - Table Interactions & Actions @ActionGroup", () => {
+    
+    /**
+     * Setup: Authentication and navigation to the PIM Employee List.
+     */
+    test.beforeEach(async ({ page }) => {
+        await allure.epic("PIM Module");
+        await allure.feature("Employee List functionality");
+        test.setTimeout(60000);
+    });
 
     /**
      * Test Case: Verify Single Row Selection.
      * Assertion: Ensure clicking a row's checkbox selects only that specific row.
      */
-    test("OrangeHRM_PIM_TC24_VerifySingleRowSelection", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC24_VerifySingleRowSelection @HappyPath", async ({pimPage}) => {
         await allure.story("UI Interaction - Single Row Selection");
         await allure.severity("major");
 
@@ -730,7 +759,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Master Checkbox functionality.
      * Assertion: Ensures clicking the table header's master checkbox selects all currently visible rows.
      */
-    test("OrangeHRM_PIM_TC25_VerifyMasterCheckboxSelectsAll", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC25_VerifyMasterCheckboxSelectsAll @Smoke @HappyPath", async ({pimPage}) => {
         await allure.story("UI Interaction - Master Checkbox Selection");
         await allure.severity("critical");
        
@@ -754,7 +783,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify the visibility of the bulk 'Delete Selected' button.
      * Assertion: Ensures the destructive action button only appears when at least one row is explicitly selected.
      */
-    test("OrangeHRM_PIM_TC26_VerifyBulkDeleteButtonVisibility", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC26_VerifyBulkDeleteButtonVisibility @UI @HappyPath", async ({pimPage}) => {
         await allure.story("UI State - Contextual Action Buttons");
         await allure.severity("major");
 
@@ -775,7 +804,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify 'Add' Button Navigation.
      * Assertion: Ensures clicking the Add button redirects the user to the Add Employee page.
      */
-    test("OrangeHRM_PIM_TC27_VerifyAddEmployeeButtonNavigation", async ({pimPage, page}) => {
+    test("OrangeHRM_PIM_TC27_VerifyAddEmployeeButtonNavigation @Smoke @HappyPath", async ({pimPage, page}) => {
         await allure.story("UI Interaction - Action Buttons Navigation");
         await allure.severity("critical");
 
@@ -793,7 +822,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Row-Level Edit Action Navigation.
      * Assertion: Clicking the pencil icon on a specific row must navigate to that specific employee's detail profile.
      */
-    test("OrangeHRM_PIM_TC28_VerifyRowLevelEditAction", async ({ pimPage, page }) => {
+    test("OrangeHRM_PIM_TC28_VerifyRowLevelEditAction @HappyPath", async ({ pimPage, page }) => {
         await allure.story("Table Interactions - Row Level Edit Navigation");
         await allure.severity("critical"); 
 
@@ -814,7 +843,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Row-Level Delete Action triggers modal and can be canceled.
      * Assertion: Ensures destructive actions require confirmation and cancellation preserves the data.
      */
-    test("OrangeHRM_PIM_TC29_VerifyRowLevelDeleteModalCancellation", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC29_VerifyRowLevelDeleteModalCancellation @HappyPath", async ({pimPage}) => {
         await allure.story("Table Interactions - Row Level Delete Safeguard");
         await allure.severity("major"); 
 
@@ -843,16 +872,27 @@ test.describe("PIM Module - Employee List Filters", () => {
             expect(currentRowCount).toEqual(initialRowCount);
         });
     });
+});
 
-    // ========================================================================
-    // PAGINATION, STATE & RESILIENCE
-    // ========================================================================
+// ============================================================================
+// SUITE 5: PAGINATION, STATE & RESILIENCE
+// ============================================================================
+test.describe("PIM Module - Pagination & State Resilience @StateGroup", () => {
+    
+    /**
+     * Setup: Authentication and navigation to the PIM Employee List.
+     */
+    test.beforeEach(async ({ page }) => {
+        await allure.epic("PIM Module");
+        await allure.feature("Employee List functionality");
+        test.setTimeout(60000);
+    });
 
     /**
      * Test Case: Verify Pagination - Next Page navigation.
      * Assertion: Ensures clicking the 'Next' button loads a new set of records and updates the URL or table state.
      */
-    test("OrangeHRM_PIM_TC30_VerifyPaginationNextPage", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC30_VerifyPaginationNextPage @HappyPath", async ({pimPage}) => {
         await allure.story("Table Pagination - Next Page Navigation");
         await allure.severity("major");
        
@@ -880,7 +920,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Pagination - Previous Page Navigation.
      * Assertion: Ensures clicking the 'Previous' button successfully returns the user to the prior data set.
      */
-    test("OrangeHRM_PIM_TC31_VerifyPaginationPreviousPage", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC31_VerifyPaginationPreviousPage @HappyPath", async ({pimPage}) => {
         await allure.story("Table Pagination - Previous Page Navigation");
         await allure.severity("normal"); // SEV2 (Major)
         
@@ -913,7 +953,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Master Checkbox state across pagination.
      * Assertion: Ensures that selecting the master checkbox on Page 1 does NOT select rows on Page 2, and the master checkbox resets its state.
      */
-    test("OrangeHRM_PIM_TC32_VerifyMasterCheckboxAcrossPagination", async ({pimPage}) => {
+    test("OrangeHRM_PIM_TC32_VerifyMasterCheckboxAcrossPagination @EdgeCase", async ({pimPage}) => {
         await allure.story("State Persistence - Checkbox Selection Across Pagination");
         await allure.severity("major");
 
@@ -953,7 +993,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify Browser Back and Forward navigation persistence.
      * Assertion: Ensures the user can navigate away using browser controls and return without crashing the DOM.
      */
-    test("OrangeHRM_PIM_TC33_VerifyBrowserNavigationResilience", async ({ pimPage, page }) => {
+    test("OrangeHRM_PIM_TC33_VerifyBrowserNavigationResilience @EdgeCase", async ({ pimPage, page }) => {
         await allure.story("Browser Navigation - Back/Forward State Persistence");
         await allure.severity("major");
 
@@ -981,7 +1021,7 @@ test.describe("PIM Module - Employee List Filters", () => {
      * Test Case: Verify form state clearing upon hard page refresh (F5).
      * Assertion: Ensures that search parameters are cleared and default data is reloaded when the user manually reloads the page.
      */
-    test("OrangeHRM_PIM_TC34_VerifyStateAfterPageRefresh", async ({pimPage, page}) => {
+    test("OrangeHRM_PIM_TC34_VerifyStateAfterPageRefresh @EdgeCase", async ({pimPage, page}) => {
         await allure.story("Browser Navigation - Form Reset on Hard Refresh");
         await allure.severity("minor");
 
