@@ -19,7 +19,7 @@ export default defineConfig({
   testDir: './tests',
   testIgnore: ['**/bdd/**'],
   /* Folder for test artifacts such as screenshots, videos, traces, etc.*/
-  outputDir: './reports/test-results',
+  outputDir: 'test-results',
   /* Maximum time one test can run for */
   timeout: 60 * 1000,
   /* Run tests in files in parallel */
@@ -32,13 +32,8 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html', { outputFolder: './reports/playwright-report' }],
-    ['./reporters/custom-reporter.ts'],
-    ['allure-playwright', {
-            detail: true,
-            outputFolder: './reports/allure-results',
-            suiteTitle: false
-    }]
+    ['html'],
+    ['allure-playwright'] 
   ],
   
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
