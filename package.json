@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
+    "clean": "npx rimraf reports",
     "report:allure": "npx allure generate ./allure-results --clean && npx allure open ./allure-report",
     "test:bdd": "cucumber-js"
   },

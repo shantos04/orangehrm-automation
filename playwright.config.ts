@@ -17,8 +17,9 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: './tests',
+  testIgnore: ['**/bdd/**'],
   /* Folder for test artifacts such as screenshots, videos, traces, etc.*/
-  outputDir: 'test-results/',
+  outputDir: './reports/test-results',
   /* Maximum time one test can run for */
   timeout: 60 * 1000,
   /* Run tests in files in parallel */
@@ -31,11 +32,11 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html'],
+    ['html', { outputFolder: './reports/playwright-report' }],
     ['./reporters/custom-reporter.ts'],
     ['allure-playwright', {
             detail: true,
-            outputFolder: 'allure-results',
+            outputFolder: './reports/allure-results',
             suiteTitle: false
     }]
   ],

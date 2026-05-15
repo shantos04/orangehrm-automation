@@ -9,7 +9,10 @@ module.exports = {
     paths: [
       'tests/bdd/features/**/*.feature' 
     ],
-    format: ['progress-bar', 'html:cucumber-report.html'],
+    format: [
+      'progress-bar', 
+      'html:reports/cucumber-report.html'
+    ],
     publishQuiet: true
   }
 }
