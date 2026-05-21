@@ -5,16 +5,13 @@
  */
 
 import { Page, Locator, expect } from '@playwright/test';
-
+import { BasePage } from '../base.page';
 import expectedTexts from '../../../data/expected-texts.json';
 
 /**
  * Represents the Add Employee Page.
  */
-export class AddEmployeePage {
-    /** The Playwright Page instance representing the current browser tab. */
-    readonly page: Page;
-
+export class AddEmployeePage extends BasePage {
     // --- Locators for Employee Information Fields ---
 
     /** Locator for the First Name input field. */
@@ -37,6 +34,7 @@ export class AddEmployeePage {
      * Targets the actual <input type="file"> rather than the UI button for stable uploads.
      */
     readonly fileInputPicture: Locator;
+    readonly msgPictureError: Locator;
 
     // --- Locators for Wrapper Blocks & Validation ---
 
@@ -80,7 +78,7 @@ export class AddEmployeePage {
      * @param page - The Playwright Page instance passed from the test runner.
      */
     constructor(page: Page) {
-        this.page = page;
+        super(page);
 
         // --- Initialize Input Fields ---
         this.txtFirstName = page.getByPlaceholder('First Name');
@@ -88,6 +86,7 @@ export class AddEmployeePage {
         this.txtLastName = page.getByPlaceholder('Last Name');
         this.txtEmployeeId = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('.oxd-input');   //page.locator('//label[text()="Employee Id"]/ancestor::div[contains(@class, "oxd-input-group")]//input');
         this.fileInputPicture = page.locator('input[type="file"]');
+        this.msgPictureError = page.locator('.orangehrm-employee-image .oxd-input-field-error-message');
 
         // --- Toggle switch ---
         this.switchCreateLogin = page.locator('.oxd-switch-input');
@@ -142,7 +141,7 @@ export class AddEmployeePage {
         username?: string,
         password?: string,
         confirmPassword?: string,
-        status?: 'Enable' | 'Disabled'
+        status?: 'Enabled' | 'Disabled'
     }) {
         // Default to empty strings if properties are not provided
         await this.txtFirstName.fill(employeeData.firstName || '');
@@ -173,6 +172,30 @@ export class AddEmployeePage {
                 await this.statusDisabled.click({ force: true });
             }
         }
+    }
+
+    // ========================================================
+    // --- Action Keywords (Click Save/Cancel) ---
+    // ========================================================
+
+    /**
+     * Clicks the Save button, waits for the global loading spinner to disappear,
+     * and verifies that the page successfully navigates to the Personal Details profile.
+     */
+    public async clickSave(isSuccessExpected: boolean = true) {
+        await this.btnSave.click();
+
+        if (isSuccessExpected) {
+            await this.waitForGlobalLoading();
+            await this.page.waitForURL(/.*viewPersonalDetails\/empNumber\/\d+/);
+        };
+    }
+
+    /**
+     * Clicks the Cancel button.
+     */
+    public async clickCancel() {
+        await this.btnCancel.click();
     }
 
     // ========================================================
@@ -211,12 +234,12 @@ export class AddEmployeePage {
             await expect(this.msgUsernameError).toBeVisible();
             await expect(this.msgUsernameError).toHaveText(expectedErrors.username);
         }
-        
+
         if (expectedErrors.password) {
             await expect(this.msgPasswordError).toBeVisible();
             await expect(this.msgPasswordError).toHaveText(expectedErrors.password);
         }
-    
+
         if (expectedErrors.confirmPassword) {
             await expect(this.msgConfirmPasswordError).toBeVisible();
             await expect(this.msgConfirmPasswordError).toHaveText(expectedErrors.confirmPassword);
@@ -230,5 +253,10 @@ export class AddEmployeePage {
     public async verifyEmployeeIdError(expectedErrorText: string) {
         await expect(this.msgEmployeeIdError).toBeVisible();
         await expect(this.msgEmployeeIdError).toHaveText(expectedErrorText);
+    }
+
+    public async verifyProfilePictureError(expectedErrorText: string) {
+        await expect(this.msgPictureError).toBeVisible();
+        await expect(this.msgPictureError).toHaveText(expectedErrorText);
     }
 }
