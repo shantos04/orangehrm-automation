@@ -49,7 +49,7 @@
         "firstName": "Max",
         "lastName": "Length",
         "createLoginDetails": true,
-        "username": "this_is_a_very_long_username_forty_one_ch41", 
+        "username": "this_is_a_very_long_username_forty_one_ch41",
         "password": "Password123_This_is_a_very_long_password_exceeding_sixty_four_ch65!",
         "confirmPassword": "Password123_This_is_a_very_long_password_exceeding_sixty_four_ch65!",
         "description": "Data with 41-char username and 65-char password for TC09"
@@ -72,5 +72,9 @@
         "partialName": "Joh",
         "invalidName": "Not an employee",
         "specialChars": "!@#$%^&*()_+"
+    },
+    "fileUpload": {
+        "oversizedImage": "./images/oversized-Image.jpg",
+        "invalidType": "./images/invalid-file.pdf"
     }
 }
