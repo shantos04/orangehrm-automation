@@ -73,8 +73,39 @@
         "invalidName": "Not an employee",
         "specialChars": "!@#$%^&*()_+"
     },
-    "fileUpload": {
+    "fileUploads": {
         "oversizedImage": "./images/oversized-Image.jpg",
         "invalidType": "./images/invalid-file.pdf"
+    },
+    "duplicateUsernameScenario": {
+        "firstName": "Duplicate",
+        "lastName": "Username",
+        "createLoginDetails": true,
+        "username": "Admin",
+        "password": "ValidPassword123!",
+        "confirmPassword": "ValidPassword123!",
+        "description": "Uses existing 'Admin' username to trigger Already Exists error for TC13"
+    },
+    "loginDetailsDisabled": {
+        "firstName": "Disabled",
+        "lastName": "Account",
+        "createLoginDetails": true,
+        "username": "disableduser99",
+        "password": "ValidPassword123!",
+        "confirmPassword": "ValidPassword123!",
+        "status": "Disabled",
+        "description": "Creates an employee with login details but sets status to Disabled for TC14"
+    },
+    "namesExceedingMaxLength": {
+        "firstName": "ThisFirstNameIsWayTooLongToBeAccepted",
+        "middleName": "ThisMiddleNameIsWayTooLongToBeAccepted",
+        "lastName": "ThisLastNameIsWayTooLongToBeAccepted",
+        "description": "Tests the 30-character max length constraint on name fields for TC15"
+    },
+    "alphanumericIdScenario": {
+        "firstName": "Alpha",
+        "lastName": "Numeric",
+        "employeeId": "EMP-X999",
+        "description": "Validates that Employee ID accepts alphanumeric characters for TC16"
     }
 }

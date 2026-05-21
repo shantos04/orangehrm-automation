@@ -26,7 +26,8 @@
     "higherThanPunchIn": "Punch out Time Should Be Later Than Punch in Time",
     "overlappingRecords": "Overlapping Records Found",
     "fileTooLarge": "Attachment Size Exceeded",
-    "fileTypeNotAllowed": "File type not allowed"
+    "fileTypeNotAllowed": "File type not allowed",
+    "duplicateUsername": "Already exists"
   },
   "dropdownOptions": {
     "include": {
