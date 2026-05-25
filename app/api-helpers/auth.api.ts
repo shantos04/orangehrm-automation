@@ -66,7 +66,7 @@ export class AuthAPI {
      */
     async verifyRedirectToDashboard(response: APIResponse) {
         expect(response.status()).toBe(302);
-        expect(response.headers()['location']).toContain('/web/index.php/auth/login');
+        expect(response.headers()['location']).toContain('/web/index.php/auth/dashboard');
     }
 
     /**

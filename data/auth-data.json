@@ -1,0 +1,16 @@
+{
+    "validAccount": {
+        "username": "Admin",
+        "password": "admin123"
+    },
+    "invalidAccount": {
+        "wrongPassword": "wrongpassword",
+        "unregisteredUsername": "GhostUser999"
+    },
+    "securityPayloads": {
+        "sqlInjection": "' OR '1'='1",
+        "xss": "<script>alert('hacked')</script>",
+        "bufferOverflowChar": "a",
+        "bufferOverflowLength": 255
+    }
+}
