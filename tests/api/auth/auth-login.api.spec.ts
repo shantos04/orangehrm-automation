@@ -1,4 +1,4 @@
-import { test, expect } from '../../../fixtures/auth.fixture';
+import { test, expect } from '../../../fixtures/api/auth.fixture';
 import * as allure from 'allure-js-commons';
 
 import authData from '../../../data/auth-data.json';

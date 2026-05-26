@@ -4,10 +4,10 @@
  */
 
 import { test as base } from '@playwright/test';
-import { LoginPage } from '../app/pages/login.page';
-import { AddEmployeePage } from '../app/pages/pim/add-employee.page';
-import { ToastComponent } from '../app/components/common/toast.component';
-import usersData from '../data/users.json';
+import { LoginPage } from '../../app/pages/login.page';
+import { AddEmployeePage } from '../../app/pages/pim/add-employee.page';
+import { ToastComponent } from '../../app/components/common/toast.component';
+import usersData from '../../data/users.json';
 
 // Declare the objects that will be injected into the tests
 type AddEmployeeFixtures = {

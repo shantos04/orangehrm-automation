@@ -4,7 +4,7 @@
  * is currently in the "Punch In" or "Punch Out" state. This suite tests the widget agnostically.
  */
 
-import { test, expect } from '../../../fixtures/time.fixture';
+import { test, expect } from '../../../fixtures/e2e/time.fixture';
 import * as allure from "allure-js-commons";
 
 // Import Data-Driven files

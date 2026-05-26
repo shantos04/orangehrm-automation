@@ -6,11 +6,11 @@
  */
 
 import { test as base } from '@playwright/test';
-import { LoginPage } from '../app/pages/login.page';
-import { PimPage } from '../app/pages/pim/pim.page';
-import { ToastComponent } from '../app/components/common/toast.component';
-import { PimTopMenuComponent } from '../app/components/pim/pim-top-menu.component';
-import usersData from '../data/users.json';
+import { LoginPage } from '../../app/pages/login.page';
+import { PimPage } from '../../app/pages/pim/pim.page';
+import { ToastComponent } from '../../app/components/common/toast.component';
+import { PimTopMenuComponent } from '../../app/components/pim/pim-top-menu.component';
+import usersData from '../../data/users.json';
 
 
 /**
@@ -30,7 +30,7 @@ export const test = base.extend<PimFixtures>({
      * Automatically handles the prerequisite setup: Authentication and UI Synchronization.
      * Yields a fully initialized and ready-to-use PimPage object to the test.
      */
-    pimPage: async ({page}, use) => {
+    pimPage: async ({ page }, use) => {
         const loginPage = new LoginPage(page);
         const pimPage = new PimPage(page);
 
@@ -46,7 +46,7 @@ export const test = base.extend<PimFixtures>({
         await page.goto('/web/index.php/pim/viewEmployeeList');
 
         // Synchronize UI State to ensure the data table and global loading spinners are fully resolved
-        await pimPage.tableContainer.waitFor({state: 'visible'});
+        await pimPage.tableContainer.waitFor({ state: 'visible' });
         await pimPage.waitForGlobalLoading();
 
         // --- Execution Phase ---
@@ -61,7 +61,7 @@ export const test = base.extend<PimFixtures>({
      * Fixture: pimTopMenu
      * Injects an initialized instance of the PimTopMenuComponent.
      */
-    pimTopMenu: async ({page}, use) => {
+    pimTopMenu: async ({ page }, use) => {
         await use(new PimTopMenuComponent(page));
     },
 
@@ -69,7 +69,7 @@ export const test = base.extend<PimFixtures>({
      * Fixture: toastComponent
      * Injects an initialized instance of the ToastComponent for notification validations.
      */
-    toastComponent: async ({page}, use) => {
+    toastComponent: async ({ page }, use) => {
         await use(new ToastComponent(page));
     }
 });

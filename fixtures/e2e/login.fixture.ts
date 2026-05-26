@@ -5,8 +5,8 @@
  */
 
 import { test as base } from '@playwright/test';
-import { LoginPage } from '../app/pages/login.page';
-import { DashboardPage } from '../app/pages/dashboard.page';
+import { LoginPage } from '../../app/pages/login.page';
+import { DashboardPage } from '../../app/pages/dashboard.page';
 
 
 /**
@@ -24,7 +24,7 @@ export const test = base.extend<LoginFixtures>({
      * Initializes the Page Object, clears any previous state, and navigates 
      * directly to the Login page.
      */
-    loginPage: async ({page}, use) => {
+    loginPage: async ({ page }, use) => {
         const loginPage = new LoginPage(page);
 
         // --- Setup Phase ---
@@ -35,7 +35,7 @@ export const test = base.extend<LoginFixtures>({
         await page.goto('/web/index.php/auth/login');
 
         // Wait for the login form to be fully rendered in the DOM before yielding control
-        await loginPage.txtUsername.waitFor({state: 'visible'});
+        await loginPage.txtUsername.waitFor({ state: 'visible' });
 
         // --- Execution Phase ---
         // Yield the fully initialized and ready-to-use loginPage instance to the test

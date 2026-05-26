@@ -4,7 +4,7 @@
  * including form submissions and handling dynamic UI elements like Toast messages.
  */
 
-import { test, expect } from '../../../fixtures/add-employee.fixture';
+import { test, expect } from '../../../fixtures/e2e/add-employee.fixture';
 import path from 'path';
 import * as allure from "allure-js-commons";
 

@@ -4,7 +4,7 @@
  * and business logic (authentication) of the login page using the Page Object Model.
  */
 
-import { test, expect } from '../../../fixtures/login.fixture';
+import { test, expect } from '../../../fixtures/e2e/login.fixture';
 import * as allure from "allure-js-commons";
 
 import usersData from '../../../data/users.json';

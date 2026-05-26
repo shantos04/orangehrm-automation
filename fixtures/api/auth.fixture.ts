@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import { AuthAPI } from '../app/api-helpers/auth.api';
+import { AuthAPI } from '../../app/api-helpers/auth.api';
 
 type AuthFixtures = {
     authAPI: AuthAPI;

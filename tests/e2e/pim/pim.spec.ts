@@ -3,7 +3,7 @@
  * Focuses on filtering capabilities and UI components like custom dropdowns.
  */
 
-import { test, expect } from '../../../fixtures/pim.fixture';
+import { test, expect } from '../../../fixtures/e2e/pim.fixture';
 import * as allure from "allure-js-commons";
 import { getExpectedSortedArray } from '../../../utils/sort-helper';
 
