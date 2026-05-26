@@ -1,15 +1,15 @@
-import {test, expect} from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import * as allure from "allure-js-commons";
 
-import {LoginPage} from '../../app/pages/login.page';
-import {TimeTopMenuComponent} from '../../app/components/time/time-top-menu.component';
-import {PunchInOutPage} from '../../app/pages/time/punch-in-out.page';
-import {ToastComponent} from '../../app/components/common/toast.component';
-import {CalendarComponent} from '../../app/components/common/calendar.component';
+import { LoginPage } from '../../../app/pages/login.page';
+import { TimeTopMenuComponent } from '../../../app/components/time/time-top-menu.component';
+import { PunchInOutPage } from '../../../app/pages/time/punch-in-out.page';
+import { ToastComponent } from '../../../app/components/common/toast.component';
+import { CalendarComponent } from '../../../app/components/common/calendar.component';
 
-import usersData from '../../data/users.json';
-import expectedTexts from '../../data/expected-texts.json';
-import timeData from '../../data/time-data.json';
+import usersData from '../../../data/users.json';
+import expectedTexts from '../../../data/expected-texts.json';
+import timeData from '../../../data/time-data.json';
 
 /**
  * Test Suite: Time Module - Punch In/Out Page
@@ -31,7 +31,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
      * Initializes Page Objects, sets up Allure metadata, authenticates the user,
      * and navigates to the target Time module before each test execution.
      */
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async ({ page }) => {
 
         // --- Allure Metadata ---
         await allure.epic("Time Module");
@@ -68,14 +68,14 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * State Reset Setup: Ensures the system is strictly in the "Punch In" state.
          * If the user is currently punched in (displaying "Punch Out"), the framework self-heals by punching out first.
          */
-        test.beforeEach(async ({page}) => {
+        test.beforeEach(async ({ page }) => {
             // Wait for the main title to render and capture its current state
             await punchIOPage.mainTitle.waitFor({ state: 'visible' });
             const pageTitle = await punchIOPage.mainTitle.innerText();
 
-            if (pageTitle === 'Punch Out') {    
+            if (pageTitle === 'Punch Out') {
                 // Self-healing: Execute a dummy punch-out using current default time to reset the state
-                await punchIOPage.punchOut({date: '', time: ''});
+                await punchIOPage.punchOut({ date: '', time: '' });
 
                 // Verify the system successfully transitioned back to the 'Punch In' state
                 await punchIOPage.verifyMainTitle('Punch In');
@@ -92,14 +92,14 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify validation errors when mandatory Punch In fields are empty.
          * Assertion: UI Form Validation (Required fields).
          */
-        test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async() => {
+        test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async () => {
             await allure.story("Negative - Punch In Empty Fields Validation");
             await allure.severity("normal");
 
             const expectedRequiredError = expectedTexts.validationMessages.required;
-            
+
             await test.step("Action: Clear auto-filled fields and click 'In'", async () => {
-                await punchIOPage.punchIn({date: '', time: ''})
+                await punchIOPage.punchIn({ date: '', time: '' })
             });
 
             await test.step("Verify: System displays 'Required' error messages for both fields", async () => {
@@ -114,24 +114,24 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify successful Punch In submission with valid data.
          * Assertion: Business Logic, Toast Notification, and State Transition.
          */
-        test("OrangeHRM_TIME_TC02_VerifySuccessfulPunchIn", async() => {
+        test("OrangeHRM_TIME_TC02_VerifySuccessfulPunchIn", async () => {
             await allure.story("Positive - Valid Punch In Flow");
             await allure.severity("critical");
 
             // Retrieve valid Punch In data from JSON
-            const {date, time, note} = timeData.validPunchIn;
+            const { date, time, note } = timeData.validPunchIn;
             const expectedSuccessText = expectedTexts.toastMessages.successSaved;
 
             await test.step("Action: Submit valid Punch In data", async () => {
                 // Concurrently wait for the toast message while submitting the form to handle race conditions
                 await Promise.all([
                     expect(toastComponent.toastMessage).toBeVisible(),
-                    punchIOPage.punchIn({date, time, note})
+                    punchIOPage.punchIn({ date, time, note })
                 ]);
             });
 
-            await test.step("Verify: Success toast is displayed and UI state shift to 'Punch Out'" , async () => {
-                await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, {ignoreCase: true});
+            await test.step("Verify: Success toast is displayed and UI state shift to 'Punch Out'", async () => {
+                await expect(toastComponent.toastMessage).toContainText(expectedSuccessText, { ignoreCase: true });
                 await expect(punchIOPage.btnOut).toBeVisible();
                 await punchIOPage.verifyMainTitle('Punch Out');
             });
@@ -160,7 +160,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
 
             if (pageTitle === 'Punch In') {
                 // Self-healing: Execute a dummy punch-in using current default time to reset the state
-                await punchIOPage.punchOut({date: '', time: ''});
+                await punchIOPage.punchOut({ date: '', time: '' });
                 await punchIOPage.verifyMainTitle('Punch Out');
                 await expect(punchIOPage.btnOut).toBeVisible();
             } else {
@@ -172,14 +172,14 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify validation errors when mandatory Punch Out fields are empty.
          * Assertion: UI Form Validation (Required fields).
          */
-        test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async() => {
+        test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async () => {
             await allure.story("Negative - Punch Out Empty Fields Validation");
             await allure.severity("normal");
 
             const expectedRequiredError = expectedTexts.validationMessages.required
 
             await test.step("Action: Clear auto-filled fields and click 'Out'", async () => {
-                await punchIOPage.punchOut({date: '', time: ''});
+                await punchIOPage.punchOut({ date: '', time: '' });
             });
 
             await test.step("Verfiy: System displays 'Required' error message for both fields", async () => {
@@ -194,7 +194,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify system behavior when an incorrectly formatted date string is submitted.
          * Assertion: Form Validation (Format compliance).
          */
-        test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async() => {
+        test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async () => {
             await allure.story("Negative - Invalid Date Format Processing");
             await allure.severity("normal");
 
@@ -203,12 +203,12 @@ test.describe("Time Module - PunchIn/Out Page", () => {
             const expectedFormatError = expectedTexts.validationMessages.invalidDateFormat;
 
             await test.step("Action: Attempt to submit a date with an invalid format", async () => {
-                await punchIOPage.punchOut({date: invalidDate, time: validTime}, false);
+                await punchIOPage.punchOut({ date: invalidDate, time: validTime }, false);
                 await punchIOPage.btnOut.click();
             });
 
             await test.step("Verify: System displays an invalid format error for the Date field", async () => {
-                await punchIOPage.verifyFormValidationErrors({date: expectedFormatError});
+                await punchIOPage.verifyFormValidationErrors({ date: expectedFormatError });
             });
         });
 
@@ -216,7 +216,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify system auto-correction logic when an incorrectly formatted time is provided.
          * Assertion: Data sanitization and Form Validation.
          */
-        test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async() => {
+        test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async () => {
             await allure.story("Negative - Invalid Time Format Auto-Correction");
             await allure.severity("normal");
 
@@ -226,13 +226,13 @@ test.describe("Time Module - PunchIn/Out Page", () => {
 
             test.step("Action: Input an invalid time format and trigger validation", async () => {
                 // Use defensive programming (false flag) to prevent navigation/timeouts on invalid data
-                await punchIOPage.punchOut({date: validDate, time: invalidTime}, false);
+                await punchIOPage.punchOut({ date: validDate, time: invalidTime }, false);
                 await punchIOPage.btnOut.click();
             });
 
             test.step("Verify: System auto-clears the invalid time and flags it as required", async () => {
                 await expect(punchIOPage.txtTime).toHaveValue('');
-                await punchIOPage.verifyFormValidationErrors({time: expectedRequiredError});
+                await punchIOPage.verifyFormValidationErrors({ time: expectedRequiredError });
             });
         });
 
@@ -240,7 +240,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify business logic preventing a Punch Out time that occurs BEFORE the Punch In time.
          * Assertion: Business Logic Constraint (Timeline consistency).
          */
-        test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async() => {
+        test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async () => {
             await allure.story("Business Logic - Time Validation Against Punch In");
             await allure.severity("critical");
 
@@ -249,12 +249,12 @@ test.describe("Time Module - PunchIn/Out Page", () => {
             const expectedLogicError = expectedTexts.validationMessages.higherThanPunchIn;
 
             await test.step("Action: Attempt to punch out at a time BEFORE the punch in time", async () => {
-                await punchIOPage.punchOut({date: validDate, time: timeBeforeIn}, false);
+                await punchIOPage.punchOut({ date: validDate, time: timeBeforeIn }, false);
                 await punchIOPage.btnOut.click();
             });
-            
+
             await test.step("Verify: System rejects the input due to illogical timeline", async () => {
-                await punchIOPage.verifyFormValidationErrors({time: expectedLogicError});
+                await punchIOPage.verifyFormValidationErrors({ time: expectedLogicError });
             });
         });
 
@@ -271,12 +271,12 @@ test.describe("Time Module - PunchIn/Out Page", () => {
             const expectedLogicError = expectedTexts.validationMessages.higherThanPunchIn;
 
             await test.step("Action: Attempt to punch out on a date BEFORE the punch in date", async () => {
-                await punchIOPage.punchOut({date: pastDate, time: validTime}, false);
+                await punchIOPage.punchOut({ date: pastDate, time: validTime }, false);
                 await punchIOPage.btnOut.click();
             });
 
             await test.step("Verify: System rejects the input due to illogical timeline", async () => {
-                await punchIOPage.verifyFormValidationErrors({date: expectedLogicError});
+                await punchIOPage.verifyFormValidationErrors({ date: expectedLogicError });
             });
         });
 

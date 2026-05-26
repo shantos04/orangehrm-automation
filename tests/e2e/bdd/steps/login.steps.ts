@@ -3,12 +3,12 @@ import { expect } from '@playwright/test';
 import { Page } from 'playwright';
 
 // Import Page Objects
-import { LoginPage } from '../../../app/pages/login.page';
-import { DashboardPage } from '../../../app/pages/dashboard.page';
+import { LoginPage } from '../../../../app/pages/login.page';
+import { DashboardPage } from '../../../../app/pages/dashboard.page';
 
 // Import Data
-import usersData from '../../../data/users.json';
-import expectedTexts from '../../../data/expected-texts.json';
+import usersData from '../../../../data/users.json';
+import expectedTexts from '../../../../data/expected-texts.json';
 
 import { page, context } from '../support/hooks';
 
@@ -21,7 +21,7 @@ let page2: Page;
 Given('I navigate to the OrangeHRM login page', async function () {
     const loginPage = new LoginPage(page);
     await page.goto('/web/index.php/auth/login');
-    await loginPage.txtUsername.waitFor({state: 'visible'});
+    await loginPage.txtUsername.waitFor({ state: 'visible' });
 });
 
 Then('the page title should be correct', async function () {
@@ -137,16 +137,16 @@ Then('the system should reject the login', async function () {
 
 Then('display the corresponding error message {string}', async function (expectedMessage) {
     const loginPage = new LoginPage(page);
-    
+
     // Handle error validation logic based on the Expected Error provided by the feature file
     if (expectedMessage === 'Required') {
         const expectedRequiredError = expectedTexts.loginPage.requiredFieldError;
         const userErrCount = await loginPage.msgUsernameRequired.count();
         const passErrCount = await loginPage.msgPasswordRequired.count();
-        
+
         // At least one of the fields must display the "Required" error
         expect(userErrCount + passErrCount).toBeGreaterThan(0);
-        
+
         if (userErrCount > 0) {
             await expect(loginPage.msgUsernameRequired).toHaveText(expectedRequiredError);
         }
@@ -167,7 +167,7 @@ Given('I have successfully logged in and navigated to the Dashboard', async func
     const loginPage = new LoginPage(page);
     const dashboardPage = new DashboardPage(page);
     const { username, password } = usersData.validAdmin;
-    
+
     await loginPage.login(username, password);
     await expect(dashboardPage.labelHeader).toBeVisible();
 });

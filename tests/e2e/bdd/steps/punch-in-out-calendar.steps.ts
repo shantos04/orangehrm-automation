@@ -2,11 +2,11 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 
 // Import Page Objects & Data
-import { LoginPage } from '../../../app/pages/login.page';
-import { PunchInOutPage } from '../../../app/pages/time/punch-in-out.page'; // Điều chỉnh đường dẫn POM của bạn
-import { CalendarComponent } from '../../../app/components/common/calendar.component'; // Điều chỉnh đường dẫn POM của bạn
-import usersData from '../../../data/users.json';
-import expectedTexts from '../../../data/expected-texts.json';
+import { LoginPage } from '../../../../app/pages/login.page';
+import { PunchInOutPage } from '../../../../app/pages/time/punch-in-out.page'; // Điều chỉnh đường dẫn POM của bạn
+import { CalendarComponent } from '../../../../app/components/common/calendar.component'; // Điều chỉnh đường dẫn POM của bạn
+import usersData from '../../../../data/users.json';
+import expectedTexts from '../../../../data/expected-texts.json';
 
 // Import Browser Context
 import { page } from '../support/hooks';
@@ -22,7 +22,7 @@ Given('I am logged into OrangeHRM and navigate to the Punch In/Out page', async 
     const loginPage = new LoginPage(page);
     await page.goto('/web/index.php/auth/login');
     await loginPage.login(usersData.validAdmin.username, usersData.validAdmin.password);
-    
+
     // Điều hướng thẳng tới trang Punch In/Out bằng URL để tiết kiệm thời gian click UI
     await page.goto('/web/index.php/attendance/punchIn');
     await page.waitForLoadState('networkidle');
@@ -78,7 +78,7 @@ When('I pre-fill the date field if required for the {string} action', async func
 When('I click the {string} shortcut button in the calendar', async function (buttonName) {
     const calendarComp = new CalendarComponent(page);
     await calendarComp.openCalendar();
-    
+
     if (buttonName === 'Today') await calendarComp.selectToday();
     if (buttonName === 'Clear') await calendarComp.clearDate();
     if (buttonName === 'Close') await calendarComp.btnClose.click();
@@ -87,7 +87,7 @@ When('I click the {string} shortcut button in the calendar', async function (but
 Then('the calendar should perform the {string} action', async function (expectedAction) {
     const calendarComp = new CalendarComponent(page);
     const punchIOPage = new PunchInOutPage(page);
-    
+
     await expect(calendarComp.calendarContainer).toBeHidden();
 
     if (expectedAction.includes('current date')) {
@@ -96,12 +96,12 @@ Then('the calendar should perform the {string} action', async function (expected
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const date = String(today.getDate()).padStart(2, '0');
         const expectedDateString = `${year}-${date}-${month}`;
-        
+
         await calendarComp.verifySelectedDateValue(expectedDateString);
-    } 
+    }
     else if (expectedAction.includes('clear')) {
         await calendarComp.verifyDateIsEmpty();
-    } 
+    }
     else if (expectedAction.includes('without altering')) {
         await expect(punchIOPage.txtDate).toHaveValue(baselineDate);
     }
@@ -192,7 +192,7 @@ When('I manually input {string} into the date field', async function (inputValue
 Then('the system should display a validation error message {string}', async function (errorType) {
     const punchIOPage = new PunchInOutPage(page);
     await expect(punchIOPage.errorMessageDate).toBeVisible();
-    
+
     if (errorType === 'format') {
         await expect(punchIOPage.errorMessageDate).toContainText(expectedTexts.validationMessages.invalidDateFormat);
     } else {
@@ -209,7 +209,7 @@ Given('the calendar UI limits the Year dropdown up to the current year', async f
     const punchIOPage = new PunchInOutPage(page);
     const currentYear = new Date().getFullYear();
     const futureYear = currentYear + 1;
-    
+
     await calendarComp.openCalendar();
     await calendarComp.yearDropdown.click();
     await expect(calendarComp.calendarContainer).not.toContainText(String(futureYear));
@@ -223,10 +223,10 @@ When('I manually input a date with a future year bypass', async function () {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const date = String(today.getDate()).padStart(2, '0');
     const futureDateStr = `${futureYear}-${date}-${month}`;
-    
-    await punchIOPage.txtDate.fill(''); 
+
+    await punchIOPage.txtDate.fill('');
     await punchIOPage.txtDate.fill(futureDateStr);
-    await punchIOPage.mainTitle.click(); 
+    await punchIOPage.mainTitle.click();
 });
 
 Then('the system should accept the future year input without errors', async function () {

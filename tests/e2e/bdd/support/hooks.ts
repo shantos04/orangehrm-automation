@@ -20,8 +20,8 @@ export let page: Page;
 BeforeAll(async function () {
     console.log('Launching browser...');
     browser = await chromium.launch({
-        headless: false, 
-        args: ['--start-maximized'] 
+        headless: false,
+        args: ['--start-maximized']
     });
 });
 
@@ -32,9 +32,9 @@ BeforeAll(async function () {
 Before(async function () {
     context = await browser.newContext({
         baseURL: 'https://opensource-demo.orangehrmlive.com',
-        viewport: null 
+        viewport: null
     });
-    
+
     page = await context.newPage();
 });
 
@@ -45,11 +45,11 @@ Before(async function () {
 After(async function (scenario) {
     if (scenario.result?.status === Status.FAILED) {
         console.log(`Scenario Failed: ${scenario.pickle.name}. Taking screenshot...`);
-        
-        const screenshot = await page.screenshot({ 
-            fullPage: true 
+
+        const screenshot = await page.screenshot({
+            fullPage: true
         });
-        
+
         this.attach(screenshot, 'image/png');
     }
 

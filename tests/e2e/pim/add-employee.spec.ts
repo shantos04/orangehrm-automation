@@ -4,12 +4,12 @@
  * including form submissions and handling dynamic UI elements like Toast messages.
  */
 
-import { test, expect } from '../../fixtures/add-employee.fixture';
+import { test, expect } from '../../../fixtures/add-employee.fixture';
 import path from 'path';
 import * as allure from "allure-js-commons";
 
-import employeeData from '../../data/employee-data.json';
-import expectedTexts from '../../data/expected-texts.json';
+import employeeData from '../../../data/employee-data.json';
+import expectedTexts from '../../../data/expected-texts.json';
 
 /**
  * Test Suite: PIM Module - Add Employee

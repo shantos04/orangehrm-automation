@@ -1,7 +1,7 @@
-import { test, expect } from '../../fixtures/auth.fixture';
+import { test, expect } from '../../../fixtures/auth.fixture';
 import * as allure from 'allure-js-commons';
 
-import authData from '../../data/auth-data.json';
+import authData from '../../../data/auth-data.json';
 
 test.describe('API Testing - OrangeHRM Real Authentication', () => {
 
