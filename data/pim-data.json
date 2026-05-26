@@ -1,0 +1,18 @@
+{
+    "validEmployee": {
+        "employeeId": "001"
+    },
+    "searchQueries": {
+        "partialName": "Odis",
+        "supervisorName": "John Smith"
+    },
+    "dropdownFilters": {
+        "jobTitle": "QA Engineer",
+        "empStatus": "Full-Time Permanent",
+        "subUnit": "Engineering"
+    },
+    "invalidQueries": {
+        "employeeId": "InvalidID999",
+        "specialChars": "@#$%^&*"
+    }
+}
