@@ -1,18 +1,52 @@
 {
     "validEmployee": {
-        "employeeId": "001"
+        "employeeId": "0001"
     },
     "searchQueries": {
-        "partialName": "Odis",
-        "supervisorName": "John Smith"
+        "partialName": "manda",
+        "supervisorSearchKeyword": "manda user"
     },
     "dropdownFilters": {
-        "jobTitle": "QA Engineer",
-        "empStatus": "Full-Time Permanent",
-        "subUnit": "Engineering"
+        "jobTitleId": 22,
+        "empStatusId": 1,
+        "subunitId": 1
     },
     "invalidQueries": {
-        "employeeId": "InvalidID999",
+        "employeeId": "999999",
         "specialChars": "@#$%^&*"
+    },
+    "deleteAction": {
+        "employeeInternalId": 224,
+        "bulkEmployeeIds": [
+            225,
+            226,
+            227
+        ],
+        "nonExistentInternalId": 999999
+    },
+    "personalDetailsAction": {
+        "targetEmployeeNumber": 502,
+        "validUpdatePayload": {
+            "lastName": "Sasuke",
+            "firstName": "Uchiha",
+            "middleName": "",
+            "employeeId": "0707",
+            "otherId": "",
+            "birthday": null,
+            "drivingLicenseExpiredDate": null,
+            "drivingLicenseNo": "",
+            "gender": null,
+            "militaryService": null,
+            "nickname": "",
+            "sinNumber": "",
+            "smoker": false,
+            "ssnNumber": ""
+        },
+        "invalidMissingNamePayload": {
+            "lastName": "Sasuke",
+            "firstName": "",
+            "employeeId": "0707"
+        },
+        "nonExistentEmployeeNumber": 999999
     }
 }
