@@ -6,9 +6,8 @@
   "scripts": {
     "test": "npx playwright test",
     "clean": "npx rimraf reports allure-results allure-report playwright-report test-results",
-    "test:auth": "npm run clean && npx playwright test tests/auth",
-    "test:pim": "npm run clean && npx playwright test tests/pim",
-    "test:smoke": "npm run clean && npx playwright test --grep @Smoke",
+    "test:api": "npx playwright test ./tests/api",
+    "test:e2e": "npx playwright test ./tests/e2e",
     "report": "npx allure generate allure-results --clean -o allure-report && npx allure open allure-report",
     "test:bdd": "cucumber-js"
   },
@@ -21,8 +20,11 @@
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.6.0",
     "allure-commandline": "^2.40.0",
-    "allure-playwright": "^3.7.2",
+    "allure-playwright": "^3.8.0",
     "dotenv": "^17.4.2",
     "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0"
   }
 }
