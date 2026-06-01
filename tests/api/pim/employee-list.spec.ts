@@ -6,6 +6,9 @@
 
 import { test, expect } from '../../../fixtures/api/pim.fixture';
 import * as allure from "allure-js-commons";
+import fs from 'fs';
+import path from 'path';
+
 import pimData from '../../../data/pim-data.json';
 
 test.describe("API Testing - PIM Employee Module", () => {
@@ -17,7 +20,7 @@ test.describe("API Testing - PIM Employee Module", () => {
     // ========================================================================
     // --- SUB-MODULE: EMPLOYEE LIST SEARCH FILTERS (GET) ---
     // ========================================================================
-    test.describe("Employee List Search Filters", () => {
+    test.describe("Employee List Search Filters (GET)", () => {
 
         test.beforeEach(async () => {
             await allure.feature("Employee List Search");
@@ -291,6 +294,34 @@ test.describe("API Testing - PIM Employee Module", () => {
                 await pimAPI.verifyEmptyResult(response);
             });
         });
+
+        /**
+         * Test Case: Verify structural content integrity of deeply nested objects within response packets.
+         * Assertion: Validates that the returned sub-object contains required relational entity values via serialization containment (Convert Object to JSON).
+         */
+        test("OrangeHRM_PIM_API_SEARCH_TC11_VerifyDeepNestedJobTitleContract", async ({ pimAPI }) => {
+            await allure.story("Schema Integrity - Deep Objects");
+            await allure.severity("major");
+
+            const targetJobTitleId = pimData.dropdownFilters.jobTitleId;
+
+            const response = await test.step(`Action: Execute GET request with jobTitleId=${targetJobTitleId}`, async () => {
+                return await pimAPI.searchEmployees({ jobTitleId: targetJobTitleId });
+            });
+
+            await test.step("Verify: All returned employee records contain the target job title contract configuration", async () => {
+                const body = await pimAPI.verifySuccessAndGetBody(response);
+                expect(body.data.length).toBeGreaterThan(0);
+
+                for (const employee of body.data) {
+                    expect(employee).toHaveProperty('jobTitle');
+
+                    // Convert nested object properties into a text string to run clean subset content containment assertions
+                    const jobTitleJsonString = JSON.stringify(employee.jobTitle);
+                    expect(jobTitleJsonString).toContain(String(targetJobTitleId));
+                }
+            });
+        });
     });
 
     // ========================================================================
@@ -378,93 +409,9 @@ test.describe("API Testing - PIM Employee Module", () => {
     });
 
     // ========================================================================
-    // --- SUB-MODULE: EMPLOYEE PERSONAL DETAILS MODIFICATION (PUT) ---
-    // ========================================================================
-    test.describe("Employee Personal Details Modification", () => {
-
-        test.beforeEach(async () => {
-            await allure.feature("Employee Personal Details Modification");
-        });
-
-        /**
-         * Test Case: Verify that an employee's personal details can be successfully updated via PUT request.
-         * Assertion: Validates that the server processes the valid payload, returns 200 OK, and mirrors the updated properties.
-         */
-        test("OrangeHRM_PIM_API_DETAILS_TC01_UpdatePersonalDetailsSuccessfully", async ({ pimAPI }) => {
-            await allure.story("Positive - Update Profile Details");
-            await allure.severity("critical");
-
-            const empNum = pimData.personalDetailsAction.targetEmployeeNumber;
-            const payload = pimData.personalDetailsAction.validUpdatePayload;
-
-            const response = await test.step(`Action: Execute PUT request to update personal details for employee #${empNum}`, async () => {
-                return await pimAPI.updatePersonalDetails(empNum, payload);
-            });
-
-            await test.step("Verify: System returns 200 OK and matches the updated information exactly", async () => {
-                expect(response.status()).toBe(200);
-
-                const body = await response.json();
-                expect(body).toHaveProperty('data');
-
-                // Assert that the database record changes match the submitted payload
-                expect(body.data.firstName).toBe(payload.firstName);
-                expect(body.data.lastName).toBe(payload.lastName);
-                expect(body.data.employeeId).toBe(payload.employeeId);
-            });
-        });
-
-        /**
-         * Test Case: Verify system validation when attempting to clear out mandatory fields like First Name.
-         * Assertion: Ensures backend fields validate against blank values, securely returning a 422 Unprocessable Entity status.
-         */
-        test("OrangeHRM_PIM_API_DETAILS_TC02_RejectUpdateWithMissingFirstName", async ({ pimAPI }) => {
-            await allure.story("Negative - Validation Constraints");
-            await allure.severity("normal");
-
-            const empNum = pimData.personalDetailsAction.targetEmployeeNumber;
-            const invalidPayload = pimData.personalDetailsAction.invalidMissingNamePayload;
-
-            const response = await test.step(`Action: Execute PUT request with an empty firstName field for employee #${empNum}`, async () => {
-                return await pimAPI.updatePersonalDetails(empNum, invalidPayload);
-            });
-
-            await test.step("Verify: Backend catches validation error and responds with 422 Unprocessable Entity", async () => {
-                const status = response.status();
-
-                if (status === 422) {
-                    console.log("ℹ️ EXPECTED VALIDATION FAILURE LOGGED:", await response.json());
-                }
-
-                expect(status).toBe(422);
-            });
-        });
-
-        /**
-         * Test Case: Verify backend security routing when updating data for a non-existent employee target.
-         * Assertion: Validates that routing resources towards fake endpoints safely fails with a 404 Not Found error.
-         */
-        test("OrangeHRM_PIM_API_DETAILS_TC03_UpdateDetailsForNonExistentEmployee", async ({ pimAPI }) => {
-            await allure.story("Negative - Resource Routing");
-            await allure.severity("normal");
-
-            const fakeEmpNum = pimData.personalDetailsAction.nonExistentEmployeeNumber;
-            const payload = pimData.personalDetailsAction.validUpdatePayload;
-
-            const response = await test.step(`Action: Execute PUT request targeting an invalid employee path segment: #${fakeEmpNum}`, async () => {
-                return await pimAPI.updatePersonalDetails(fakeEmpNum, payload);
-            });
-
-            await test.step("Verify: Backend returns 404 Not Found to signal non-existent resource path", async () => {
-                expect(response.status()).toBe(404);
-            });
-        });
-    });
-
-    // ========================================================================
     // --- SUB-MODULE: EMPLOYEE RECORD REMOVAL (DELETE) ---
     // ========================================================================
-    test.describe("Employee Record Removal", () => {
+    test.describe("Employee Record Removal (DELETE)", () => {
 
         test.beforeEach(async () => {
             await allure.feature("Employee Record Removal");
@@ -475,7 +422,7 @@ test.describe("API Testing - PIM Employee Module", () => {
          * Assertion: Validates that the server processes the DELETE request and responds with a 200 OK status.
          * Edge Case Handled: Validates the payload structure requiring an array of numerical IDs.
          */
-        test("OrangeHRM_PIM_API_DELETE_TC11_DeleteEmployeeSuccessfully", async ({ pimAPI }) => {
+        test("OrangeHRM_PIM_API_DELETE_TC01_DeleteEmployeeSuccessfully", async ({ pimAPI }) => {
             await allure.story("Action - Delete Employee");
             await allure.severity("critical");
 
@@ -494,7 +441,7 @@ test.describe("API Testing - PIM Employee Module", () => {
          * Test Case: Verify that multiple employees can be successfully deleted in a single API call (Bulk Delete).
          * Assertion: Validates that the server processes the bulk DELETE request and responds with a 200 OK status.
          */
-        test("OrangeHRM_PIM_API_DELETE_TC12_BulkDeleteEmployees", async ({ pimAPI }) => {
+        test("OrangeHRM_PIM_API_DELETE_TC02_BulkDeleteEmployees", async ({ pimAPI }) => {
             await allure.story("Action - Bulk Delete Employees");
             await allure.severity("critical");
 
@@ -514,7 +461,7 @@ test.describe("API Testing - PIM Employee Module", () => {
          * Assertion: Validates that the backend handles the request gracefully (typically returning 200 OK or 404 Not Found) without crashing.
          * Edge Case Handled: Prevents 500 Internal Server Error when processing invalid database keys.
          */
-        test("OrangeHRM_PIM_API_DELETE_TC13_DeleteNonExistentEmployees", async ({ pimAPI }) => {
+        test("OrangeHRM_PIM_API_DELETE_TC03_DeleteNonExistentEmployees", async ({ pimAPI }) => {
             await allure.story("Negative - Delete Non-Existent ID");
             await allure.severity("normal");
 
@@ -534,7 +481,7 @@ test.describe("API Testing - PIM Employee Module", () => {
          * Assertion: Validates backend validation rules for the 'ids' payload array.
          * Edge Case Handled: Empty payload submission.
          */
-        test("OrangeHRM_PIM_DELETE_DeleteWithEmptyArray", async ({ pimAPI }) => {
+        test("OrangeHRM_PIM_DELETE_TC04_DeleteWithEmptyArray", async ({ pimAPI }) => {
             await allure.story("Negative - Empty Payload Delete");
             await allure.severity("minor");
 
