@@ -65,13 +65,13 @@ export class PimPage extends BasePage {
         // --- Input ---
         this.dropdownInclude = page.locator('.oxd-input-group').filter({ hasText: 'Include' }).locator('.oxd-select-text');
         this.txtEmployeeName = page.getByPlaceholder('Type for hints...').first();
-        this.txtEmployeeId = page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('input');
-        this.txtSupervisorName = page.locator('.oxd-input-group').filter({hasText: 'Supervisor Name'}).locator('input');
-        
+        this.txtEmployeeId = page.locator('.oxd-input-group').filter({ hasText: 'Employee Id' }).locator('input');
+        this.txtSupervisorName = page.locator('.oxd-input-group').filter({ hasText: 'Supervisor Name' }).locator('input');
+
         // --- Extractors ---
-        this.lblSelectedJobTitle = page.locator('.oxd-input-group').filter({hasText: 'Job Title'}).locator('.oxd-select-text');
-        this.lblSelectedEmpStatus = page.locator('.oxd-input-group').filter({hasText: 'Employment Status'}).locator('.oxd-select-text');
-        this.lblSelectedSubUnit = page.locator('.oxd-input-group').filter({hasText: 'Sub Unit'}).locator('.oxd-select-text');
+        this.lblSelectedJobTitle = page.locator('.oxd-input-group').filter({ hasText: 'Job Title' }).locator('.oxd-select-text');
+        this.lblSelectedEmpStatus = page.locator('.oxd-input-group').filter({ hasText: 'Employment Status' }).locator('.oxd-select-text');
+        this.lblSelectedSubUnit = page.locator('.oxd-input-group').filter({ hasText: 'Sub Unit' }).locator('.oxd-select-text');
 
         // --- Table ---
         this.tableContainer = page.locator('.orangehrm-container');
@@ -87,7 +87,7 @@ export class PimPage extends BasePage {
         this.btnAdd = page.getByRole('button', { name: 'Add' });
         this.btnConfirmDelete = page.locator('.oxd-table-cell-actions').locator('//button[i[contains(@class, "bi-trash")]]');
         this.btnNextPage = page.locator('.oxd-pagination-page-item--previous-next').filter({ has: page.locator('i.bi-chevron-right') });
-        this.btnBulkDelete = page.getByRole('button', {name: 'Delete Selected'});
+        this.btnBulkDelete = page.getByRole('button', { name: 'Delete Selected' });
         this.modalConfirmDelete = page.locator('.orangehrm-dialog-popup');
         this.btnCancelDelete = page.locator('button', { hasText: 'No, Cancel' });
     }
@@ -105,12 +105,12 @@ export class PimPage extends BasePage {
         // 2. Wait for the listbox popup to become fully visible, then select the target option
         const activeListbox = this.page.getByRole('listbox');
         await activeListbox.waitFor({ state: 'visible' });
-        await activeListbox.getByRole('option', {name: optionToSelect}).click()
+        await activeListbox.getByRole('option', { name: optionToSelect }).click()
     }
 
-     /**
-     * Clicks the 'Reset' button to clear all active search filters and waits for the table to refresh.
-     */
+    /**
+    * Clicks the 'Reset' button to clear all active search filters and waits for the table to refresh.
+    */
     async clickResetButton() {
         await this.btnReset.click();
         // Uses the inherited method from BasePage to wait for the global loading spinner to disappear
@@ -162,7 +162,7 @@ export class PimPage extends BasePage {
                 // Extract the text at the specified column index and trim excess whitespace
                 if (rowTexts.length > columnIndex) {
                     const cellText = rowTexts[columnIndex].trim();
-                    
+
                     // Only append non-empty strings to the array
                     if (cellText) {
                         columnData.push(cellText);
@@ -203,6 +203,34 @@ export class PimPage extends BasePage {
      */
     async getFirstRowIdText(): Promise<string> {
         return await this.tableRows.first().locator('.oxd-table-cell').nth(1).innerText();
+    }
+
+    /**
+     * Extracts all relevant data fields from a specific row in the data table.
+     * Useful for extracting UI data to compare against database records or API responses.
+     * @param {number} rowIndex - The zero-based index of the target row (0 for the first row).
+     * @returns {Promise<Object>} An object containing the text extracted from the row's specific columns.
+     */
+    async getRowDataByIndex(rowIndex: number) {
+        // Locate the specific row based on index
+        const row = this.tableRows.nth(rowIndex);
+
+        // Ensure the row is visible before attempting to extract text
+        await expect(row).toBeVisible();
+
+        const cells = row.locator('.oxd-table-cell');
+
+        // Extract and map the text based on OrangeHRM's column structure
+        // Index mapping: 1=Id, 2=First(&Middle)Name, 3=LastName, 4=JobTitle, 5=Status, 6=SubUnit, 7=Supervisor
+        return {
+            employeeId: (await cells.nth(1).innerText()).trim(),
+            firstName: (await cells.nth(2).innerText()).trim(),
+            lastName: (await cells.nth(3).innerText()).trim(),
+            jobTitle: (await cells.nth(4).innerText()).trim(),
+            employmentStatus: (await cells.nth(5).innerText()).trim(),
+            subUnit: (await cells.nth(6).innerText()).trim(),
+            supervisorName: (await cells.nth(7).innerText()).trim()
+        };
     }
 
     /**
@@ -286,9 +314,9 @@ export class PimPage extends BasePage {
      */
     async clickDeleteIconByIndex(rowIndex: number) {
         const row = this.tableRows.nth(rowIndex);
-        
-        const btnDelete = row.locator('.bi-trash').locator('..'); 
-        
+
+        const btnDelete = row.locator('.bi-trash').locator('..');
+
         await btnDelete.click();
     }
 
@@ -366,7 +394,7 @@ export class PimPage extends BasePage {
      * @param {string} [expectedData.employmentStatus] - Expected text in the Employment Status column.
      * @param {string} [expectedData.subUnit] - Expected text in the Sub Unit column.
      * @param {string} [expectedData.supervisorName] - Expected text in the Supervisor column.
-     */ 
+     */
     public async verifySearchResultsMatch(expectedData: {
         employeeName?: string,
         employeeId?: string,
@@ -387,7 +415,7 @@ export class PimPage extends BasePage {
         // Dynamically assert only the fields that were passed in the expectedData object
         if (expectedData.employeeId) {
             await expect(cells.nth(1)).toHaveText(expectedData.employeeId);
-        }   
+        }
         if (expectedData.employeeName) {
             // Because Employee Name is split into First and Last Name columns (nth 2 and 3), 
             // using a broad toContainText on the entire row is safer and more resilient.
