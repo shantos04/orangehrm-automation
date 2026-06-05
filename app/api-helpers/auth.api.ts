@@ -121,8 +121,8 @@ export class AuthAPI {
         await this.page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
 
         // Wait for the system top bar to load. If the API session is valid, this element becomes visible immediately.
-        const topBarHeader = this.page.locator('.oxd-topbar-header-title');
+        const topBarHeader = this.page.locator('.oxd-topbar-header-breadcrumb-module');
         await expect(topBarHeader).toBeVisible();
         await expect(topBarHeader).toContainText('Dashboard');
-    }
+    };
 }
