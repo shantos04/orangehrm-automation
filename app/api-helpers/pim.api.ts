@@ -41,6 +41,10 @@ export class PimAPI {
         this.request = request;
     };
 
+    // ========================================================
+    // --- Action Keywords (Step Action) ---
+    // ========================================================
+
     /**
      * Executes a GET request to filter and retrieve the employee list.
      * Automatically applies native system defaults for pagination, models, and sorting.
@@ -78,6 +82,21 @@ export class PimAPI {
     };
 
     /**
+     * Executes a POST request to create a new employee.
+     * @param {object} payload - The JSON payload containing firstName, lastName, etc.
+     * @returns {Promise<APIResponse>} The raw Playwright API response object.
+     */
+    async createEmployee(payload: object): Promise<APIResponse> {
+        return await this.request.post(this.endpoint, {
+            data: payload,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+    };
+
+    /**
      * Executes a PUT request to update an employee's personal details profile.
      * @param {number | string} empNumber - The unique system internal ID of the target employee (e.g., 502).
      * @param {object} payload - The JSON object containing updated personal profile details.
@@ -93,6 +112,24 @@ export class PimAPI {
             }
         });
     };
+
+    /**
+     * Executes a DELETE request to permanently remove one or multiple employees.
+     * The backend expects a JSON payload containing an array of internal employee IDs.
+     * * @param {number[]} ids - An array of numerical internal IDs representing the employees to be deleted.
+     * @returns {Promise<APIResponse>} The raw Playwright API response object.
+     */
+    async deleteEmployees(ids: number[]): Promise<APIResponse> {
+        return await this.request.delete(this.endpoint, {
+            // Playwright will automatically stringify this object and set 'Content-Type': 'application/json'
+            data: {
+                ids: ids
+            },
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+    }
 
     // ========================================================
     // --- Verification Keywords (Step Verify) ---
@@ -126,24 +163,35 @@ export class PimAPI {
         if (body.meta) {
             expect(body.meta.total).toBe(0);
         };
-    }
+    };
 
     /**
-     * Executes a DELETE request to permanently remove one or multiple employees.
-     * The backend expects a JSON payload containing an array of internal employee IDs.
-     * * @param {number[]} ids - An array of numerical internal IDs representing the employees to be deleted.
-     * @returns {Promise<APIResponse>} The raw Playwright API response object.
+     * KEYWORD STEP VERIFY: Validates that the server returns a 404 Not Found error.
+     * Used when attempting to fetch, update, or delete an employee ID that does not exist.
+     * @param {APIResponse} response - The raw API response to evaluate.
      */
-    async deleteEmployees(ids: number[]): Promise<APIResponse> {
-        return await this.request.delete(this.endpoint, {
-            // Playwright will automatically stringify this object and set 'Content-Type': 'application/json'
-            data: {
-                ids: ids
-            },
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
+    async verifyErrorNotFound(response: APIResponse) {
+        expect(response.status()).toBe(404);
+
+        // Optional: Parse JSON to verify error message structure if OrangeHRM returns one
+        const body = await response.json().catch(() => null);
+        if (body) {
+            expect(body).toHaveProperty('error');
+        };
+    };
+
+    /**
+     * KEYWORD STEP VERIFY: Validates that the server rejects invalid payloads or missing required fields.
+     * Asserts that the server returns a client error status (e.g., 400 Bad Request or 422 Unprocessable Entity).
+     * @param {APIResponse} response - The raw API response to evaluate.
+     */
+    async verifyValidationError(response: APIResponse) {
+        // OrangeHRM may use 422 for validation errors, or 400. We accept both here.
+        const status = response.status();
+        expect([400, 422]).toContain(status);
+
+        const body = await response.json();
+
     }
 
     /**
@@ -159,5 +207,5 @@ export class PimAPI {
 
         // Ensure the backend confirms the operation (OrangeHRM typically returns the deleted IDs inside 'data')
         expect(body).toHaveProperty('data');
-    }
+    };
 }
