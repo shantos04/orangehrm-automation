@@ -325,6 +325,80 @@ test.describe("API Testing - PIM Employee Module", () => {
     });
 
     // ========================================================================
+    // --- SUB-MODULE: EMPLOYEE CREATION (POST) ---
+    // ========================================================================
+    test.describe("Employee Creation (POST)", () => {
+        test.beforeEach(async () => {
+            await allure.feature("Employee Creation");
+        });
+
+        /**
+         * Test Case: Verify that a new employee can be successfully created via API.
+         * Assertion: Validates that the server returns 200 OK and the response mirrors the submitted data.
+         */
+        test("OrangeHRM_PIM_CREATE_TC01_CreateEmployeeSuccessfully", async ({ pimAPI }) => {
+            await allure.story("Positive - Create New Employee");
+            await allure.severity("critical");
+
+            const payload = pimData.createAction.validPayload;
+
+            const response = await test.step("Action: Execute POST request to create a new employee", async () => {
+                return await pimAPI.createEmployee(payload);
+            });
+
+            await test.step("Verify: System returns 200 OK and successfully saves the employee data", async () => {
+                expect(response.status()).toBe(200);
+                const body = await response.json();
+
+                expect(body).toHaveProperty('data');
+
+                expect(body.data.firstName).toBe(payload.firstName);
+                expect(body.data.lastName).toBe(payload.lastName);
+
+                console.log(`Successfully created Employee with ID: ${body.data.empNumber}`);
+            });
+        });
+
+        /**
+         * Test Case: Verify system validation when creating an employee without mandatory fields.
+         * Assertion: Ensures backend validates payload and safely returns a 422/400 validation error.
+         */
+        test("OrangeHRM_PIM_CREATE_TC02_RejectCreateWithMissingFirstName", async ({ pimAPI }) => {
+            await allure.story("Negative - Validation Constraints on Creation");
+            await allure.severity("normal");
+
+            const invalidPayload = pimData.createAction.invalidMissingNamePayload;
+
+            const response = await test.step("Action: Execute POST request missing the mandatory firstName field", async () => {
+                return await pimAPI.createEmployee(invalidPayload);
+            });
+
+            await test.step("Verify: Backend catches validation error and responds with correct error status", async () => {
+                await pimAPI.verifyValidationError(response);
+            });
+        });
+
+        /**
+         * Test Case: Verify system resilience against duplicate Employee IDs.
+         * Assertion: Ensures backend safely handles database constraint violations.
+         */
+        test("OrangeHRM_PIM_CREATE_TC03_RejectDuplicateErrorId", async ({ pimAPI }) => {
+            await allure.story("Negative - Duplicate ID Constraints");
+            await allure.severity("minor");
+
+            const duplicatePayload = pimData.createAction.duplicateIdPayload;
+
+            const response = await test.step(`Execute POST request with an already existing Employee ID`, async () => {
+                return await pimAPI.createEmployee(duplicatePayload);
+            });
+
+            await test.step("Verify: Backend rejects the duplication to maintain database integrity", async () => {
+                await pimAPI.verifyValidationError(response);
+            });
+        });
+    });
+
+    // ========================================================================
     // --- SUB-MODULE: EMPLOYEE PERSONAL DETAILS MODIFICATION (PUT) ---
     // ========================================================================
     test.describe("Employee Personal Details Modification (PUT)", () => {
@@ -539,6 +613,98 @@ test.describe("API Testing - PIM Employee Module", () => {
 
                 expect([200, 400, 422, 404]).toContain(status);
             });
+        });
+    });
+
+    // ========================================================================
+    // --- SUB-MODULE: SECURITY & AUTHENTICATION (401 UNAUTHORIZED) ---
+    // ========================================================================
+    test.describe("Security & Authentication Testing", () => {
+        test.beforeEach(async () => {
+            await allure.feature("API Security Guardrails");
+        });
+
+        /**
+         * Test Case: Verify GET request is rejected when authorization token is missing or invalid.
+         */
+        test("OrangeHRM_PIM_SECURITY_TC01_RejectGetWithInvalidToken", async ({ request }) => {
+            await allure.story("Negative - Invalid Token GET");
+            await allure.severity("critical");
+
+            const response = await test.step("Action: Execute GET request with a fake Bearer token", async () => {
+                return await request.get('/web/index.php/api/v2/pim/employees', {
+                    headers: {
+                        'Authorization': 'Bearer INVALID_FAKE_TOKEN_12345',
+                        'Accept': 'application/json'
+                    }
+                });
+            });
+
+            await test.step("Verify: System blocks request and return 401 Unauthorized", async () => {
+                expect(response.status()).toBe(401);
+
+                const responseBody = await response.json();
+                expect(responseBody).toHaveProperty('error');
+                expect(responseBody.error.status).toBe(401);
+                expect(responseBody.error.message).toContain("Unexpected error occurred while evaluating the `Bearer` token");
+            });
+        });
+
+        /**
+         * Test Case: Verify PUT request is rejected with valid payload but invalid token.
+         */
+        test("OrangeHRM_PIM_SECURITY_TC02_RejectPutWithInvalidToken", async ({ request }) => {
+            await allure.story("Negative - Invalid Token PUT");
+            await allure.severity("critical");
+
+            const empNum = pimData.personalDetailsAction.targetEmployeeNumber;
+            const validPayload = pimData.personalDetailsAction.validUpdatePayload;
+
+            const response = await test.step("Action: Execute PUT request using correct payload but fake token", async () => {
+                return await request.put(`/web/index.php/api/v2/pim/employees/${empNum}/personal-details`, {
+                    headers: {
+                        'Authorization': 'Bearer INVALID_FAKE_TOKEN_12345',
+                        'Content-type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    data: validPayload
+                });
+            });
+
+            await test.step("Verify: System prioritizes security validation and returns 401 Unauthorized", async () => {
+                expect(response.status()).toBe(401);
+
+                const responseBody = await response.json();
+                expect(responseBody.error.status).toBe(401);
+            });
+        });
+
+        /**
+         * Test Case: Verify DELETE request is rejected without a valid authentication token.
+         */
+        test("OrangeHRM_PIM_SECURITY_TC03_RejectDeleteWithoutToken", async ({ request }) => {
+            await allure.story("Negative - Missing Token DELETE");
+            await allure.severity("critical");
+
+            const targetId = pimData.deleteAction.employeeInternalId;
+
+            const response = await test.step("Action: Execute DELETE request with completely Authorization header", async () => {
+                return await request.delete('/web/index.php/api/v2/pim/employees', {
+                    headers: {
+                        'Authorization': '',
+                        'Content-type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    data: { ids: targetId }
+                });
+            });
+
+            await test.step("Verify: System blocks the deletion and returns 401 Unauthorized", async () => {
+                expect(response.status()).toBe(401);
+
+                const responseBody = await response.json();
+                expect(responseBody.error.status).toBe(401);
+            })
         });
     });
 });

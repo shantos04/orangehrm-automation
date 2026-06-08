@@ -25,7 +25,7 @@
         "nonExistentInternalId": 999999
     },
     "personalDetailsAction": {
-        "targetEmployeeNumber": 502,
+        "targetEmployeeNumber": 86,
         "validUpdatePayload": {
             "lastName": "Sasuke",
             "firstName": "Uchiha",
@@ -48,5 +48,23 @@
             "employeeId": "0707"
         },
         "nonExistentEmployeeNumber": 999999
+    },
+    "createAction": {
+        "validPayload": {
+            "firstName": "Kakashi",
+            "middleName": "",
+            "lastName": "Hatake",
+            "employeeId": "0808"
+        },
+        "invalidMissingNamePayload": {
+            "firstName": "",
+            "lastName": "Hatake",
+            "employeeId": "0809"
+        },
+        "duplicateIdPayload": {
+            "firstName": "Uzumaki",
+            "lastName": "Naruto",
+            "employeeId": "0001"
+        }
     }
 }
