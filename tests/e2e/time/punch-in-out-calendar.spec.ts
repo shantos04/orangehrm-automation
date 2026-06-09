@@ -16,9 +16,17 @@ test.describe("Time Module - Shared Calendar Widget (Punch In/Out)", () => {
     // GLOBAL SETUP: Authentication and Navigation
     // ========================================================================
     test.beforeEach(async ({ page }) => {
-        // --- Allure Metadata ---
+        // --- Tab Packages ---
+        await allure.label("package", "OrangeHRM.UI.Time.Calendar");
+
+        // --- Tab Suites ---
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("UI E2E Testing");
+        await allure.subSuite("Time - Calendar Widget");
+
+        // --- Tab Behaviors ---
         await allure.epic("Time Module");
-        await allure.feature("Calendar Widget UI Component");
+        await allure.feature("Attendance Calendar");
     });
 
     // ========================================================================

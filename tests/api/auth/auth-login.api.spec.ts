@@ -7,7 +7,11 @@ test.describe('API Testing - OrangeHRM Real Authentication', () => {
 
     // Initialize the API helper with both request and page fixtures to enable hybrid testing
     test.beforeEach(async () => {
-        await allure.epic("API Login Testing");
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("API Testing");
+        await allure.subSuite("Authentication Module");
+
+        await allure.epic("API Testing");
         await allure.feature("Authentication Module");
     });
 

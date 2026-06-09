@@ -23,6 +23,10 @@ test.describe("PIM Module - Add Employee", () => {
      */
     test.beforeEach(async ({ page }) => {
         // --- Allure Metadata ---
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("UI E2E Testing");
+        await allure.subSuite("PIM Module");
+
         await allure.epic("PIM Module");
         await allure.feature("Add Employee Functionality");
     });

@@ -21,6 +21,10 @@ test.describe("Login Module - UI & Positive Flows @PositiveGroup", () => {
      */
     test.beforeEach(async () => {
         // --- Allure Metadata ---
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("UI E2E Testing");
+        await allure.subSuite("Authentication Module");
+
         await allure.epic("Authentication Module");
         await allure.feature("Login Functionality");
     });

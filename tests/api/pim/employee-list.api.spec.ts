@@ -14,6 +14,11 @@ import pimData from '../../../data/pim-data.json';
 test.describe("API Testing - PIM Employee Module", () => {
 
     test.beforeEach(async () => {
+        await allure.label("package", "OrangeHRM.API.Employee");
+
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("API Testing");
+
         await allure.epic("API Testing");
     });
 
@@ -23,6 +28,7 @@ test.describe("API Testing - PIM Employee Module", () => {
     test.describe("Employee List Search Filters (GET)", () => {
 
         test.beforeEach(async () => {
+            await allure.subSuite("PIM - Search (GET)");
             await allure.feature("Employee List Search");
         });
 
@@ -329,6 +335,7 @@ test.describe("API Testing - PIM Employee Module", () => {
     // ========================================================================
     test.describe("Employee Creation (POST)", () => {
         test.beforeEach(async () => {
+            await allure.subSuite("PIM - Creation (POST)");
             await allure.feature("Employee Creation");
         });
 
@@ -404,7 +411,8 @@ test.describe("API Testing - PIM Employee Module", () => {
     test.describe("Employee Personal Details Modification (PUT)", () => {
 
         test.beforeEach(async () => {
-            await allure.feature("Employee Personal Details Modification");
+            await allure.subSuite("PIM - Modification (PUT)");
+            await allure.feature("Employee Personal Details Modification")
         });
 
         /**
@@ -531,6 +539,7 @@ test.describe("API Testing - PIM Employee Module", () => {
     test.describe("Employee Record Removal (DELETE)", () => {
 
         test.beforeEach(async () => {
+            await allure.subSuite("PIM - Removal (DELETE)");
             await allure.feature("Employee Record Removal");
         });
 
@@ -621,6 +630,7 @@ test.describe("API Testing - PIM Employee Module", () => {
     // ========================================================================
     test.describe("Security & Authentication Testing", () => {
         test.beforeEach(async () => {
+            await allure.subSuite("PIM - Security (401)");
             await allure.feature("API Security Guardrails");
         });
 

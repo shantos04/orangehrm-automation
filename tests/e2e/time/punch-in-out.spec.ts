@@ -33,9 +33,15 @@ test.describe("Time Module - PunchIn/Out Page", () => {
      */
     test.beforeEach(async ({ page }) => {
 
-        // --- Allure Metadata ---
+        // Tab Packages
+        await allure.label("package", "OrangeHRM.UI.Time.PunchInOut");
+
+        // Tab Suites   
+        await allure.parentSuite("OrangeHRM Project");
+        await allure.suite("UI E2E Testing");
+
+        // Tab Behaviors
         await allure.epic("Time Module");
-        await allure.feature("Punch In/Out");
 
         // Increase timeout for stable execution across complex state setups
         test.setTimeout(60000);
@@ -69,6 +75,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * If the user is currently punched in (displaying "Punch Out"), the framework self-heals by punching out first.
          */
         test.beforeEach(async ({ page }) => {
+            await allure.subSuite("Time - Punch In Scenarios");
+            await allure.feature("Punch In Validation");
+
             // Wait for the main title to render and capture its current state
             await punchIOPage.mainTitle.waitFor({ state: 'visible' });
             const pageTitle = await punchIOPage.mainTitle.innerText();
@@ -155,6 +164,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * If the user is currently punched out (displaying "Punch In"), the framework self-heals by punching in first.
          */
         test.beforeEach(async () => {
+            await allure.subSuite("Time - Punch Out Scenarios");
+            await allure.feature("Punch Out Validation");
+
             await punchIOPage.mainTitle.waitFor({ state: 'visible' });
             const pageTitle = await punchIOPage.mainTitle.innerText();
 
