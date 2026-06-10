@@ -12,6 +12,9 @@ import { ToastComponent } from '../../app/components/common/toast.component';
 import { PimTopMenuComponent } from '../../app/components/pim/pim-top-menu.component';
 import usersData from '../../data/users.json';
 
+import * as allure from "allure-js-commons";
+import path from 'path';
+
 
 /**
  * Type definition for the custom fixtures available in the PIM test suite.
@@ -72,6 +75,15 @@ export const test = base.extend<PimFixtures>({
     toastComponent: async ({ page }, use) => {
         await use(new ToastComponent(page));
     }
+});
+
+test.beforeEach(async ({ }, testInfo) => {
+    const relativePath = path.relative(testInfo.project.testDir, testInfo.file);
+    const autoPackageName = relativePath
+        .replace(/\.spec\.ts$/, '')
+        .replace(/[\\/]/g, '.');
+
+    await allure.label("package", autoPackageName);
 });
 
 // Re-export expect so test files can import both 'test' and 'expect' from this single fixture file

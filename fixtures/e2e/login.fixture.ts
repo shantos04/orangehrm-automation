@@ -8,6 +8,8 @@ import { test as base } from '@playwright/test';
 import { LoginPage } from '../../app/pages/login.page';
 import { DashboardPage } from '../../app/pages/dashboard.page';
 
+import * as allure from "allure-js-commons";
+import path from 'path';
 
 /**
  * Type definition for the custom fixtures available in the Login test suite.
@@ -50,6 +52,15 @@ export const test = base.extend<LoginFixtures>({
     dashboardPage: async ({ page }, use) => {
         await use(new DashboardPage(page));
     }
+});
+
+test.beforeEach(async ({ }, testInfo) => {
+    const relativePath = path.relative(testInfo.project.testDir, testInfo.file);
+    const autoPackageName = relativePath
+        .replace(/\.spec\.ts$/, '')
+        .replace(/[\\/]/g, '.');
+
+    await allure.label("package", autoPackageName);
 });
 
 export { expect } from '@playwright/test';

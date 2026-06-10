@@ -14,10 +14,8 @@ import pimData from '../../../data/pim-data.json';
 test.describe("API Testing - PIM Employee Module", () => {
 
     test.beforeEach(async () => {
-        await allure.label("package", "OrangeHRM.API.Employee");
-
-        await allure.parentSuite("OrangeHRM Project");
-        await allure.suite("API Testing");
+        await allure.parentSuite("API Testing");
+        await allure.suite("PIM Module");
 
         await allure.epic("API Testing");
     });

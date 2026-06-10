@@ -1,11 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../../fixtures/e2e/time.fixture';
 import * as allure from "allure-js-commons";
-
-import { LoginPage } from '../../../app/pages/login.page';
-import { TimeTopMenuComponent } from '../../../app/components/time/time-top-menu.component';
-import { PunchInOutPage } from '../../../app/pages/time/punch-in-out.page';
-import { ToastComponent } from '../../../app/components/common/toast.component';
-import { CalendarComponent } from '../../../app/components/common/calendar.component';
 
 import usersData from '../../../data/users.json';
 import expectedTexts from '../../../data/expected-texts.json';
@@ -15,12 +9,7 @@ import timeData from '../../../data/time-data.json';
  * Test Suite: Time Module - Punch In/Out Page
  * Focuses on the end-to-end flow of employee attendance logging.
  */
-test.describe("Time Module - PunchIn/Out Page", () => {
-    let loginPage: LoginPage;
-    let timeTopMenu: TimeTopMenuComponent;
-    let punchIOPage: PunchInOutPage;
-    let toastComponent: ToastComponent;
-    let calendarComponent: CalendarComponent;
+test.describe("UI E2E Testing - Time Module: Punch In/Out", () => {
 
     // ========================================================================
     // GLOBAL SETUP: Authentication and Navigation
@@ -28,28 +17,21 @@ test.describe("Time Module - PunchIn/Out Page", () => {
 
     /**
      * Global Setup Hook
-     * Initializes Page Objects, sets up Allure metadata, authenticates the user,
+     * Sets up Allure metadata, authenticates the user,
      * and navigates to the target Time module before each test execution.
+     * Note: Page Objects are now injected directly via the Time fixture.
      */
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, loginPage, timeTopMenu }) => {
 
-        // Tab Packages
-        await allure.label("package", "OrangeHRM.UI.Time.PunchInOut");
+        // --- CẤU HÌNH TOÀN CỤC (GLOBAL SETUP) ---
+        // LƯU Ý: Nhãn 'package' tự động đã được cấu hình trong time.fixture.ts
+        await allure.parentSuite("UI E2E Testing");
+        await allure.suite("Time Module");
 
-        // Tab Suites   
-        await allure.parentSuite("OrangeHRM Project");
-        await allure.suite("UI E2E Testing");
-
-        // Tab Behaviors
         await allure.epic("Time Module");
 
         // Increase timeout for stable execution across complex state setups
         test.setTimeout(60000);
-
-        loginPage = new LoginPage(page);
-        timeTopMenu = new TimeTopMenuComponent(page);
-        punchIOPage = new PunchInOutPage(page);
-        toastComponent = new ToastComponent(page);
 
         // Pre-condition: Login to the application
         await page.goto('/web/index.php/auth/login');
@@ -74,8 +56,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * State Reset Setup: Ensures the system is strictly in the "Punch In" state.
          * If the user is currently punched in (displaying "Punch Out"), the framework self-heals by punching out first.
          */
-        test.beforeEach(async ({ page }) => {
-            await allure.subSuite("Time - Punch In Scenarios");
+        test.beforeEach(async ({ punchIOPage }) => {
+            // Cấp 3: Nhóm Punch In
+            await allure.subSuite("Punch In Scenarios");
             await allure.feature("Punch In Validation");
 
             // Wait for the main title to render and capture its current state
@@ -101,7 +84,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify validation errors when mandatory Punch In fields are empty.
          * Assertion: UI Form Validation (Required fields).
          */
-        test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async () => {
+        test("OrangeHRM_TIME_TC01_VerifyPunchInMandatoryFields", async ({ punchIOPage }) => {
             await allure.story("Negative - Punch In Empty Fields Validation");
             await allure.severity("normal");
 
@@ -123,7 +106,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify successful Punch In submission with valid data.
          * Assertion: Business Logic, Toast Notification, and State Transition.
          */
-        test("OrangeHRM_TIME_TC02_VerifySuccessfulPunchIn", async () => {
+        test("OrangeHRM_TIME_TC02_VerifySuccessfulPunchIn", async ({ punchIOPage, toastComponent }) => {
             await allure.story("Positive - Valid Punch In Flow");
             await allure.severity("critical");
 
@@ -163,8 +146,9 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * State Reset Setup: Ensures the system is strictly in the "Punch Out" state.
          * If the user is currently punched out (displaying "Punch In"), the framework self-heals by punching in first.
          */
-        test.beforeEach(async () => {
-            await allure.subSuite("Time - Punch Out Scenarios");
+        test.beforeEach(async ({ punchIOPage }) => {
+            // Cấp 3: Nhóm Punch Out
+            await allure.subSuite("Punch Out Scenarios");
             await allure.feature("Punch Out Validation");
 
             await punchIOPage.mainTitle.waitFor({ state: 'visible' });
@@ -184,7 +168,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify validation errors when mandatory Punch Out fields are empty.
          * Assertion: UI Form Validation (Required fields).
          */
-        test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async () => {
+        test("OrangeHRM_TIME_TC03_VerifyPunchOutMandatoryFields", async ({ punchIOPage }) => {
             await allure.story("Negative - Punch Out Empty Fields Validation");
             await allure.severity("normal");
 
@@ -206,7 +190,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify system behavior when an incorrectly formatted date string is submitted.
          * Assertion: Form Validation (Format compliance).
          */
-        test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async () => {
+        test("OrangeHRM_TIME_TC04_VerifyInvalidDayFormat", async ({ punchIOPage }) => {
             await allure.story("Negative - Invalid Date Format Processing");
             await allure.severity("normal");
 
@@ -228,7 +212,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify system auto-correction logic when an incorrectly formatted time is provided.
          * Assertion: Data sanitization and Form Validation.
          */
-        test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async () => {
+        test("OrangeHRM_TIME_TC05_VerifyAutoCorrectionOnInvalidTime", async ({ punchIOPage }) => {
             await allure.story("Negative - Invalid Time Format Auto-Correction");
             await allure.severity("normal");
 
@@ -252,7 +236,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify business logic preventing a Punch Out time that occurs BEFORE the Punch In time.
          * Assertion: Business Logic Constraint (Timeline consistency).
          */
-        test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async () => {
+        test("OrangeHRM_TIME_TC06_VerifyPunchOutTimeLessThanPunchInTime", async ({ punchIOPage }) => {
             await allure.story("Business Logic - Time Validation Against Punch In");
             await allure.severity("critical");
 
@@ -274,7 +258,7 @@ test.describe("Time Module - PunchIn/Out Page", () => {
          * Test Case: Verify business logic preventing a Punch Out date that occurs BEFORE the Punch In date.
          * Assertion: Business Logic Constraint (Timeline consistency).
          */
-        test("OrangeHRM_TIME_TC07_VerifyPunchOutDateLessThanPunchInDate", async () => {
+        test("OrangeHRM_TIME_TC07_VerifyPunchOutDateLessThanPunchInDate", async ({ punchIOPage }) => {
             await allure.story("Business Logic - Date Validation Against Punch In");
             await allure.severity("critical");
 

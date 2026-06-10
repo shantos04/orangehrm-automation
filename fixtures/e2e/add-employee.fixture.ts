@@ -9,6 +9,9 @@ import { AddEmployeePage } from '../../app/pages/pim/add-employee.page';
 import { ToastComponent } from '../../app/components/common/toast.component';
 import usersData from '../../data/users.json';
 
+import * as allure from "allure-js-commons";
+import path from 'path';
+
 // Declare the objects that will be injected into the tests
 type AddEmployeeFixtures = {
     addEmployeePage: AddEmployeePage;
@@ -41,6 +44,15 @@ export const test = base.extend<AddEmployeeFixtures>({
     toastComponent: async ({ page }, use) => {
         await use(new ToastComponent(page));
     }
-})
+});
+
+test.beforeEach(async ({ }, testInfo) => {
+    const relativePath = path.relative(testInfo.project.testDir, testInfo.file);
+    const autoPackageName = relativePath
+        .replace(/\.spec\.ts$/, '')
+        .replace(/[\\/]/g, '.');
+
+    await allure.label("package", autoPackageName);
+});
 
 export { expect } from '@playwright/test';

@@ -8,6 +8,9 @@ import { PimAPI } from '../../app/api-helpers/pim.api';
 import { AuthAPI } from '../../app/api-helpers/auth.api'; // Nhớ check lại tên file gốc
 import authData from '../../data/auth-data.json';
 
+import * as allure from "allure-js-commons";
+import path from 'path';
+
 type PimFixtures = {
     pimAPI: PimAPI;
 };
@@ -35,6 +38,15 @@ export const test = base.extend<PimFixtures>({
         // Expose the authenticated API helper to the test specifications
         await use(pimAPI);
     },
+});
+
+test.beforeEach(async ({ }, testInfo) => {
+    const relativePath = path.relative(testInfo.project.testDir, testInfo.file);
+    const autoPackageName = relativePath
+        .replace(/\.spec\.ts$/, '')
+        .replace(/[\\/]/g, '.');
+
+    await allure.label("package", autoPackageName);
 });
 
 export { expect } from '@playwright/test';
