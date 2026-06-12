@@ -7,7 +7,7 @@ This project goes beyond basic automation by implementing a highly scalable hybr
 ## Key Features
 
 1. **Hybrid Architecture (POM & AOM):** Encapsulates UI interactions using the Page Object Model (POM) and bypasses UI for backend validations using the API Object Model (AOM). Covers everything from basic CRUD operations to advanced security guardrails (SQLi, XSS, CSRF).
-2. **Enterprise Allure Reporting:** Implements a strict 3-tier hierarchy (`parentSuite`, `suite`, `subSuite`) for the Suites tab. Features an innovative **Auto-Mapping Fixture** that dynamically reads physical folder paths to generate a 100% accurate `Packages` tab without hardcoding.
+2. **Enterprise Allure Reporting:** Implements a strict and organized 3-tier hierarchy (`parentSuite`, `suite`, `subSuite`) for the Suites tab, ensuring a clean, enterprise-grade test execution report that is easy for stakeholders to navigate and analyze.
 3. **Data-Driven & State Resilience:** Utilizes external JSON files for test data. Ensures reliable execution through robust handling of asynchronous UI components like transient Toast messages, dynamic Calendar widgets, and complex pre-condition setups.
 
 ---
